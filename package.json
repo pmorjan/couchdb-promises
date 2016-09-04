@@ -1,0 +1,24 @@
+{
+  "name": "couchdb-promises",
+  "version": "0.1.0",
+  "description": "access Couchdb via ES6 promises",
+  "main": "index.js",
+  "author": "Peter Morjan <pmorjan@gmail.com>",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pmorjan/couchdb-promises.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "validator": "^5.6.0"
+  },
+  "devDependencies": {
+    "tape": "^4.6.0"
+  }
+}
