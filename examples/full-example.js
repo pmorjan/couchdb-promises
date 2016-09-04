@@ -1,5 +1,5 @@
 'use strict'
-const db = require('../index')
+const db = require('couchdb-promises')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
@@ -31,4 +31,6 @@ db.createDatabase(baseUrl, dbName)
 //   status: 200,
 //   message: 'OK - Database removed successfully' }
 //
+
+.catch(console.error)
 

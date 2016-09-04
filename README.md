@@ -1,15 +1,17 @@
+
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![Build Status](https://travis-ci.org/pmorjan/couchdb-promises.svg?branch=master)](https://travis-ci.org/pmorjan/couchdb-promises)
 
-# couchdb-promise
-Yet another very small Couchdb module that uses ES6 promises.
+# couchdb-promises
 
-# install
+### Yet another very small Couchdb module that uses ES6 promises.
+
+### Installation
 ```
-npm install git+https://github.com/pmorjan/couchdb-promises.git
+npm install couchdb-promises
 ```
 
-# example
+### Example
 ```javascript
 'use strict'
 const db = require('couchdb-promises')
