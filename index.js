@@ -10,7 +10,13 @@ const debug = require('debug')('db')
 //
 const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
-function request ({url, method = 'GET', ok = {}, notOk = {}, doc}) {
+function request (param) {
+  const url = param.url
+  const method = param.method || 'GET'
+  const statusOk = param.statusOk || {}
+  const statusNotOk = param.statusNotOk || {}
+  const doc = param.doc || {}
+
   debug('%s %s', method, url)
 
   const validatorOptions = {protocols: ['http', 'https'], require_tld: false, require_protocol: true}
@@ -49,7 +55,7 @@ function request ({url, method = 'GET', ok = {}, notOk = {}, doc}) {
           ret = {
             data: data,
             status: res.statusCode,
-            message: (ok[res.statusCode] || notOk[res.statusCode] || 'unknown status')
+            message: (statusOk[res.statusCode] || statusNotOk[res.statusCode] || 'unknown status')
           }
         } catch (err) {
           ret = {
@@ -59,7 +65,7 @@ function request ({url, method = 'GET', ok = {}, notOk = {}, doc}) {
           }
         }
 
-        if (!ok[ret.status]) {
+        if (!statusOk[ret.status]) {
           reject(ret)
         } else {
           resolve(ret)
@@ -98,7 +104,7 @@ function listDatabases (baseUrl) {
   return request({
     url: baseUrl + '/_all_dbs',
     method: 'GET',
-    ok: {
+    statusOk: {
       200: 'OK - Request completed successfully'
     }
   })
@@ -114,10 +120,10 @@ function createDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${dbName}`,
     method: 'PUT',
-    ok: {
+    statusOk: {
       201: 'Created - Database created successfully'
     },
-    notOk: {
+    statusNotOk: {
       400: 'Bad Request - Invalid database name',
       401: 'Unauthorized - CouchDB Server Administrator privileges required',
       412: 'Precondition Failed - Database already exists'
@@ -135,10 +141,10 @@ function deleteDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${dbName}`,
     method: 'DELETE',
-    ok: {
+    statusOk: {
       200: 'OK - Database removed successfully'
     },
-    notOk: {
+    statusNotOk: {
       400: 'Bad Request - Invalid database name or forgotten document id by accident',
       401: 'Unauthorized - CouchDB Server Administrator privileges required',
       404: 'Not Found - Database doesn’t exist'
@@ -157,7 +163,7 @@ function deleteDatabase (baseUrl, dbName) {
 function getDocument (baseUrl, dbName, docId, query) {
   const obj = Object.assign({}, query)
   for (let key in obj) {
-    if (QUERY_KEYS_JSON.includes(key)) {
+    if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
       obj[key] = JSON.stringify(obj[key])
     }
   }
@@ -166,11 +172,11 @@ function getDocument (baseUrl, dbName, docId, query) {
   return request({
     url: `${baseUrl}/${dbName}/${docId}${queryStr}`,
     method: 'GET',
-    ok: {
+    statusOk: {
       200: 'OK - Request completed successfully',
       304: 'Not Modified - Document wasn’t modified since specified revision'
     },
-    notOk: {
+    statusNotOk: {
       400: 'Bad Request - The format of the request or revision was invalid',
       401: 'Unauthorized - Read privilege required',
       404: 'Not Found - Document not found'
@@ -191,11 +197,11 @@ function createDocument (baseUrl, dbName, docId, doc) {
     url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
     method: 'PUT',
     doc: doc,
-    ok: {
+    statusOk: {
       201: 'Created – Document created and stored on disk',
       202: 'Accepted – Document data accepted, but not yet stored on disk'
     },
-    notOk: {
+    statusNotOk: {
       400: 'Bad Request – Invalid request body or parameters',
       401: 'Unauthorized – Write privileges required',
       404: 'Not Found – Specified database or document ID doesn’t exists',
@@ -216,11 +222,11 @@ function deleteDocument (baseUrl, dbName, docId, rev) {
   return request({
     url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
-    ok: {
+    statusOk: {
       200: 'OK - Document successfully removed',
       202: 'Accepted - Request was accepted, but changes are not yet stored on disk'
     },
-    notOk: {
+    statusNotOk: {
       400: 'Bad Request - Invalid request body or parameters',
       401: 'Unauthorized - Write privilege required',
       404: 'Not Found - Specified database or document ID doesn\'t exist',
