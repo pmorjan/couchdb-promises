@@ -4,7 +4,7 @@
 
 # couchdb-promises
 
-### Yet another very small Couchdb module that uses ES6 promises.
+### Yet another Node module for CouchDB that uses ES6 promises but without dependencies.
 
 ### Installation
 ```
@@ -27,7 +27,7 @@ db.createDatabase(baseUrl, dbName)
 
 .then(() => db.listDatabases(baseUrl))
 .then(console.log)
-// { data: [ '_replicator', '_users', 'foobar' ],
+// { data: [ '_replicator', '_users', 'testdb' ],
 //   status: 200,
 //   message: 'OK - Request completed successfully' }
 

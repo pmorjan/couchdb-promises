@@ -1,5 +1,5 @@
 'use strict'
-const db = require('couchdb-promises')
+const db = require('../index')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
@@ -12,7 +12,7 @@ db.createDatabase(baseUrl, dbName)
 
 .then(() => db.listDatabases(baseUrl))
 .then(console.log)
-// { data: [ '_replicator', '_users', 'foobar' ],
+// { data: [ '_replicator', '_users', 'testdb' ],
 //   status: 200,
 //   message: 'OK - Request completed successfully' }
 

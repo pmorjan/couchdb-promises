@@ -5,10 +5,26 @@ const https = require('https')
 const querystring = require('querystring')
 const urlParse = require('url').parse
 //
-const validator = require('validator')
-const debug = require('debug')('db')
-//
 const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
+
+function isValidBaseUrl (url) {
+  const o = urlParse(url)
+  if (
+    ['http:', 'https:'].indexOf(o.protocol) === -1 ||
+    o.slashes === false ||
+    Number.isNaN(Number(o.port)) ||
+    !o.hostname || o.query || o.search
+  ) return false
+  return true
+}
+
+function promiseInvalidUrl () {
+  return Promise.reject({
+    data: 'invalid url',
+    status: 400,
+    message: 'bad request'
+  })
+}
 
 function request (param) {
   const url = param.url
@@ -16,17 +32,6 @@ function request (param) {
   const statusOk = param.statusOk || {}
   const statusNotOk = param.statusNotOk || {}
   const doc = param.doc || {}
-
-  debug('%s %s', method, url)
-
-  const validatorOptions = {protocols: ['http', 'https'], require_tld: false, require_protocol: true}
-  if (!validator.isURL(url, validatorOptions)) {
-    return Promise.reject({
-      data: 'invalid url',
-      status: 400,
-      message: 'bad request'
-    })
-  }
 
   const o = urlParse(url)
   const httpOptions = {
@@ -36,13 +41,12 @@ function request (param) {
     auth: o.auth,
     protocol: o.protocol,
     method: method,
-    headers: {'user-agent': 'couchdb-promise'}
+    headers: {'user-agent': 'couchdb-promises'}
   }
 
   return new Promise(function (resolve, reject) {
     const lib = httpOptions.protocol === 'https:' ? https : http
     const req = lib.request(httpOptions, function (res) {
-      debug(`    ${res.statusCode} ${method + ' '.repeat(6 - method.length)} ${url}`)
       let body = ''
       res.setEncoding('utf8')
       res.on('data', function (data) {
@@ -101,6 +105,9 @@ function request (param) {
  * @return {Promise}
  */
 function listDatabases (baseUrl) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
   return request({
     url: baseUrl + '/_all_dbs',
     method: 'GET',
@@ -117,6 +124,9 @@ function listDatabases (baseUrl) {
  * @return {Promise}
  */
 function createDatabase (baseUrl, dbName) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
   return request({
     url: `${baseUrl}/${dbName}`,
     method: 'PUT',
@@ -138,6 +148,9 @@ function createDatabase (baseUrl, dbName) {
  * @return {Promise}
  */
 function deleteDatabase (baseUrl, dbName) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
   return request({
     url: `${baseUrl}/${dbName}`,
     method: 'DELETE',
@@ -161,6 +174,9 @@ function deleteDatabase (baseUrl, dbName) {
  * @return {Promise}
  */
 function getDocument (baseUrl, dbName, docId, query) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
   const obj = Object.assign({}, query)
   for (let key in obj) {
     if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
@@ -193,6 +209,9 @@ function getDocument (baseUrl, dbName, docId, query) {
  * @return {Promise}
  */
 function createDocument (baseUrl, dbName, docId, doc) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
   return request({
     url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
     method: 'PUT',
@@ -219,6 +238,9 @@ function createDocument (baseUrl, dbName, docId, doc) {
  * @return {Promise}
  */
 function deleteDocument (baseUrl, dbName, docId, rev) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
   return request({
     url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',

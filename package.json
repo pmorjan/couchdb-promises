@@ -1,6 +1,6 @@
 {
   "name": "couchdb-promises",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ES6 promises-based CouchDB client",
   "main": "index.js",
   "author": "Peter Morjan <pmorjan@gmail.com>",
@@ -15,12 +15,8 @@
     "couchdb",
     "promises"
   ],
-  "author": "",
   "license": "MIT",
-  "dependencies": {
-    "debug": "^2.2.0",
-    "validator": "^5.6.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "tape": "^4.6.0"
   },
