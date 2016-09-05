@@ -25,12 +25,51 @@ db.createDatabase(baseUrl, dbName)
 //  status: 201,
 //  message: 'Created – Document created and stored on disk' }
 
+.then(() => db.getDocument(baseUrl, dbName, 'doc1'))
+.then((result) => { console.log(result); return result.data })
+// { data:
+//   { _id: 'doc1',
+//     _rev: '1-4c6114c65e295552ab1019e2b046b10e',
+//     foo: 'bar' },
+//  status: 200,
+//  message: 'OK - Request completed successfully' }
+
+.then((doc) => {
+  doc.baz = 42
+  return db.createDocument(baseUrl, dbName, 'doc1', doc)
+})
+.then(console.log)
+// { data:
+//    { ok: true,
+//      id: 'doc1',
+//      rev: '2-4e33118ad1c90b2745f3288f63a2936d' },
+//   status: 201,
+//   message: 'Created – Document created and stored on disk' }
+
+.then(() => db.getDocument(baseUrl, dbName, 'doc1'))
+.then(console.log)
+// { data:
+//    { _id: 'doc1',
+//      _rev: '2-4e33118ad1c90b2745f3288f63a2936d',
+//      foo: 'bar',
+//      baz: 42 },
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
+
+.then(() => db.deleteDocument(baseUrl, dbName, 'doc1', '2-4e33118ad1c90b2745f3288f63a2936d'))
+.then(console.log)
+// { data:
+//   { ok: true,
+//     id: 'doc1',
+//     rev: '3-f77441443d2a520735cbfce7c450428d' },
+//  status: 200,
+//  message: 'OK - Document successfully removed' }
+
 .then(() => db.deleteDatabase(baseUrl, dbName))
 .then(console.log)
 // { data: { ok: true },
 //   status: 200,
 //   message: 'OK - Database removed successfully' }
-//
 
 .catch(console.error)
 
