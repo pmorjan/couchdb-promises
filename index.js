@@ -1,4 +1,4 @@
-// http://docs.couchdb.org/en/1.6.1/api/index.html
+// http://docs.couchdb.org/en/stable/api/index.html
 'use strict'
 const http = require('http')
 const https = require('https')
@@ -94,14 +94,14 @@ function request (param) {
 
 /**
  * All promisses are settled  with an object with the folloing properties
- *  data:  response from the database server
- *  status: {Number} status http status code
- *  message: {String} message http message
+ *  data:  {Object|String} - response from the database server
+ *  status: {Number} - http status code
+ *  message: {String} - http message
  */
 
 /**
- * Get the list of all databases. Returns a promise which is
- *  data: {Array} list of databases
+ * Get the list of all databases.
+ * @param  {String} baseUrl
  * @return {Promise}
  */
 function listDatabases (baseUrl) {
@@ -119,7 +119,7 @@ function listDatabases (baseUrl) {
 
 /**
  * Create database
- * @param  {String} baseUrl base server url
+ * @param  {String} baseUrl
  * @param  {String} dbName
  * @return {Promise}
  */
@@ -170,7 +170,7 @@ function deleteDatabase (baseUrl, dbName) {
  * @param  {String} baseUrl
  * @param  {String} dbName
  * @param  {String} docId
- * @param  {Object} query
+ * @param  {Object} [query]
  * @return {Promise}
  */
 function getDocument (baseUrl, dbName, docId, query) {
@@ -257,11 +257,34 @@ function deleteDocument (baseUrl, dbName, docId, rev) {
   })
 }
 
+/**
+ * Get one or more UUIDs
+ * @param  {String} baseUrl
+ * @param  {Number} [count = 1]
+ * @return {Promise}
+ */
+function getUuids (baseUrl, count) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
+  return request({
+    url: `${baseUrl}/_uuids?count=${count || 1}`,
+    method: 'GET',
+    statusOk: {
+      200: 'OK - Request completed successfully'
+    },
+    statusNotOk: {
+      403: 'Forbidden – Requested more UUIDs than is allowed to retrieve'
+    }
+  })
+}
+
 module.exports = {
   createDatabase,
   createDocument,
-  deleteDocument,
   deleteDatabase,
+  deleteDocument,
   getDocument,
+  getUuids,
   listDatabases
 }

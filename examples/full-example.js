@@ -71,5 +71,14 @@ db.createDatabase(baseUrl, dbName)
 //   status: 200,
 //   message: 'OK - Database removed successfully' }
 
-.catch(console.error)
+.then(() => db.getUuids(baseUrl, 3))
+.then(console.log)
+// { data:
+//    { uuids:
+//       [ '18b5971b5a7b606613fefb10ba100d10',
+//         '18b5971b5a7b606613fefb10ba10118c',
+//         '18b5971b5a7b606613fefb10ba101524' ] }
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
 
+.catch(console.error)

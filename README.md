@@ -113,10 +113,20 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Database removed successfully' }
 ```
 
+#### get uuids
+```javascript
+.then(() => db.getUuids(baseUrl, 3))
+.then(console.log)
+// { data:
+//    { uuids:
+//       [ '18b5971b5a7b606613fefb10ba100d10',
+//         '18b5971b5a7b606613fefb10ba10118c',
+//         '18b5971b5a7b606613fefb10ba101524' ] }
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
+```
+
 ```javascript
 .catch(console.error)
 
 ```
-
-
-
