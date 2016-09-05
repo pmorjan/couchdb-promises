@@ -4,3 +4,10 @@ node_js:
  - "6"
 services:
  - couchdb
+install:
+ - npm install -g standard
+ - npm install
+script:
+ - standard -v
+ - npm test
+ - node examples/full-example.js
