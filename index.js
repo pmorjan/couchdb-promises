@@ -75,7 +75,7 @@ function request (param) {
           }
         }
 
-        if (!statusOk[ret.status]) {
+        if (ret.status >= 400) {
           reject(ret)
         } else {
           resolve(ret)
@@ -87,7 +87,7 @@ function request (param) {
       reject({
         data: err,
         status: 500,
-        message: 'general server error'
+        message: 'server error'
       })
     })
 
@@ -104,6 +104,24 @@ function request (param) {
  *  status: {Number} - http status code
  *  message: {String} - http message
  */
+
+/**
+ * Get server info
+ * @param  {String} baseUrl
+ * @return {Promise}
+ */
+function getInfo (baseUrl) {
+  if (!isValidBaseUrl(baseUrl)) {
+    return promiseInvalidUrl()
+  }
+  return request({
+    url: baseUrl + '/',
+    method: 'GET',
+    statusOk: {
+      200: 'OK - Request completed successfully'
+    }
+  })
+}
 
 /**
  * Get the list of all databases.
@@ -312,5 +330,6 @@ module.exports = {
   deleteDocument,
   getDocument,
   getUuids,
+  getInfo,
   listDatabases
 }

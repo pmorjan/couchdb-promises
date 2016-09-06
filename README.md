@@ -17,13 +17,29 @@ npm install couchdb-promises
 
 ### Example
 [full-example.js](examples/full-example.js)
-#### create database
+
 ```javascript
 const db = require('couchdb-promises')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
+```
 
+#### get info
+```javascript
+db.getInfo(baseUrl)
+.then(console.log)
+// { data:
+//    { couchdb: 'Welcome',
+//      uuid: 'bce82829daa02c49fe5b57c542ea95a3',
+//      version: '1.6.1',
+//      vendor: { name: 'The Apache Software Foundation', version: '1.6.1' } },
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
+```
+
+#### create database
+```javascript
 db.createDatabase(baseUrl, dbName)
 .then(console.log)
 // { data: { ok: true },
