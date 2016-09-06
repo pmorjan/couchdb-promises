@@ -19,7 +19,7 @@ npm install couchdb-promises
 [full-example.js](examples/full-example.js)
 #### create database
 ```javascript
-const db = require('../index')
+const db = require('couchdb-promises')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
