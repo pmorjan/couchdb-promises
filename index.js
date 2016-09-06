@@ -31,7 +31,7 @@ function request (param) {
   const method = param.method || 'GET'
   const statusOk = param.statusOk || {}
   const statusNotOk = param.statusNotOk || {}
-  const doc = param.doc || {}
+  const docJSON = param.doc ? JSON.stringify(param.doc) : ''
 
   const o = urlParse(url)
   const httpOptions = {
@@ -41,7 +41,13 @@ function request (param) {
     auth: o.auth,
     protocol: o.protocol,
     method: method,
-    headers: {'user-agent': 'couchdb-promises'}
+    headers: {
+      'User-Agent': 'couchdb-promises',
+      'Content-Type': 'application/json'
+    }
+  }
+  if (['PUT', 'POST'].indexOf(method) > -1) {
+    httpOptions['Content-Length'] = Buffer.byteLength(docJSON)
   }
 
   return new Promise(function (resolve, reject) {
@@ -85,8 +91,8 @@ function request (param) {
       })
     })
 
-    if (doc) {
-      req.write(JSON.stringify(doc))
+    if (docJSON) {
+      req.write(docJSON)
     }
     req.end()
   })
@@ -201,32 +207,52 @@ function getDocument (baseUrl, dbName, docId, query) {
 }
 
 /**
- * Create a new named document or new revision of an existing document
+ * Create a new document or new revision of an existing document
  * @param  {String} baseUrl
  * @param  {String} dbName
- * @param  {String} docId
  * @param  {Object} doc
+ * @param  {String} [docId]
  * @return {Promise}
  */
-function createDocument (baseUrl, dbName, docId, doc) {
+function createDocument (baseUrl, dbName, doc, docId) {
   if (!isValidBaseUrl(baseUrl)) {
     return promiseInvalidUrl()
   }
-  return request({
-    url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
-    method: 'PUT',
-    doc: doc,
-    statusOk: {
-      201: 'Created – Document created and stored on disk',
-      202: 'Accepted – Document data accepted, but not yet stored on disk'
-    },
-    statusNotOk: {
-      400: 'Bad Request – Invalid request body or parameters',
-      401: 'Unauthorized – Write privileges required',
-      404: 'Not Found – Specified database or document ID doesn’t exists',
-      409: 'Conflict – Document with the specified ID already exists or specified revision is not latest for target document'
-    }
-  })
+  if (docId) {
+    // create document by id (PUT)
+    return request({
+      url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
+      method: 'PUT',
+      doc: doc,
+      statusOk: {
+        201: 'Created – Document created and stored on disk',
+        202: 'Accepted – Document data accepted, but not yet stored on disk'
+      },
+      statusNotOk: {
+        400: 'Bad Request – Invalid request body or parameters',
+        401: 'Unauthorized – Write privileges required',
+        404: 'Not Found – Specified database or document ID doesn’t exists',
+        409: 'Conflict – Document with the specified ID already exists or specified revision is not latest for target document'
+      }
+    })
+  } else {
+    // create document without explicit id (POST)
+    return request({
+      url: `${baseUrl}/${dbName}`,
+      method: 'POST',
+      doc: doc,
+      statusOk: {
+        201: 'Created – Document created and stored on disk',
+        202: 'Accepted – Document data accepted, but not yet stored on disk'
+      },
+      statusNotOk: {
+        400: 'Bad Request – Invalid database name',
+        401: 'Unauthorized – Write privileges required',
+        404: 'Not Found – Database doesn’t exists',
+        409: 'Conflict – A Conflicting Document with same ID already exists'
+      }
+    })
+  }
 }
 
 /**
