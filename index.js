@@ -18,26 +18,37 @@ function isValidBaseUrl (url) {
   return true
 }
 
-function promiseInvalidUrl () {
-  return Promise.reject({
-    data: 'invalid url',
-    status: 400,
-    message: 'bad request'
-  })
+function createQueryString (queryObj) {
+  const obj = Object.assign({}, queryObj)
+  for (let key in obj) {
+    if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
+      obj[key] = JSON.stringify(obj[key])
+    }
+  }
+  return Object.keys(obj).length ? '?' + querystring.stringify(obj) : ''
 }
 
 function request (param) {
-  const url = param.url
   const method = param.method || 'GET'
+  const baseUrl = param.baseUrl
+  const path = param.path
   const statusOk = param.statusOk || {}
   const statusNotOk = param.statusNotOk || {}
-  const docJSON = param.doc ? JSON.stringify(param.doc) : ''
+  const body = param.body || ''
 
-  const o = urlParse(url)
+  if (!isValidBaseUrl(baseUrl)) {
+    return Promise.reject({
+      data: 'invalid url',
+      status: 400,
+      message: 'bad request'
+    })
+  }
+
+  const o = urlParse(baseUrl)
   const httpOptions = {
     hostname: o.host && o.host.split(':')[0],
     port: o.port || 443,
-    path: o.path,
+    path: path,
     auth: o.auth,
     protocol: o.protocol,
     method: method,
@@ -47,21 +58,21 @@ function request (param) {
     }
   }
   if (['PUT', 'POST'].indexOf(method) > -1) {
-    httpOptions['Content-Length'] = Buffer.byteLength(docJSON)
+    httpOptions['Content-Length'] = Buffer.byteLength(body)
   }
 
   return new Promise(function (resolve, reject) {
     const lib = httpOptions.protocol === 'https:' ? https : http
     const req = lib.request(httpOptions, function (res) {
-      let body = ''
+      let buffer = ''
       res.setEncoding('utf8')
       res.on('data', function (data) {
-        body += data
+        buffer += data
       })
       res.on('end', function () {
         let ret
         try {
-          var data = JSON.parse(body)
+          var data = JSON.parse(buffer)
           ret = {
             data: data,
             status: res.statusCode,
@@ -91,8 +102,8 @@ function request (param) {
       })
     })
 
-    if (docJSON) {
-      req.write(docJSON)
+    if (body) {
+      req.write(body)
     }
     req.end()
   })
@@ -111,11 +122,9 @@ function request (param) {
  * @return {Promise}
  */
 function getInfo (baseUrl) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
   return request({
-    url: baseUrl + '/',
+    baseUrl: baseUrl,
+    path: '/',
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
@@ -129,11 +138,9 @@ function getInfo (baseUrl) {
  * @return {Promise}
  */
 function listDatabases (baseUrl) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
   return request({
-    url: baseUrl + '/_all_dbs',
+    baseUrl: baseUrl,
+    path: '/_all_dbs',
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
@@ -148,11 +155,9 @@ function listDatabases (baseUrl) {
  * @return {Promise}
  */
 function createDatabase (baseUrl, dbName) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
   return request({
-    url: `${baseUrl}/${dbName}`,
+    baseUrl: baseUrl,
+    path: '/' + dbName,
     method: 'PUT',
     statusOk: {
       201: 'Created - Database created successfully'
@@ -172,11 +177,9 @@ function createDatabase (baseUrl, dbName) {
  * @return {Promise}
  */
 function deleteDatabase (baseUrl, dbName) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
   return request({
-    url: `${baseUrl}/${dbName}`,
+    baseUrl: baseUrl,
+    path: '/' + dbName,
     method: 'DELETE',
     statusOk: {
       200: 'OK - Database removed successfully'
@@ -197,20 +200,11 @@ function deleteDatabase (baseUrl, dbName) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getDocument (baseUrl, dbName, docId, query) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
-  const obj = Object.assign({}, query)
-  for (let key in obj) {
-    if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
-      obj[key] = JSON.stringify(obj[key])
-    }
-  }
-  const queryStr = Object.keys(obj).length ? '?' + querystring.stringify(obj) : ''
-
+function getDocument (baseUrl, dbName, docId, queryObj) {
+  const queryStr = createQueryString(queryObj)
   return request({
-    url: `${baseUrl}/${dbName}/${docId}${queryStr}`,
+    baseUrl: baseUrl,
+    path: `/${dbName}/${encodeURIComponent(docId)}${queryStr}`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully',
@@ -233,15 +227,24 @@ function getDocument (baseUrl, dbName, docId, query) {
  * @return {Promise}
  */
 function createDocument (baseUrl, dbName, doc, docId) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
+  let body
+  try {
+    body = JSON.stringify(Object.assign({}, doc))
+  } catch (err) {
+    return Promise.reject({
+      data: err,
+      status: 400,
+      message: 'invalid document'
+    })
   }
+
   if (docId) {
     // create document by id (PUT)
     return request({
-      url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
+      baseUrl: baseUrl,
+      path: `/${dbName}/${encodeURIComponent(docId)}`,
       method: 'PUT',
-      doc: doc,
+      body: body,
       statusOk: {
         201: 'Created – Document created and stored on disk',
         202: 'Accepted – Document data accepted, but not yet stored on disk'
@@ -256,9 +259,10 @@ function createDocument (baseUrl, dbName, doc, docId) {
   } else {
     // create document without explicit id (POST)
     return request({
-      url: `${baseUrl}/${dbName}`,
+      baseUrl: baseUrl,
+      path: '/' + dbName,
       method: 'POST',
-      doc: doc,
+      body: body,
       statusOk: {
         201: 'Created – Document created and stored on disk',
         202: 'Accepted – Document data accepted, but not yet stored on disk'
@@ -282,11 +286,9 @@ function createDocument (baseUrl, dbName, doc, docId) {
  * @return {Promise}
  */
 function deleteDocument (baseUrl, dbName, docId, rev) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
   return request({
-    url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
+    baseUrl: baseUrl,
+    path: `/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
     statusOk: {
       200: 'OK - Document successfully removed',
@@ -308,11 +310,9 @@ function deleteDocument (baseUrl, dbName, docId, rev) {
  * @return {Promise}
  */
 function getUuids (baseUrl, count) {
-  if (!isValidBaseUrl(baseUrl)) {
-    return promiseInvalidUrl()
-  }
   return request({
-    url: `${baseUrl}/_uuids?count=${count || 1}`,
+    baseUrl: baseUrl,
+    path: `/_uuids?count=${count || 1}`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
