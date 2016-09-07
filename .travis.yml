@@ -10,4 +10,4 @@ install:
 script:
  - standard -v
  - npm test
- - node examples/full-example.js
+ - node examples/example.js

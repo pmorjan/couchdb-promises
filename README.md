@@ -15,13 +15,12 @@
 npm install couchdb-promises
 ```
 
-### Example
-[full-example.js](examples/full-example.js)
+### [Example.js](examples/example.js)
 
 ```javascript
 const db = require('couchdb-promises')
 
-const baseUrl = process.env.DB_URL || 'http://localhost:5984'
+const baseUrl = 'http://localhost:5984'
 const dbName = 'testdb'
 ```
 

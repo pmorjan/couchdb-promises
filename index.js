@@ -324,12 +324,12 @@ function getUuids (baseUrl, count) {
 }
 
 module.exports = {
-  createDatabase,
-  createDocument,
-  deleteDatabase,
-  deleteDocument,
-  getDocument,
-  getUuids,
-  getInfo,
-  listDatabases
+  createDatabase: createDatabase,
+  createDocument: createDocument,
+  deleteDatabase: deleteDatabase,
+  deleteDocument: deleteDocument,
+  getDocument: getDocument,
+  getUuids: getUuids,
+  getInfo: getInfo,
+  listDatabases: listDatabases
 }
