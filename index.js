@@ -123,7 +123,7 @@ function request (param) {
  */
 function getInfo (baseUrl) {
   return request({
-    url: baseUrl + '/',
+    url: `${baseUrl}/`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
@@ -169,7 +169,7 @@ function createDatabase (baseUrl, dbName) {
 
 /**
  * Delete database
- * @param  {String} baseUrl base server url
+ * @param  {String} baseUrl
  * @param  {String} dbName
  * @return {Promise}
  */

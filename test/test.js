@@ -187,11 +187,14 @@ test('getDocument', function (t) {
 })
 
 test('db server is clean', function (t) {
+  t.plan(1)
   const re = new RegExp('^' + prefix)
-  setTimeout(() => {
-    // sometimes remote DB need some time, e.g. CloudantDB
-    t.plan(1)
-    db.listDatabases(baseUrl)
-    .then(response => t.false(response.data.find(e => re.test(e)), 'all tempdb deleted'))
-  }, 1000)
+  db.listDatabases(baseUrl)
+  .then(response => response.data.find(e => re.test(e)) ? Promise.reject() : Promise.resolve())
+  .catch(() => new Promise(function (resolve, reject) {
+    // sleep 1 sec and try again
+    setTimeout(() => resolve(), 1000)
+  }))
+  .then(() => db.listDatabases(baseUrl))
+  .then(response => t.false(response.data.find(e => re.test(e)), 'all tempdb deleted'))
 })
