@@ -7,13 +7,13 @@ const urlParse = require('url').parse
 //
 const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
-function isValidBaseUrl (url) {
+function isValidUrl (url) {
   const o = urlParse(url)
   if (
     ['http:', 'https:'].indexOf(o.protocol) === -1 ||
     o.slashes === false ||
     Number.isNaN(Number(o.port)) ||
-    !o.hostname || o.query || o.search
+    !o.hostname
   ) return false
   return true
 }
@@ -29,26 +29,17 @@ function createQueryString (queryObj) {
 }
 
 function request (param) {
-  const method = param.method || 'GET'
-  const baseUrl = param.baseUrl
-  const path = param.path
+  const method = param.method
+  const url = param.url
   const statusOk = param.statusOk || {}
   const statusNotOk = param.statusNotOk || {}
   const body = param.body || ''
 
-  if (!isValidBaseUrl(baseUrl)) {
-    return Promise.reject({
-      data: 'invalid url',
-      status: 400,
-      message: 'bad request'
-    })
-  }
-
-  const o = urlParse(baseUrl)
+  const o = urlParse(url)
   const httpOptions = {
     hostname: o.host && o.host.split(':')[0],
     port: o.port || 443,
-    path: path,
+    path: o.path,
     auth: o.auth,
     protocol: o.protocol,
     method: method,
@@ -57,6 +48,15 @@ function request (param) {
       'Content-Type': 'application/json'
     }
   }
+
+  if (!isValidUrl(url)) {
+    return Promise.reject({
+      data: 'invalid url',
+      status: 400,
+      message: 'bad request'
+    })
+  }
+
   if (['PUT', 'POST'].indexOf(method) > -1) {
     httpOptions['Content-Length'] = Buffer.byteLength(body)
   }
@@ -123,8 +123,7 @@ function request (param) {
  */
 function getInfo (baseUrl) {
   return request({
-    baseUrl: baseUrl,
-    path: '/',
+    url: baseUrl + '/',
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
@@ -139,8 +138,7 @@ function getInfo (baseUrl) {
  */
 function listDatabases (baseUrl) {
   return request({
-    baseUrl: baseUrl,
-    path: '/_all_dbs',
+    url: `${baseUrl}/_all_dbs`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
@@ -156,8 +154,7 @@ function listDatabases (baseUrl) {
  */
 function createDatabase (baseUrl, dbName) {
   return request({
-    baseUrl: baseUrl,
-    path: '/' + dbName,
+    url: `${baseUrl}/${dbName}`,
     method: 'PUT',
     statusOk: {
       201: 'Created - Database created successfully'
@@ -178,8 +175,7 @@ function createDatabase (baseUrl, dbName) {
  */
 function deleteDatabase (baseUrl, dbName) {
   return request({
-    baseUrl: baseUrl,
-    path: '/' + dbName,
+    url: `${baseUrl}/${dbName}`,
     method: 'DELETE',
     statusOk: {
       200: 'OK - Database removed successfully'
@@ -203,8 +199,7 @@ function deleteDatabase (baseUrl, dbName) {
 function getDocument (baseUrl, dbName, docId, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
-    baseUrl: baseUrl,
-    path: `/${dbName}/${encodeURIComponent(docId)}${queryStr}`,
+    url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}${queryStr}`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully',
@@ -241,8 +236,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
   if (docId) {
     // create document by id (PUT)
     return request({
-      baseUrl: baseUrl,
-      path: `/${dbName}/${encodeURIComponent(docId)}`,
+      url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
       method: 'PUT',
       body: body,
       statusOk: {
@@ -259,8 +253,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
   } else {
     // create document without explicit id (POST)
     return request({
-      baseUrl: baseUrl,
-      path: '/' + dbName,
+      url: `${baseUrl}/${dbName}`,
       method: 'POST',
       body: body,
       statusOk: {
@@ -287,8 +280,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
  */
 function deleteDocument (baseUrl, dbName, docId, rev) {
   return request({
-    baseUrl: baseUrl,
-    path: `/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
+    url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
     statusOk: {
       200: 'OK - Document successfully removed',
@@ -311,8 +303,7 @@ function deleteDocument (baseUrl, dbName, docId, rev) {
  */
 function getUuids (baseUrl, count) {
   return request({
-    baseUrl: baseUrl,
-    path: `/_uuids?count=${count || 1}`,
+    url: `${baseUrl}/_uuids?count=${count || 1}`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully'
