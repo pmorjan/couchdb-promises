@@ -20,11 +20,11 @@ function isValidUrl (url) {
 
 function createQueryString (queryObj) {
   const obj = Object.assign({}, queryObj)
-  for (let key in obj) {
+  Object.keys(obj).forEach(key => {
     if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
       obj[key] = JSON.stringify(obj[key])
     }
-  }
+  })
   return Object.keys(obj).length ? '?' + querystring.stringify(obj) : ''
 }
 
@@ -72,9 +72,8 @@ function request (param) {
       res.on('end', function () {
         let ret
         try {
-          var data = JSON.parse(buffer)
           ret = {
-            data: data,
+            data: JSON.parse(buffer),
             status: res.statusCode,
             message: (statusOk[res.statusCode] || statusNotOk[res.statusCode] || 'unknown status')
           }
