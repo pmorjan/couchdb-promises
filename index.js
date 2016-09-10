@@ -79,9 +79,9 @@ function request (param) {
           }
         } catch (err) {
           ret = {
-            data: err.message,
+            data: err,
             status: 500,
-            message: 'server error'
+            message: err.message || 'server error'
           }
         }
 
@@ -97,7 +97,7 @@ function request (param) {
       reject({
         data: err,
         status: 500,
-        message: 'server error'
+        message: err.message || 'server error'
       })
     })
 
