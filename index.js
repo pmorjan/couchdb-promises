@@ -44,8 +44,8 @@ function request (param) {
     protocol: o.protocol,
     method: method,
     headers: {
-      'User-Agent': 'couchdb-promises',
-      'Content-Type': 'application/json'
+      'user-agent': 'couchdb-promises',
+      'accept': 'application/json'
     }
   }
 
@@ -57,8 +57,9 @@ function request (param) {
     })
   }
 
-  if (['PUT', 'POST'].indexOf(method) > -1) {
-    httpOptions['Content-Length'] = Buffer.byteLength(body)
+  if (body) {
+    httpOptions.headers['content-length'] = Buffer.byteLength(body)
+    httpOptions.headers['content-type'] = 'application/json'
   }
 
   return new Promise(function (resolve, reject) {
