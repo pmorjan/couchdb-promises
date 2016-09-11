@@ -52,7 +52,6 @@ function request (param) {
   const statusOk = param.statusOk || {}
   const statusNotOk = param.statusNotOk || {}
   const body = param.body || ''
-
   const o = urlParse(url)
   const httpOptions = {
     hostname: o.host && o.host.split(':')[0],
@@ -74,7 +73,6 @@ function request (param) {
       message: 'bad request'
     })
   }
-
   if (body) {
     httpOptions.headers['content-length'] = Buffer.byteLength(body)
     httpOptions.headers['content-type'] = 'application/json'
@@ -333,13 +331,147 @@ function getUuids (baseUrl, count) {
   })
 }
 
+/**
+ * Get design document
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {Object} [query]
+ * @return {Promise}
+ */
+function getDesignDocument (baseUrl, dbName, docId, queryObj) {
+  const queryStr = createQueryString(queryObj)
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}${queryStr}`,
+    method: 'GET',
+    statusOk: {
+      200: 'OK - Request completed successfully',
+      304: 'Not Modified - Document wasn’t modified since specified revision'
+    },
+    statusNotOk: {
+      400: 'Bad Request - The format of the request or revision was invalid',
+      401: 'Unauthorized - Read privilege required',
+      404: 'Not Found - Document not found'
+    }
+  })
+}
+
+/**
+ * Get design document info
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @return {Promise}
+ */
+function getDesignDocumentInfo (baseUrl, dbName, docId) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_info`,
+    method: 'GET',
+    statusOk: {
+      200: 'OK - Request completed successfully'
+    },
+    statusNotOk: {
+    }
+  })
+}
+
+/**
+ * Create a new design document or new revision of an existing design document
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {Object} doc
+ * @param  {String} docId
+ * @return {Promise}
+ */
+function createDesignDocument (baseUrl, dbName, doc, docId) {
+  let body
+  try {
+    body = JSON.stringify(Object.assign({}, doc))
+  } catch (err) {
+    return Promise.reject({
+      data: err,
+      status: 400,
+      message: 'invalid document'
+    })
+  }
+
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}`,
+    method: 'PUT',
+    body: body,
+    statusOk: {
+      201: 'Created – Document created and stored on disk',
+      202: 'Accepted – Document data accepted, but not yet stored on disk'
+    },
+    statusNotOk: {
+      400: 'Bad Request – Invalid request body or parameters',
+      401: 'Unauthorized – Write privileges required',
+      404: 'Not Found – Specified database or document ID doesn’t exists',
+      409: 'Conflict – Document with the specified ID already exists or specified revision is not latest for target document'
+    }
+  })
+}
+
+/**
+ * Delete a named design document
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {String} rev
+ * @return {Promise}
+ */
+function deleteDesignDocument (baseUrl, dbName, docId, rev) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}?rev=${rev}`,
+    method: 'DELETE',
+    statusOk: {
+      200: 'OK - Document successfully removed',
+      202: 'Accepted - Request was accepted, but changes are not yet stored on disk'
+    },
+    statusNotOk: {
+      400: 'Bad Request - Invalid request body or parameters',
+      401: 'Unauthorized - Write privilege required',
+      404: 'Not Found - Specified database or document ID doesn\'t exist',
+      409: 'Conflict - Specified revision is not the latest for target document'
+    }
+  })
+}
+
+/**
+ * Get view
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {String} viewName
+ * @param  {Object} [query]
+ * @return {Promise}
+ */
+function getView (baseUrl, dbName, docId, viewName, queryObj) {
+  const queryStr = createQueryString(queryObj)
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_view/${encodeURIComponent(viewName)}${queryStr}`,
+    method: 'GET',
+    statusOk: {
+      // FIXME
+    },
+    statusNotOk: {
+      // FIXME
+    }
+  })
+}
+
 module.exports = {
   createDatabase: createDatabase,
+  createDesignDocument: createDesignDocument,
   createDocument: createDocument,
   deleteDatabase: deleteDatabase,
+  deleteDesignDocument: deleteDesignDocument,
   deleteDocument: deleteDocument,
+  getDesignDocument: getDesignDocument,
+  getDesignDocumentInfo: getDesignDocumentInfo,
   getDocument: getDocument,
   getUuids: getUuids,
   getInfo: getInfo,
+  getView: getView,
   listDatabases: listDatabases
 }
