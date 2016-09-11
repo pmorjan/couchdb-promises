@@ -44,7 +44,6 @@ db.getInfo(baseUrl)
 ```
 
 #### create database
-db.createDatabase(baseUrl, dbName)
 ```javascript
 db.createDatabase(baseUrl, dbName)
 .then(console.log)
