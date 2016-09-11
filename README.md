@@ -11,9 +11,9 @@
 * **as simple as possible**
 
 All methods return a promises that rejects or resolves with an object of 3 properties:
-* data: {Object} - as returned from the database, e.g. a document or an error object
-* status: {Number} - the original HTTP return status code or 500 in case of an internal error
-* message: {String} - meaning of the status code
+* **data**: {Object} - as returned from the database, e.g. a document or an error object
+* **status**: {Number} - the original HTTP return status code or 500 in case of an internal error
+* **message**: {String} - meaning of the status code
 
 The promise is resolved if the status code is < 400 otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
 
@@ -155,3 +155,28 @@ db.createDatabase(baseUrl, dbName)
 //   status: 404,
 //   message: 'Not Found - Document not found' }
 ```
+
+### design documents and views
+
+#### get view
+```javascript
+db.getView(baseUrl, dbName, 'ddoc1', 'v-date', {limit: 3, include_docs: true})
+.then(console.log)
+.catch(console.error)
+```
+
+#### create design document
+```javascript
+db.createDesignDocument(baseUrl, dbName, doc, docId)
+```
+
+#### get design document
+```javascript
+db.getDesignDocument(baseUrl, dbName, docId)
+```
+
+#### delete design document
+```javascript
+db.deleteDesignDocument(baseUrl, dbName, docId, rev)
+```
+
