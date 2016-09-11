@@ -82,14 +82,14 @@ function request (param) {
           ret = {
             data: err,
             status: 500,
-            message: err.message || 'server error'
+            message: err.message || 'internal error'
           }
         }
 
-        if (ret.status >= 400) {
-          reject(ret)
-        } else {
+        if (ret.status < 400) {
           resolve(ret)
+        } else {
+          reject(ret)
         }
       })
     })
@@ -98,7 +98,7 @@ function request (param) {
       reject({
         data: err,
         status: 500,
-        message: err.message || 'server error'
+        message: err.message || 'internal error'
       })
     })
 

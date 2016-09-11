@@ -10,6 +10,13 @@
 * **no dependencies**
 * **as simple as possible**
 
+All methods return a promises that rejects or resolves with an object of 3 properties:
+* data: {Object} - as returned from the database, e.g. a document or an error object
+* status: {Number} - the original HTTP return status code or 500 in case of an internal error
+* message: {String} - meaning of the status code
+
+The promise is resolved if the status code is < 400 otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
+
 ### Installation
 ```
 npm install couchdb-promises
@@ -19,7 +26,6 @@ npm install couchdb-promises
 
 ```javascript
 const db = require('couchdb-promises')
-
 const baseUrl = 'http://localhost:5984'
 const dbName = 'testdb'
 ```
@@ -38,6 +44,7 @@ db.getInfo(baseUrl)
 ```
 
 #### create database
+db.createDatabase(baseUrl, dbName)
 ```javascript
 db.createDatabase(baseUrl, dbName)
 .then(console.log)
