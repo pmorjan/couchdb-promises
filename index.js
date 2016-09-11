@@ -154,7 +154,7 @@ function listDatabases (baseUrl) {
  */
 function createDatabase (baseUrl, dbName) {
   return request({
-    url: `${baseUrl}/${dbName}`,
+    url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'PUT',
     statusOk: {
       201: 'Created - Database created successfully'
@@ -175,7 +175,7 @@ function createDatabase (baseUrl, dbName) {
  */
 function deleteDatabase (baseUrl, dbName) {
   return request({
-    url: `${baseUrl}/${dbName}`,
+    url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'DELETE',
     statusOk: {
       200: 'OK - Database removed successfully'
@@ -199,7 +199,7 @@ function deleteDatabase (baseUrl, dbName) {
 function getDocument (baseUrl, dbName, docId, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
-    url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}${queryStr}`,
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
     method: 'GET',
     statusOk: {
       200: 'OK - Request completed successfully',
@@ -236,7 +236,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
   if (docId) {
     // create document by id (PUT)
     return request({
-      url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}`,
+      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
       method: 'PUT',
       body: body,
       statusOk: {
@@ -253,7 +253,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
   } else {
     // create document without explicit id (POST)
     return request({
-      url: `${baseUrl}/${dbName}`,
+      url: `${baseUrl}/${encodeURIComponent(dbName)}`,
       method: 'POST',
       body: body,
       statusOk: {
@@ -280,7 +280,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
  */
 function deleteDocument (baseUrl, dbName, docId, rev) {
   return request({
-    url: `${baseUrl}/${dbName}/${encodeURIComponent(docId)}?rev=${rev}`,
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
     statusOk: {
       200: 'OK - Document successfully removed',

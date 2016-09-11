@@ -70,6 +70,15 @@ test('createDatabase', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('createDatabase with special name', function (t) {
+  t.plan(1)
+  const dbName = getName() + '_$()+-/'
+  db.createDatabase(baseUrl, dbName)
+  .then(response => checkResponse(t, response, 201))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('createDatabase with error', function (t) {
   t.plan(2)
   const dbName = getName()
@@ -115,6 +124,17 @@ test('createDocument by id', function (t) {
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
   .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(response => checkResponse(t, response, 201))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
+test('createDocument by id special name', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  const doc = {foo: 'bar'}
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createDocument(baseUrl, dbName, doc, 'a_$() : + -/'))
   .then(response => checkResponse(t, response, 201))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
