@@ -45,7 +45,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created – Document created and stored on disk' }
 
 .then(() => db.getDocument(baseUrl, dbName, 'doc2'))
-.then((result) => { console.log(result); return result.data })
+.then(response => { console.log(response); return response.data })
 // { data:
 //    { _id: 'doc2',
 //      _rev: '1-88b10f13383b5d1e34d1d66d296f061f',
@@ -64,6 +64,13 @@ db.createDatabase(baseUrl, dbName)
 //      rev: '2-ee5ea9ac0bb1bec913a9b5e7bc11b113' },
 //   status: 201,
 //   message: 'Created – Document created and stored on disk' }
+
+.then(() => db.getAllDocs(baseUrl, dbName, {descending: true, include_docs: true}))
+.then(response => console.log(response.data.rows[0]))
+.then(console.log)
+// { data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
+// status: 200,
+//  message: 'OK - Request completed successfully' }
 
 .then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
 .then(console.log)

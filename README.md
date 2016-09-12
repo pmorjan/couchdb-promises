@@ -88,7 +88,7 @@ db.createDatabase(baseUrl, dbName)
 #### get document
 ```javascript
 .then(() => db.getDocument(baseUrl, dbName, 'doc2'))
-.then((result) => { console.log(result); return result.data })
+.then(response => { console.log(response); return response.data })
 // { data:
 //    { _id: 'doc2',
 //      _rev: '1-88b10f13383b5d1e34d1d66d296f061f',
@@ -110,6 +110,18 @@ db.createDatabase(baseUrl, dbName)
 //      rev: '2-ee5ea9ac0bb1bec913a9b5e7bc11b113' },
 //   status: 201,
 //   message: 'Created – Document created and stored on disk' }
+```
+
+#### get all documents
+```javascript
+.then(() => db.getAllDocs(baseUrl, dbName, {
+  descending: true,
+  include_docs: true
+}))
+.then(console.log)
+// { data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
+// status: 200,
+//  message: 'OK - Request completed successfully' }
 ```
 
 #### delete document
@@ -155,13 +167,11 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Not Found - Document not found' }
 ```
 
-### design documents and views
+---
 
 #### get view
 ```javascript
 db.getView(baseUrl, dbName, 'ddoc1', 'v-date', {limit: 3, include_docs: true})
-.then(console.log)
-.catch(console.error)
 ```
 
 #### create design document
@@ -178,4 +188,3 @@ db.getDesignDocument(baseUrl, dbName, docId)
 ```javascript
 db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 ```
-

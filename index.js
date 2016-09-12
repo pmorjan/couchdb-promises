@@ -206,6 +206,26 @@ function deleteDatabase (baseUrl, dbName) {
 }
 
 /**
+ * Get all documents
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {Object} [query]
+ * @return {Promise}
+ */
+function getAllDocs (baseUrl, dbName, queryObj) {
+  const queryStr = createQueryString(queryObj)
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_all_docs${queryStr}`,
+    method: 'GET',
+    statusOk: {
+      200: 'OK - Request completed successfully'
+    },
+    statusNotOk: {
+    }
+  })
+}
+
+/**
  * Get Document
  * @param  {String} baseUrl
  * @param  {String} dbName
@@ -467,6 +487,7 @@ module.exports = {
   deleteDatabase: deleteDatabase,
   deleteDesignDocument: deleteDesignDocument,
   deleteDocument: deleteDocument,
+  getAllDocs: getAllDocs,
   getDesignDocument: getDesignDocument,
   getDesignDocumentInfo: getDesignDocumentInfo,
   getDocument: getDocument,

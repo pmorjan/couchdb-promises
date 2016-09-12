@@ -185,6 +185,25 @@ test('deleteDocument', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('getAllDocs', function (t) {
+  t.plan(3)
+  const dbName = getName()
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createDocument(baseUrl, dbName, {foo: 1}, 'doc1'))
+  .then(response => db.createDocument(baseUrl, dbName, {bar: 2}, 'doc2'))
+  .then(() => db.getAllDocs(baseUrl, dbName, {
+    include_docs: true,
+    descending: true
+  }))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => {
+    t.true(response.data.total_rows === 2, 'total_rows is ok')
+    t.deepEqual(response.data.rows[0].id, 'doc2', 'query paramter decending ok')
+  })
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('getDocument', function (t) {
   t.plan(4)
   const dbName = getName()

@@ -9,7 +9,7 @@ const doc = {
   language: 'javascript',
   views: {
     date: {
-      map: 'function(doc) {if (doc.date) {emit(doc.date, 1)}}'
+      map: 'function (doc) {if (doc.date) {emit(doc.date, 1)}}'
     }
   }
 }
