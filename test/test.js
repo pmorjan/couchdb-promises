@@ -226,7 +226,7 @@ test('getDocument', function (t) {
 })
 
 test('design document / getView', function (t) {
-  t.plan(5)
+  t.plan(6)
   const dbName = getName()
   const docId = 'doc1'
   const ddoc = {
