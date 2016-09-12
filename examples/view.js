@@ -1,27 +1,59 @@
 'use strict'
-const db = require('couchdb-promises')
+const db = require('../index')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
-const dbName = 'testdb'
-const docId = 'doc1'
-const viewName = 'date'
-const doc = {
-  language: 'javascript',
-  views: {
-    date: {
-      map: 'function (doc) {if (doc.date) {emit(doc.date, 1)}}'
-    }
-  }
-}
-const queryObj = {
-  limit: 3,
-  include_docs: true
+const dbName = 'testdb_' + Math.random().toString(36).slice(2, 8)
+
+function insertDocuments () {
+  let p = Promise.resolve()
+  const MONTHS = ['January', 'February', 'March', 'April', 'Mai', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  MONTHS.forEach((month, idx) => {
+    p = p.then(() => db.createDocument(baseUrl, dbName, {
+      name: month,
+      number: idx + 1
+    }))
+  })
+  return p
 }
 
-db.getDesignDocument(baseUrl, dbName, docId)
-.then(response => db.deleteDesignDocument(baseUrl, dbName, docId, response.data._rev))
-.catch(console.error)
-.then(response => db.createDesignDocument(baseUrl, dbName, doc, docId))
-.then(() => db.getView(baseUrl, dbName, docId, viewName, queryObj))
-.then(response => console.log(response.data.rows))
+// create database and insert some documents
+db.createDatabase(baseUrl, dbName)
+.then(insertDocuments)
+
+// create new design document
+.then(() => db.createDesignDocument(baseUrl, dbName, {
+  language: 'javascript',
+  views: {
+    all: {
+      map: 'function (doc) {emit(doc.name, doc.number)}'
+    }
+  }
+}, 'ddoc1'))
+.then(console.log)
+
+.then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
+.then(console.log)
+
+// request some data
+.then(() => db.getView(baseUrl, dbName, 'ddoc1', 'all', {
+  decending: true,
+  limit: 3
+}))
+
+.then(response => console.log(response.data))
+// { total_rows: 12,
+//   offset: 0,
+//   rows:
+//    [ { id: 'd2017cdf467dc7260f83cf115a06f1c2',
+//        key: 'April',
+//        value: 4 },
+//      { id: 'd2017cdf467dc7260f83cf115a07183f',
+//        key: 'August',
+//        value: 8 },
+//      { id: 'd2017cdf467dc7260f83cf115a072d01',
+//        key: 'December',
+//        value: 12 } ] }
+
+// delete database
+.then(() => db.deleteDatabase(baseUrl, dbName))
 .catch(console.error)

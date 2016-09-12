@@ -225,6 +225,34 @@ test('getDocument', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('design document / getView', function (t) {
+  t.plan(5)
+  const dbName = getName()
+  const docId = 'doc1'
+  const ddoc = {
+    language: 'javascript',
+    views: { all: { map: 'function (doc) {emit(null, doc.foo)}' } }
+  }
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createDocument(baseUrl, dbName, {foo: 'bar'}, 'doc1'))
+  .then(response => db.createDocument(baseUrl, dbName, {foo: 'baz'}, 'doc2'))
+  .then(response => db.createDesignDocument(baseUrl, dbName, ddoc, docId))
+  .then(response => checkResponse(t, response, 201))
+  .then(response => db.getView(baseUrl, dbName, docId, 'all', {descending: true}))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => {
+    t.true(response.data.total_rows, 2, 'number of rows returned')
+    t.deepEqual(response.data.rows[0].value, 'baz', 'row order')
+    return response
+  })
+  .then(response => db.getDesignDocument(baseUrl, dbName, docId))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => db.deleteDesignDocument(baseUrl, dbName, docId, response.data._rev))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('db server is clean', function (t) {
   t.plan(1)
   const re = new RegExp('^' + prefix)

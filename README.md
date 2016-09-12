@@ -120,8 +120,8 @@ db.createDatabase(baseUrl, dbName)
 }))
 .then(console.log)
 // { data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
-// status: 200,
-//  message: 'OK - Request completed successfully' }
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
 ```
 
 #### delete document
@@ -169,22 +169,55 @@ db.createDatabase(baseUrl, dbName)
 
 ---
 
-#### get view
-```javascript
-db.getView(baseUrl, dbName, 'ddoc1', 'v-date', {limit: 3, include_docs: true})
-```
+### [View.js](examples/view.js)
 
 #### create design document
 ```javascript
-db.createDesignDocument(baseUrl, dbName, doc, docId)
+const ddoc = {
+  language: 'javascript',
+  views: { all: { map: 'function (doc) {emit(doc.name, doc.number)}' } }
+}
+const docId = 'ddoc1'
+
+db.createDesignDocument(baseUrl, dbName, ddoc, docId)
+// { data:
+//    { ok: true,
+//      id: '_design/ddoc1',
+//      rev: '1-d37fe4f1c56b171b853f0d5818372afb' },
+//   status: 201,
+//   message: 'Created – Document created and stored on disk' }
 ```
 
 #### get design document
 ```javascript
 db.getDesignDocument(baseUrl, dbName, docId)
+// { data:
+//    { _id: '_design/ddoc1',
+//      _rev: '1-d37fe4f1c56b171b853f0d5818372afb',
+//      language: 'javascript',
+//      views: { all: [Object] } },
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
 ```
 
 #### delete design document
 ```javascript
 db.deleteDesignDocument(baseUrl, dbName, docId, rev)
+// { data:
+//    { ok: true,
+//      id: '_design/ddoc1',
+//      rev: '1-d37fe4f1c56b171b853f0d5818372afb' },
+//   status: 200,
+//   message: 'OK - Document successfully removed' }
+```
+
+#### get view
+```javascript
+db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
+// { data:
+//    { total_rows: 12,
+//      offset: 0,
+//      rows: [ [Object], [Object], [Object] ] },
+//   status: 200,
+//   message: 'OK' }
 ```
