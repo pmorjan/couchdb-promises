@@ -31,16 +31,16 @@ db.createDatabase(baseUrl, dbName)
 }, 'ddoc1'))
 .then(console.log)
 
+// get design document
 .then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
 .then(console.log)
 
-// request some data
+// request some data from view
 .then(() => db.getView(baseUrl, dbName, 'ddoc1', 'all', {
   decending: true,
   limit: 3
 }))
-
-.then(response => console.log(response.data))
+.then(console.log)
 // { total_rows: 12,
 //   offset: 0,
 //   rows:

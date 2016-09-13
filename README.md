@@ -180,6 +180,7 @@ const ddoc = {
 const docId = 'ddoc1'
 
 db.createDesignDocument(baseUrl, dbName, ddoc, docId)
+.then(console.log)
 // { data:
 //    { ok: true,
 //      id: '_design/ddoc1',
@@ -191,6 +192,7 @@ db.createDesignDocument(baseUrl, dbName, ddoc, docId)
 #### get design document
 ```javascript
 db.getDesignDocument(baseUrl, dbName, docId)
+.then(console.log)
 // { data:
 //    { _id: '_design/ddoc1',
 //      _rev: '1-d37fe4f1c56b171b853f0d5818372afb',
@@ -203,6 +205,7 @@ db.getDesignDocument(baseUrl, dbName, docId)
 #### delete design document
 ```javascript
 db.deleteDesignDocument(baseUrl, dbName, docId, rev)
+.then(console.log)
 // { data:
 //    { ok: true,
 //      id: '_design/ddoc1',
@@ -214,6 +217,7 @@ db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 #### get view
 ```javascript
 db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
+.then(console.log)
 // { data:
 //    { total_rows: 12,
 //      offset: 0,

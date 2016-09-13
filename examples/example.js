@@ -65,12 +65,14 @@ db.createDatabase(baseUrl, dbName)
 //   status: 201,
 //   message: 'Created – Document created and stored on disk' }
 
-.then(() => db.getAllDocs(baseUrl, dbName, {descending: true, include_docs: true}))
-.then(response => console.log(response.data.rows[0]))
+.then(() => db.getAllDocs(baseUrl, dbName, {
+  descending: true,
+  include_docs: true
+}))
 .then(console.log)
 // { data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
-// status: 200,
-//  message: 'OK - Request completed successfully' }
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
 
 .then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
 .then(console.log)
