@@ -5,7 +5,6 @@ const https = require('https')
 const querystring = require('querystring')
 const urlParse = require('url').parse
 //
-const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 const GENERIC_STATUS_CODES = {
   200: 'OK',
   201: 'Created',
@@ -24,6 +23,8 @@ const GENERIC_STATUS_CODES = {
   417: 'Expectation Failed',
   500: 'Internal Server Error'
 }
+const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
+const REQUEST_TIMEOUT = 10000 // ms
 
 function isValidUrl (url) {
   const o = urlParse(url)
@@ -73,6 +74,7 @@ function request (param) {
       message: 'bad request'
     })
   }
+
   if (body) {
     httpOptions.headers['content-length'] = Buffer.byteLength(body)
     httpOptions.headers['content-type'] = 'application/json'
@@ -108,6 +110,15 @@ function request (param) {
         } else {
           reject(ret)
         }
+      })
+    })
+
+    req.setTimeout(REQUEST_TIMEOUT, function () {
+      req.abort()
+      reject({
+        data: new Error('request timed out'),
+        status: 500,
+        message: 'Error: request timed out'
       })
     })
 
