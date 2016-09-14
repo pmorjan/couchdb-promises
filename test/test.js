@@ -1,6 +1,7 @@
 // http://docs.couchdb.org/en/stable/api/index.html
 // https://github.com/substack/tape#methods
 'use strict'
+const http = require('http')
 const util = require('util')
 //
 const test = require('tape')
@@ -14,11 +15,15 @@ function getName () {
 }
 
 function checkResponse (t, response, status) {
-  t.test('check response object', function (ts) {
-    ts.plan(3)
-    ts.true(response.data, 'response.data is not empty')
+  t.test(t.name, function (ts) {
+    // this will only fire when t finishes
+    ts.plan(6)
+    ts.equal(Object.prototype.toString.call(response), '[object Object]', 'response is real object')
+    ts.equal(typeof response.data, 'object', 'type of response.data is \'object\'')
+    ts.equal(typeof response.message, 'string', 'type of response.message is \'string\'')
     ts.true(response.message, 'response.message is not empty')
-    ts.deepEqual(response.status, status, 'response.status is ' + status)
+    ts.equal(response.status, status, 'response.status is ' + status)
+    ts.pass(response.message)
   })
   return response
 }
@@ -35,33 +40,33 @@ test('url with invalid protocol', function (t) {
   .catch(response => checkResponse(t, response, 400))
 })
 
-test('getInfo', function (t) {
+test('getInfo()', function (t) {
   t.plan(1)
   db.getInfo(baseUrl)
   .then(response => checkResponse(t, response, 200))
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('getUuids', function (t) {
+test('getUuids()', function (t) {
   t.plan(4)
   db.getUuids(baseUrl, 10)
   .then(response => checkResponse(t, response, 200))
   .then(response => {
-    t.deepEqual(Object.prototype.toString.call(response.data.uuids), '[object Array]', 'object is Array')
-    t.deepEqual(response.data.uuids.length, 10, 'array contains 10 elements')
+    t.equal(Object.prototype.toString.call(response.data.uuids), '[object Array]', 'object is Array')
+    t.equal(response.data.uuids.length, 10, 'array contains 10 elements')
     t.true(response.data.uuids[0].match(/^[a-z0-9]+$/), 'first element looks like a UUID')
   })
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('listDatabases', function (t) {
+test('listDatabases()', function (t) {
   t.plan(1)
   db.listDatabases(baseUrl)
   .then(response => checkResponse(t, response, 200))
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDatabase', function (t) {
+test('createDatabase()', function (t) {
   t.plan(1)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
@@ -70,7 +75,7 @@ test('createDatabase', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDatabase with special name', function (t) {
+test('createDatabase() with special name', function (t) {
   t.plan(1)
   const dbName = getName() + '_$()+-/'
   db.createDatabase(baseUrl, dbName)
@@ -79,7 +84,7 @@ test('createDatabase with special name', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDatabase with error', function (t) {
+test('createDatabase() with error', function (t) {
   t.plan(2)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
@@ -91,7 +96,7 @@ test('createDatabase with error', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('deleteDatabase', function (t) {
+test('deleteDatabase()', function (t) {
   t.plan(1)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
@@ -100,14 +105,14 @@ test('deleteDatabase', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('deleteDatabase with error', function (t) {
+test('deleteDatabase() with error', function (t) {
   t.plan(1)
   const dbName = getName()
   db.deleteDatabase(baseUrl, dbName)
   .catch(response => checkResponse(t, response, 404))   // not found
 })
 
-test('createDocument no id', function (t) {
+test('createDocument() without docId', function (t) {
   t.plan(1)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -118,7 +123,7 @@ test('createDocument no id', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDocument by id', function (t) {
+test('createDocument() with docId', function (t) {
   t.plan(1)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -129,7 +134,7 @@ test('createDocument by id', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDocument by id special name', function (t) {
+test('createDocument() with docId special name', function (t) {
   t.plan(1)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -140,7 +145,7 @@ test('createDocument by id special name', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDocument by id whith error', function (t) {
+test('createDocument() with docId with error', function (t) {
   t.plan(2)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -153,7 +158,7 @@ test('createDocument by id whith error', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('createDocument update', function (t) {
+test('createDocument() update', function (t) {
   t.plan(2)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -171,7 +176,7 @@ test('createDocument update', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('deleteDocument', function (t) {
+test('deleteDocument()', function (t) {
   t.plan(2)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -185,7 +190,7 @@ test('deleteDocument', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('getAllDocs', function (t) {
+test('getAllDocs()', function (t) {
   t.plan(3)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
@@ -198,13 +203,13 @@ test('getAllDocs', function (t) {
   .then(response => checkResponse(t, response, 200))
   .then(response => {
     t.true(response.data.total_rows === 2, 'total_rows is ok')
-    t.deepEqual(response.data.rows[0].id, 'doc2', 'query paramter decending ok')
+    t.equal(response.data.rows[0].id, 'doc2', 'query paramter decending ok')
   })
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('getDocument', function (t) {
+test('getDocument()', function (t) {
   t.plan(4)
   const dbName = getName()
   const doc = {foo: 'bar'}
@@ -220,12 +225,12 @@ test('getDocument', function (t) {
   .then(response => checkResponse(t, response, 201))
   .then(response => db.getDocument(baseUrl, dbName, 'doc', {rev: response.data.rev}))
   .then(response => checkResponse(t, response, 200))
-  .then(response => t.deepEqual(response.data.baz, 42), 'doc constains new property')
+  .then(response => t.equal(response.data.baz, 42), 'doc constains new property')
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('design document / getView', function (t) {
+test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', function (t) {
   t.plan(6)
   const dbName = getName()
   const docId = 'doc1'
@@ -242,15 +247,35 @@ test('design document / getView', function (t) {
   .then(response => checkResponse(t, response, 200))
   .then(response => {
     t.true(response.data.total_rows, 2, 'number of rows returned')
-    t.deepEqual(response.data.rows[0].value, 'baz', 'row order')
+    t.equal(response.data.rows[0].value, 'baz', 'row order')
     return response
   })
+  .then(response => db.getDesignDocumentInfo(baseUrl, dbName, docId))
+  .then(response => checkResponse(t, response, 200))
   .then(response => db.getDesignDocument(baseUrl, dbName, docId))
   .then(response => checkResponse(t, response, 200))
   .then(response => db.deleteDesignDocument(baseUrl, dbName, docId, response.data._rev))
   .then(response => checkResponse(t, response, 200))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
+})
+
+test('setTimeout()', function (t) {
+  const timeout = 1000
+  const eps = 100
+  const port = 47474
+  const server = http.createServer().listen(port)
+  t.plan(2)
+  t.timeoutAfter(timeout + 2 * eps)
+  db.setTimeout(timeout)
+  const t0 = Date.now()
+  db.getInfo('http://localhost:' + port)
+  .catch(response => checkResponse(t, response, 500))
+  .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
+  .then(() => {
+    server.close()
+    db.setTimeout(10000)
+  })
 })
 
 test('db server is clean', function (t) {

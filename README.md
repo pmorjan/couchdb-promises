@@ -12,7 +12,7 @@
 
 All methods return a promises that rejects or resolves with an object of 3 properties:
 * **data**: {Object} - as returned from the database, e.g. a document or an error object
-* **status**: {Number} - the original HTTP return status code or 500 in case of an internal error
+* **status**: {Number} - HTTP status code, in most cases the original response from the server
 * **message**: {String} - meaning of the status code
 
 The promise is resolved if the status code is < 400 otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
@@ -224,4 +224,11 @@ db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 //      rows: [ [Object], [Object], [Object] ] },
 //   status: 200,
 //   message: 'OK' }
+```
+
+---
+
+#### set request timeout
+```javascript
+db.setTimeout(3000) // ms (default: 10000)
 ```

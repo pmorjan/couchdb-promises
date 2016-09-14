@@ -24,7 +24,14 @@ const GENERIC_STATUS_CODES = {
   500: 'Internal Server Error'
 }
 const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
-const REQUEST_TIMEOUT = 10000 // ms
+
+let requestTimeout = 10000 // ms
+
+function setTimeout (t) {
+  if (typeof t === 'number') {
+    requestTimeout = t
+  }
+}
 
 function isValidUrl (url) {
   const o = urlParse(url)
@@ -69,9 +76,9 @@ function request (param) {
 
   if (!isValidUrl(url)) {
     return Promise.reject({
-      data: 'invalid url',
+      data: new Error('Bad request'),
       status: 400,
-      message: 'bad request'
+      message: 'Error: Bad request'
     })
   }
 
@@ -113,7 +120,7 @@ function request (param) {
       })
     })
 
-    req.setTimeout(REQUEST_TIMEOUT, function () {
+    req.setTimeout(requestTimeout, function () {
       req.abort()
       reject({
         data: new Error('request timed out'),
@@ -483,15 +490,16 @@ function getView (baseUrl, dbName, docId, viewName, queryObj) {
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_view/${encodeURIComponent(viewName)}${queryStr}`,
     method: 'GET',
     statusOk: {
-      // FIXME
+      200: 'OK - Request completed successfully'  //
     },
     statusNotOk: {
-      // FIXME
     }
   })
 }
 
 module.exports = {
+  setTimeout: setTimeout,
+  //
   createDatabase: createDatabase,
   createDesignDocument: createDesignDocument,
   createDocument: createDocument,
