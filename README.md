@@ -202,6 +202,30 @@ db.getDesignDocument(baseUrl, dbName, docId)
 //   message: 'OK - Request completed successfully' }
 ```
 
+#### get design document info
+```javascript
+db.getDesignDocumentInfo(baseUrl, dbName, docId)
+.then(console.log)
+// { data:
+// { data:
+//    { name: 'ddoc1',
+//      view_index:
+//       { updates_pending: [Object],
+//         waiting_commit: false,
+//         waiting_clients: 0,
+//         updater_running: false,
+//         update_seq: 0,
+//         sizes: [Object],
+//         signature: '26e019b24e0354e0960a582bbfbf4634',
+//         purge_seq: 0,
+//         language: 'javascript',
+//         disk_size: 408,
+//         data_size: 0,
+//         compact_running: false } },
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
+```
+
 #### delete design document
 ```javascript
 db.deleteDesignDocument(baseUrl, dbName, docId, rev)

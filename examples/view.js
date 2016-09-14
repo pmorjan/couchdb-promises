@@ -35,6 +35,10 @@ db.createDatabase(baseUrl, dbName)
 .then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
 .then(console.log)
 
+// get design document info
+.then(() => db.getDesignDocumentInfo(baseUrl, dbName, 'ddoc1'))
+.then(console.log)
+
 // request some data from view
 .then(() => db.getView(baseUrl, dbName, 'ddoc1', 'all', {
   decending: true,
