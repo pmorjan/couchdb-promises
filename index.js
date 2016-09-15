@@ -57,8 +57,7 @@ function createQueryString (queryObj) {
 function request (param) {
   const method = param.method
   const url = param.url
-  const statusOk = param.statusOk || {}
-  const statusNotOk = param.statusNotOk || {}
+  const statusCodes = param.statusCodes || {}
   const body = param.body || ''
   const o = urlParse(url)
   const httpOptions = {
@@ -101,8 +100,7 @@ function request (param) {
           ret = {
             data: JSON.parse(buffer),
             status: res.statusCode,
-            message: (statusOk[res.statusCode] || statusNotOk[res.statusCode] ||
-              GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
+            message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
           }
         } catch (err) {
           ret = {
@@ -160,7 +158,7 @@ function getInfo (baseUrl) {
   return request({
     url: `${baseUrl}/`,
     method: 'GET',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Request completed successfully'
     }
   })
@@ -175,7 +173,7 @@ function listDatabases (baseUrl) {
   return request({
     url: `${baseUrl}/_all_dbs`,
     method: 'GET',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Request completed successfully'
     }
   })
@@ -191,10 +189,8 @@ function createDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'PUT',
-    statusOk: {
-      201: 'Created - Database created successfully'
-    },
-    statusNotOk: {
+    statusCodes: {
+      201: 'Created - Database created successfully',
       400: 'Bad Request - Invalid database name',
       401: 'Unauthorized - CouchDB Server Administrator privileges required',
       412: 'Precondition Failed - Database already exists'
@@ -212,10 +208,8 @@ function deleteDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'DELETE',
-    statusOk: {
-      200: 'OK - Database removed successfully'
-    },
-    statusNotOk: {
+    statusCodes: {
+      200: 'OK - Database removed successfully',
       400: 'Bad Request - Invalid database name or forgotten document id by accident',
       401: 'Unauthorized - CouchDB Server Administrator privileges required',
       404: 'Not Found - Database doesn’t exist'
@@ -235,10 +229,8 @@ function getAllDocs (baseUrl, dbName, queryObj) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_all_docs${queryStr}`,
     method: 'GET',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Request completed successfully'
-    },
-    statusNotOk: {
     }
   })
 }
@@ -256,11 +248,9 @@ function getDocument (baseUrl, dbName, docId, queryObj) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
     method: 'GET',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Request completed successfully',
-      304: 'Not Modified - Document wasn’t modified since specified revision'
-    },
-    statusNotOk: {
+      304: 'Not Modified - Document wasn’t modified since specified revision',
       400: 'Bad Request - The format of the request or revision was invalid',
       401: 'Unauthorized - Read privilege required',
       404: 'Not Found - Document not found'
@@ -294,11 +284,9 @@ function createDocument (baseUrl, dbName, doc, docId) {
       url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
       method: 'PUT',
       body: body,
-      statusOk: {
+      statusCodes: {
         201: 'Created – Document created and stored on disk',
-        202: 'Accepted – Document data accepted, but not yet stored on disk'
-      },
-      statusNotOk: {
+        202: 'Accepted – Document data accepted, but not yet stored on disk',
         400: 'Bad Request – Invalid request body or parameters',
         401: 'Unauthorized – Write privileges required',
         404: 'Not Found – Specified database or document ID doesn’t exists',
@@ -311,11 +299,9 @@ function createDocument (baseUrl, dbName, doc, docId) {
       url: `${baseUrl}/${encodeURIComponent(dbName)}`,
       method: 'POST',
       body: body,
-      statusOk: {
+      statusCodes: {
         201: 'Created – Document created and stored on disk',
-        202: 'Accepted – Document data accepted, but not yet stored on disk'
-      },
-      statusNotOk: {
+        202: 'Accepted – Document data accepted, but not yet stored on disk',
         400: 'Bad Request – Invalid database name',
         401: 'Unauthorized – Write privileges required',
         404: 'Not Found – Database doesn’t exists',
@@ -337,11 +323,9 @@ function deleteDocument (baseUrl, dbName, docId, rev) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Document successfully removed',
-      202: 'Accepted - Request was accepted, but changes are not yet stored on disk'
-    },
-    statusNotOk: {
+      202: 'Accepted - Request was accepted, but changes are not yet stored on disk',
       400: 'Bad Request - Invalid request body or parameters',
       401: 'Unauthorized - Write privilege required',
       404: 'Not Found - Specified database or document ID doesn\'t exist',
@@ -360,10 +344,8 @@ function getUuids (baseUrl, count) {
   return request({
     url: `${baseUrl}/_uuids?count=${count || 1}`,
     method: 'GET',
-    statusOk: {
-      200: 'OK - Request completed successfully'
-    },
-    statusNotOk: {
+    statusCodes: {
+      200: 'OK - Request completed successfully',
       403: 'Forbidden – Requested more UUIDs than is allowed to retrieve'
     }
   })
@@ -382,11 +364,9 @@ function getDesignDocument (baseUrl, dbName, docId, queryObj) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}${queryStr}`,
     method: 'GET',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Request completed successfully',
-      304: 'Not Modified - Document wasn’t modified since specified revision'
-    },
-    statusNotOk: {
+      304: 'Not Modified - Document wasn’t modified since specified revision',
       400: 'Bad Request - The format of the request or revision was invalid',
       401: 'Unauthorized - Read privilege required',
       404: 'Not Found - Document not found'
@@ -405,10 +385,8 @@ function getDesignDocumentInfo (baseUrl, dbName, docId) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_info`,
     method: 'GET',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Request completed successfully'
-    },
-    statusNotOk: {
     }
   })
 }
@@ -437,11 +415,9 @@ function createDesignDocument (baseUrl, dbName, doc, docId) {
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}`,
     method: 'PUT',
     body: body,
-    statusOk: {
+    statusCodes: {
       201: 'Created – Document created and stored on disk',
-      202: 'Accepted – Document data accepted, but not yet stored on disk'
-    },
-    statusNotOk: {
+      202: 'Accepted – Document data accepted, but not yet stored on disk',
       400: 'Bad Request – Invalid request body or parameters',
       401: 'Unauthorized – Write privileges required',
       404: 'Not Found – Specified database or document ID doesn’t exists',
@@ -462,11 +438,9 @@ function deleteDesignDocument (baseUrl, dbName, docId, rev) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
-    statusOk: {
+    statusCodes: {
       200: 'OK - Document successfully removed',
-      202: 'Accepted - Request was accepted, but changes are not yet stored on disk'
-    },
-    statusNotOk: {
+      202: 'Accepted - Request was accepted, but changes are not yet stored on disk',
       400: 'Bad Request - Invalid request body or parameters',
       401: 'Unauthorized - Write privilege required',
       404: 'Not Found - Specified database or document ID doesn\'t exist',
@@ -489,10 +463,8 @@ function getView (baseUrl, dbName, docId, viewName, queryObj) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_view/${encodeURIComponent(viewName)}${queryStr}`,
     method: 'GET',
-    statusOk: {
-      200: 'OK - Request completed successfully'  //
-    },
-    statusNotOk: {
+    statusCodes: {
+      200: 'OK - Request completed successfully'
     }
   })
 }
