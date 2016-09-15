@@ -1,6 +1,4 @@
-'use strict'
 const db = require('../index')
-
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
 

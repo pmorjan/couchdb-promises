@@ -15,7 +15,7 @@ All methods return a promises that rejects or resolves with an object of 3 prope
 * **status**: {Number} - HTTP status code, in most cases the original response from the server
 * **message**: {String} - meaning of the status code
 
-The promise is resolved if the status code is < 400 otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
+The promise is resolved if the status code is **< 400** otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
 
 ### Installation
 ```
