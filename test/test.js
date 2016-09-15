@@ -231,7 +231,7 @@ test('getDocument()', function (t) {
 })
 
 test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', function (t) {
-  t.plan(6)
+  t.plan(7)
   const dbName = getName()
   const docId = 'doc1'
   const ddoc = {
