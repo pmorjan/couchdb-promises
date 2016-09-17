@@ -24,7 +24,7 @@ db.createDatabase(baseUrl, dbName)
 .then(() => db.createDesignDocument(baseUrl, dbName, {
   language: 'javascript',
   views: {
-    all: {
+    view1: {
       map: 'function (doc) {emit(doc.name, doc.number)}'
     }
   }
@@ -44,7 +44,7 @@ db.createDatabase(baseUrl, dbName)
 //   { _id: '_design/ddoc1',
 //     _rev: '1-d37fe4f1c56b171b853f0d5818372afb',
 //     language: 'javascript',
-//     views: { all: [Object] } },
+//     views: { view1: [Object] } },
 //  status: 200,
 //  message: 'OK - Request completed successfully' }
 
@@ -54,21 +54,24 @@ db.createDatabase(baseUrl, dbName)
 // { data:
 //    { name: 'ddoc1',
 //      view_index:
-//       { signature: 'ab80d071339d5fda3e4d94a79c5a0b9d',
-//         language: 'javascript',
-//         disk_size: 51,
-//         data_size: 0,
-//         update_seq: 0,
-//         purge_seq: 0,
-//         updater_running: false,
-//         compact_running: false,
+//       { updates_pending: [Object],
 //         waiting_commit: false,
-//         waiting_clients: 0 } },
-//  status: 200,
-//  message: 'OK - Request completed successfully' }
+//         waiting_clients: 0,
+//         updater_running: false,
+//         update_seq: 0,
+//         sizes: [Object],
+//         signature: '1e86d92af43c47ef58da4b645dbd47f1',
+//         purge_seq: 0,
+//         language: 'javascript',
+//         disk_size: 408,
+//         data_size: 0,
+//         compact_running: false } },
+//   status: 200,
+//   message: 'OK - Request completed successfully' }
 
 // request some data from view
-.then(() => db.getView(baseUrl, dbName, 'ddoc1', 'all', {
+// see https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
+.then(() => db.getView(baseUrl, dbName, 'ddoc1', 'view1', {
   decending: true,
   limit: 3
 }))
@@ -88,7 +91,7 @@ db.createDatabase(baseUrl, dbName)
 // { data:
 //    { ok: true,
 //      id: '_design/ddoc1',
-//      rev: '2-acf287694d12734622438c9e7426d2be' },
+//      rev: '2-fd68157ec3c1915ebe0b248343292d34' },
 //   status: 200,
 //   message: 'OK - Document successfully removed' }
 

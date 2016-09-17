@@ -184,7 +184,7 @@ db.createDesignDocument(baseUrl, dbName, ddoc, docId)
 // { data:
 //    { ok: true,
 //      id: '_design/ddoc1',
-//      rev: '1-d37fe4f1c56b171b853f0d5818372afb' },
+//      rev: '1-548c68d8cc2c1fac99964990a58f66fd' },
 //   status: 201,
 //   message: 'Created – Document created and stored on disk' }
 ```
@@ -195,7 +195,7 @@ db.getDesignDocument(baseUrl, dbName, docId)
 .then(console.log)
 // { data:
 //    { _id: '_design/ddoc1',
-//      _rev: '1-d37fe4f1c56b171b853f0d5818372afb',
+//      _rev: '1-548c68d8cc2c1fac99964990a58f66fd',
 //      language: 'javascript',
 //      views: { all: [Object] } },
 //   status: 200,
@@ -207,23 +207,22 @@ db.getDesignDocument(baseUrl, dbName, docId)
 db.getDesignDocumentInfo(baseUrl, dbName, docId)
 .then(console.log)
 // { data:
-// { data:
-//    { name: 'ddoc1',
-//      view_index:
-//       { updates_pending: [Object],
-//         waiting_commit: false,
-//         waiting_clients: 0,
-//         updater_running: false,
-//         update_seq: 0,
-//         sizes: [Object],
-//         signature: '26e019b24e0354e0960a582bbfbf4634',
-//         purge_seq: 0,
-//         language: 'javascript',
-//         disk_size: 408,
-//         data_size: 0,
-//         compact_running: false } },
-//   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   { name: 'ddoc1',
+//     view_index:
+//      { updates_pending: [Object],
+//        waiting_commit: false,
+//        waiting_clients: 0,
+//        updater_running: false,
+//        update_seq: 0,
+//        sizes: [Object],
+//        signature: '1e86d92af43c47ef58da4b645dbd47f1',
+//        purge_seq: 0,
+//        language: 'javascript',
+//        disk_size: 408,
+//        data_size: 0,
+//        compact_running: false } },
+//  status: 200,
+//  message: 'OK - Request completed successfully' }
 ```
 
 #### delete design document
@@ -233,7 +232,7 @@ db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 // { data:
 //    { ok: true,
 //      id: '_design/ddoc1',
-//      rev: '1-d37fe4f1c56b171b853f0d5818372afb' },
+//      rev: '2-fd68157ec3c1915ebe0b248343292d34' },
 //   status: 200,
 //   message: 'OK - Document successfully removed' }
 ```

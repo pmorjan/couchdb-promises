@@ -4,7 +4,8 @@ const http = require('http')
 const https = require('https')
 const querystring = require('querystring')
 const urlParse = require('url').parse
-//
+
+// http://docs.couchdb.org/en/stable/api/basics.html#http-status-codes
 const GENERIC_STATUS_CODES = {
   200: 'OK',
   201: 'Created',
@@ -23,6 +24,7 @@ const GENERIC_STATUS_CODES = {
   417: 'Expectation Failed',
   500: 'Internal Server Error'
 }
+// https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
 const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
 let requestTimeout = 10000 // ms
