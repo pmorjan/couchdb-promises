@@ -23,7 +23,11 @@ function checkResponse (t, response, status) {
     ts.equal(typeof response.data, 'object', 'type of response.data is \'object\'')
     ts.equal(typeof response.message, 'string', 'type of response.message is \'string\'')
     ts.true(response.message, 'response.message is not empty')
-    ts.equal(response.status, status, 'response.status is ' + status)
+    if (Object.prototype.toString.call(status) === '[object Array]') {
+      ts.true(status.indexOf(response.status) > -1, 'response.status is in [' + status + '], actual:' + response.status)
+    } else {
+      ts.equal(response.status, status, 'response.status is ' + status + ', actual:' + response.status)
+    }
     ts.pass(response.message)
   })
   return response
@@ -119,7 +123,7 @@ test('createDocument() without docId', function (t) {
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
   .then(response => db.createDocument(baseUrl, dbName, doc))
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -130,7 +134,7 @@ test('createDocument() with docId', function (t) {
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
   .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -141,7 +145,7 @@ test('createDocument() with docId special name', function (t) {
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
   .then(response => db.createDocument(baseUrl, dbName, doc, 'a_$() : + -/'))
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -152,7 +156,7 @@ test('createDocument() with docId with error', function (t) {
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
   .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.createDocument(baseUrl, dbName, doc, 'doc')) // conflict
   .catch(response => checkResponse(t, response, 409))
   .then(response => db.deleteDatabase(baseUrl, dbName))
@@ -172,7 +176,7 @@ test('createDocument() update', function (t) {
     doc.baz = 42
     return db.createDocument(baseUrl, dbName, doc, 'doc')
   })
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -186,7 +190,7 @@ test('deleteDocument()', function (t) {
   .then(response => db.getDocument(baseUrl, dbName, 'doc'))
   .then(response => checkResponse(t, response, 200))
   .then(response => db.deleteDocument(baseUrl, dbName, 'doc', response.data._rev))
-  .then(response => checkResponse(t, response, 200))
+  .then(response => checkResponse(t, response, [200, 202]))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -223,7 +227,7 @@ test('getDocument()', function (t) {
     doc.baz = 42
     return db.createDocument(baseUrl, dbName, doc, 'doc')
   })
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.getDocument(baseUrl, dbName, 'doc', {rev: response.data.rev}))
   .then(response => checkResponse(t, response, 200))
   .then(response => t.equal(response.data.baz, 42), 'doc constains new property')
