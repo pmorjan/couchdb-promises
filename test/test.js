@@ -246,8 +246,8 @@ test('bulkDocs())', function (t) {
     return { n: i, value: randomData() }
   })
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.bulkDocs(baseUrl, dbName, docs, {all_or_nothing: true}))
-  .then(response => checkResponse(t, response, 201))
+  .then(() => db.bulkDocs(baseUrl, dbName, docs, {all_or_nothing: false}))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(() => db.getAllDocs(baseUrl, dbName, { limit: 1 }))
   .then(response => checkResponse(t, response, 200))
   .then(response => {

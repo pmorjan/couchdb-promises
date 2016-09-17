@@ -83,7 +83,7 @@ db.createDatabase(baseUrl, dbName)
 
 .then(() => db.bulkDocs(baseUrl, dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
-], {all_or_nothing: true}))
+], {all_or_nothing: false}))
 .then(console.log)
 // { data:
 //   [ { ok: true,
