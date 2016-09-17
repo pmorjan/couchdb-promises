@@ -81,11 +81,22 @@ db.createDatabase(baseUrl, dbName)
 //   status: 200,
 //   message: 'OK - Document successfully removed' }
 
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.bulkDocs(baseUrl, dbName, [
+  {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
+], {all_or_nothing: true}))
 .then(console.log)
-// { data: { ok: true },
-//   status: 200,
-//   message: 'OK - Database removed successfully' }
+// { data:
+//   [ { ok: true,
+//       id: '5413cf41edaedaec6b63aee93db86e1f',
+//       rev: '1-d7f23e94e65978ea9252d753fe5dc3f6' },
+//     { ok: true,
+//       id: '5413cf41edaedaec6b63aee93db877cc',
+//       rev: '1-646cd5f84634632f42fee2bdf4ff753a' },
+//     { ok: true,
+//       id: '5413cf41edaedaec6b63aee93db87c3d',
+//       rev: '1-9cc8cf1e775b686ca337f69cd39ff772' } ],
+//  status: 201,
+//  message: 'Created – Document(s) have been created or updated' }
 
 .then(() => db.getUuids(baseUrl, 3))
 .then(console.log)
@@ -96,6 +107,12 @@ db.createDatabase(baseUrl, dbName)
 //         'daae0752c6909d7ca4cd833f460156c5' ] },
 //   status: 200,
 //   message: 'OK - Request completed successfully' }
+
+.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(console.log)
+// { data: { ok: true },
+//   status: 200,
+//   message: 'OK - Database removed successfully' }
 
 .then(() => db.getDocument(baseUrl, dbName, 'doc1'))
 .catch(console.error)

@@ -1,6 +1,7 @@
 // http://docs.couchdb.org/en/stable/api/index.html
 // https://github.com/substack/tape#methods
 'use strict'
+const crypto = require('crypto')
 const http = require('http')
 const util = require('util')
 //
@@ -226,6 +227,28 @@ test('getDocument()', function (t) {
   .then(response => db.getDocument(baseUrl, dbName, 'doc', {rev: response.data.rev}))
   .then(response => checkResponse(t, response, 200))
   .then(response => t.equal(response.data.baz, 42), 'doc constains new property')
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
+test('bulkDocs())', function (t) {
+  function randomData () {
+    return crypto.randomBytes(Math.floor(Math.random() * 1000)).toString('hex')
+  }
+  t.plan(3)
+  const cnt = 1000
+  const dbName = getName()
+  const docs = new Array(cnt).fill().map((x, i) => {
+    return { n: i, value: randomData() }
+  })
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.bulkDocs(baseUrl, dbName, docs, {all_or_nothing: true}))
+  .then(response => checkResponse(t, response, 201))
+  .then(() => db.getAllDocs(baseUrl, dbName, { limit: 1 }))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => {
+    t.true(response.data.total_rows === cnt, 'total_rows is ' + cnt)
+  })
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })

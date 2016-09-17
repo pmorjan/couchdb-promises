@@ -60,7 +60,7 @@ function request (param) {
   const method = param.method
   const url = param.url
   const statusCodes = param.statusCodes || {}
-  const body = param.body || ''
+  const postData = param.postData
   const o = urlParse(url)
   const httpOptions = {
     hostname: o.host && o.host.split(':')[0],
@@ -83,7 +83,17 @@ function request (param) {
     })
   }
 
-  if (body) {
+  let body
+  if (postData) {
+    try {
+      body = JSON.stringify(postData)
+    } catch (err) {
+      return Promise.reject({
+        data: err,
+        status: 400,
+        message: 'invalid document'
+      })
+    }
     httpOptions.headers['content-length'] = Buffer.byteLength(body)
     httpOptions.headers['content-type'] = 'application/json'
   }
@@ -269,23 +279,12 @@ function getDocument (baseUrl, dbName, docId, queryObj) {
  * @return {Promise}
  */
 function createDocument (baseUrl, dbName, doc, docId) {
-  let body
-  try {
-    body = JSON.stringify(Object.assign({}, doc))
-  } catch (err) {
-    return Promise.reject({
-      data: err,
-      status: 400,
-      message: 'invalid document'
-    })
-  }
-
   if (docId) {
     // create document by id (PUT)
     return request({
       url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
       method: 'PUT',
-      body: body,
+      postData: doc,
       statusCodes: {
         201: 'Created – Document created and stored on disk',
         202: 'Accepted – Document data accepted, but not yet stored on disk',
@@ -300,7 +299,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
     return request({
       url: `${baseUrl}/${encodeURIComponent(dbName)}`,
       method: 'POST',
-      body: body,
+      postData: doc,
       statusCodes: {
         201: 'Created – Document created and stored on disk',
         202: 'Accepted – Document data accepted, but not yet stored on disk',
@@ -402,21 +401,10 @@ function getDesignDocumentInfo (baseUrl, dbName, docId) {
  * @return {Promise}
  */
 function createDesignDocument (baseUrl, dbName, doc, docId) {
-  let body
-  try {
-    body = JSON.stringify(Object.assign({}, doc))
-  } catch (err) {
-    return Promise.reject({
-      data: err,
-      status: 400,
-      message: 'invalid document'
-    })
-  }
-
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}`,
     method: 'PUT',
-    body: body,
+    postData: doc,
     statusCodes: {
       201: 'Created – Document created and stored on disk',
       202: 'Accepted – Document data accepted, but not yet stored on disk',
@@ -471,9 +459,36 @@ function getView (baseUrl, dbName, docId, viewName, queryObj) {
   })
 }
 
+/**
+ * Bulk docs
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {Array} docs
+ * @param  {Object} [opts]
+ * @return {Promise}
+ */
+function bulkDocs (baseUrl, dbName, docs, opts) {
+  let obj = {
+    docs: docs
+  }
+  Object.assign(obj, opts)
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_bulk_docs`,
+    method: 'POST',
+    postData: obj,
+    statusCodes: {
+      201: 'Created – Document(s) have been created or updated',
+      400: 'Bad Request – The request provided invalid JSON data',
+      417: 'Expectation Failed – Occurs when all_or_nothing option set as true and at least one document was rejected by validation function',
+      500: 'Internal Server Error – Malformed data provided, while it’s still valid JSON'
+    }
+  })
+}
+
 module.exports = {
   setTimeout: setTimeout,
   //
+  bulkDocs: bulkDocs,
   createDatabase: createDatabase,
   createDesignDocument: createDesignDocument,
   createDocument: createDocument,

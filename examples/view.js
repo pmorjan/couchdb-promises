@@ -1,24 +1,16 @@
 'use strict'
 const db = require('../index')
+
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
-
 const dbName = 'testdb_' + Math.random().toString(36).slice(2, 8)
-
-function insertDocuments () {
-  let p = Promise.resolve()
-  const MONTHS = ['January', 'February', 'March', 'April', 'Mai', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-  MONTHS.forEach((month, idx) => {
-    p = p.then(() => db.createDocument(baseUrl, dbName, {
-      name: month,
-      number: idx + 1
-    }))
-  })
-  return p
-}
+const months = ['January', 'February', 'March', 'April', 'Mai', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 // create database and insert some documents
 db.createDatabase(baseUrl, dbName)
-.then(insertDocuments)
+.then(() => db.bulkDocs(baseUrl, dbName,
+  months.map((x, i) => { return {name: x, number: i + 1} })
+))
+.then(console.log)
 
 // create new design document
 .then(() => db.createDesignDocument(baseUrl, dbName, {
@@ -33,7 +25,7 @@ db.createDatabase(baseUrl, dbName)
 // { data:
 //    { ok: true,
 //     id: '_design/ddoc1',
-//     rev: '1-d37fe4f1c56b171b853f0d5818372afb' },
+//     rev: '1-548c68d8cc2c1fac99964990a58f66fd' },
 //  status: 201,
 //  message: 'Created – Document created and stored on disk' }
 
@@ -42,7 +34,7 @@ db.createDatabase(baseUrl, dbName)
 .then(console.log)
 // { data:
 //   { _id: '_design/ddoc1',
-//     _rev: '1-d37fe4f1c56b171b853f0d5818372afb',
+//     _rev: '1-548c68d8cc2c1fac99964990a58f66fd',
 //     language: 'javascript',
 //     views: { view1: [Object] } },
 //  status: 200,
@@ -60,7 +52,7 @@ db.createDatabase(baseUrl, dbName)
 //         updater_running: false,
 //         update_seq: 0,
 //         sizes: [Object],
-//         signature: '1e86d92af43c47ef58da4b645dbd47f1',
+//         signature: '09da8e42090600707a71a85434663e4f',
 //         purge_seq: 0,
 //         language: 'javascript',
 //         disk_size: 408,

@@ -136,6 +136,26 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Document successfully removed' }
 ```
 
+#### bulk create documents
+```javascript
+.then(() => db.bulkDocs(baseUrl, dbName, [
+  {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
+], {all_or_nothing: true}))
+.then(console.log)
+// { data:
+//   [ { ok: true,
+//       id: '5413cf41edaedaec6b63aee93db86e1f',
+//       rev: '1-d7f23e94e65978ea9252d753fe5dc3f6' },
+//     { ok: true,
+//       id: '5413cf41edaedaec6b63aee93db877cc',
+//       rev: '1-646cd5f84634632f42fee2bdf4ff753a' },
+//     { ok: true,
+//       id: '5413cf41edaedaec6b63aee93db87c3d',
+//       rev: '1-9cc8cf1e775b686ca337f69cd39ff772' } ],
+//  status: 201,
+//  message: 'Created – Document(s) have been created or updated' }
+```
+
 #### delete database
 ```javascript
 .then(() => db.deleteDatabase(baseUrl, dbName))
@@ -175,7 +195,7 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 const ddoc = {
   language: 'javascript',
-  views: { all: { map: 'function (doc) {emit(doc.name, doc.number)}' } }
+  views: { view1: { map: 'function (doc) {emit(doc.name, doc.number)}' } }
 }
 const docId = 'ddoc1'
 
@@ -197,7 +217,7 @@ db.getDesignDocument(baseUrl, dbName, docId)
 //    { _id: '_design/ddoc1',
 //      _rev: '1-548c68d8cc2c1fac99964990a58f66fd',
 //      language: 'javascript',
-//      views: { all: [Object] } },
+//      views: { view1: [Object] } },
 //   status: 200,
 //   message: 'OK - Request completed successfully' }
 ```
@@ -215,7 +235,7 @@ db.getDesignDocumentInfo(baseUrl, dbName, docId)
 //        updater_running: false,
 //        update_seq: 0,
 //        sizes: [Object],
-//        signature: '1e86d92af43c47ef58da4b645dbd47f1',
+//        signature: '09da8e42090600707a71a85434663e4f',
 //        purge_seq: 0,
 //        language: 'javascript',
 //        disk_size: 408,
