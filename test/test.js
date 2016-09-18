@@ -269,7 +269,7 @@ test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', 
   .then(response => db.createDocument(baseUrl, dbName, {foo: 'bar'}, 'doc1'))
   .then(response => db.createDocument(baseUrl, dbName, {foo: 'baz'}, 'doc2'))
   .then(response => db.createDesignDocument(baseUrl, dbName, ddoc, docId))
-  .then(response => checkResponse(t, response, 201))
+  .then(response => checkResponse(t, response, [201, 202]))
   .then(response => db.getView(baseUrl, dbName, docId, 'all', {descending: true}))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
@@ -282,7 +282,7 @@ test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', 
   .then(response => db.getDesignDocument(baseUrl, dbName, docId))
   .then(response => checkResponse(t, response, 200))
   .then(response => db.deleteDesignDocument(baseUrl, dbName, docId, response.data._rev))
-  .then(response => checkResponse(t, response, 200))
+  .then(response => checkResponse(t, response, [200, 202]))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
