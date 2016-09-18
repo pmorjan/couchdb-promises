@@ -10,12 +10,12 @@
 * **no dependencies**
 * **as simple as possible**
 
-All methods return a promises that rejects or resolves with an object of 3 properties:
+Promises reject or resolve with an object of 3 properties:
 * **data**: {Object} - as returned from the database, e.g. a document or an error object
 * **status**: {Number} - HTTP status code, in most cases the original response from the server
 * **message**: {String} - meaning of the status code
 
-The promise is resolved if the status code is **< 400** otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
+A promise is resolved if the **status** code is **< 400** otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
 
 ### Installation
 ```
@@ -271,7 +271,14 @@ db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 
 ---
 
+#### get request timeout
+```javascript
+db.getTimeout()
+// 10000
+```
+
 #### set request timeout
 ```javascript
-db.setTimeout(3000) // ms (default: 10000)
+db.setTimeout(3000)
+// 3000
 ```

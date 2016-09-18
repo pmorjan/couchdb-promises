@@ -235,28 +235,6 @@ test('getDocument()', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('bulkDocs())', function (t) {
-  function randomData () {
-    return crypto.randomBytes(Math.floor(Math.random() * 1000)).toString('hex')
-  }
-  t.plan(3)
-  const cnt = 1000
-  const dbName = getName()
-  const docs = new Array(cnt).fill().map((x, i) => {
-    return { n: i, value: randomData() }
-  })
-  db.createDatabase(baseUrl, dbName)
-  .then(() => db.bulkDocs(baseUrl, dbName, docs, {all_or_nothing: false}))
-  .then(response => checkResponse(t, response, [201, 202]))
-  .then(() => db.getAllDocs(baseUrl, dbName, { limit: 1 }))
-  .then(response => checkResponse(t, response, 200))
-  .then(response => {
-    t.true(response.data.total_rows === cnt, 'total_rows is ' + cnt)
-  })
-  .then(response => db.deleteDatabase(baseUrl, dbName))
-  .catch(response => console.error(util.inspect(response)))
-})
-
 test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', function (t) {
   t.plan(7)
   const dbName = getName()
@@ -287,12 +265,19 @@ test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', 
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('getTimeout()', function (t) {
+  t.plan(1)
+  const curTimeout = db.getTimeout()
+  t.true(typeof curTimeout === 'number', 'getTimeout() returns number')
+})
+
 test('setTimeout()', function (t) {
   const timeout = 1000
   const eps = 100
   const port = 47474
   const server = http.createServer().listen(port)
   t.plan(2)
+  const oldTimeout = db.getTimeout()
   t.timeoutAfter(timeout + 2 * eps)
   db.setTimeout(timeout)
   const t0 = Date.now()
@@ -301,8 +286,33 @@ test('setTimeout()', function (t) {
   .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
   .then(() => {
     server.close()
-    db.setTimeout(10000)
+    db.setTimeout(oldTimeout)
   })
+})
+
+test('bulkDocs())', function (t) {
+  function randomData () {
+    return crypto.randomBytes(Math.floor(Math.random() * 1000)).toString('hex')
+  }
+  t.plan(3)
+  const cnt = 1000
+  const dbName = getName()
+  const docs = new Array(cnt).fill().map((x, i) => {
+    return { n: i, value: randomData() }
+  })
+  const oldTimeout = db.getTimeout()
+  db.setTimeout(60000)
+  db.createDatabase(baseUrl, dbName)
+  .then(() => db.bulkDocs(baseUrl, dbName, docs, {all_or_nothing: false}))
+  .then(response => checkResponse(t, response, [201, 202]))
+  .then(() => db.getAllDocs(baseUrl, dbName, { limit: 1 }))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => {
+    t.true(response.data.total_rows === cnt, 'total_rows is ' + cnt)
+  })
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.setTimeout(oldTimeout))
+  .catch(response => console.error(util.inspect(response)))
 })
 
 test('db server is clean', function (t) {

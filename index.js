@@ -29,12 +29,6 @@ const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
 let requestTimeout = 10000 // ms
 
-function setTimeout (t) {
-  if (typeof t === 'number') {
-    requestTimeout = t
-  }
-}
-
 function isValidUrl (url) {
   const o = urlParse(url)
   if (
@@ -152,6 +146,27 @@ function request (param) {
     }
     req.end()
   })
+}
+
+/**
+ * set request timeout
+ * @param {Number} t in ms
+ * @return {Number}
+ */
+function setTimeout (t) {
+  if (typeof t !== 'number' || t < 0) {
+    return
+  }
+  requestTimeout = t
+  return requestTimeout
+}
+
+/**
+ * get request timeout
+ * @return {Number}
+ */
+function getTimeout () {
+  return requestTimeout
 }
 
 /**
@@ -487,6 +502,7 @@ function bulkDocs (baseUrl, dbName, docs, opts) {
 
 module.exports = {
   setTimeout: setTimeout,
+  getTimeout: getTimeout,
   //
   bulkDocs: bulkDocs,
   createDatabase: createDatabase,
