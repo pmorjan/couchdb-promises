@@ -5,7 +5,7 @@
 
 # couchdb-promises
 
-### Yet another Node module for CouchDB that uses ES6 promises
+### Yet another Node.js module for CouchDB that uses ES6 promises
 
 * **no dependencies**
 * **as simple as possible**

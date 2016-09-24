@@ -42,7 +42,7 @@ function isValidUrl (url) {
 
 function createQueryString (queryObj) {
   const obj = Object.assign({}, queryObj)
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
       obj[key] = JSON.stringify(obj[key])
     }
@@ -65,7 +65,7 @@ function request (param) {
     method: method,
     headers: {
       'user-agent': 'couchdb-promises',
-      'accept': 'application/json'
+      accept: 'application/json'
     }
   }
 
@@ -154,10 +154,9 @@ function request (param) {
  * @return {Number}
  */
 function setTimeout (t) {
-  if (typeof t !== 'number' || t < 0) {
-    return
+  if (typeof t === 'number' && t >= 0) {
+    requestTimeout = t
   }
-  requestTimeout = t
   return requestTimeout
 }
 
@@ -483,7 +482,7 @@ function getView (baseUrl, dbName, docId, viewName, queryObj) {
  * @return {Promise}
  */
 function bulkDocs (baseUrl, dbName, docs, opts) {
-  let obj = {
+  const obj = {
     docs: docs
   }
   Object.assign(obj, opts)
