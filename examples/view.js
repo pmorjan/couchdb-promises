@@ -22,7 +22,8 @@ db.createDatabase(baseUrl, dbName)
   }
 }, 'ddoc1'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //     id: '_design/ddoc1',
 //     rev: '1-548c68d8cc2c1fac99964990a58f66fd' },
@@ -32,7 +33,8 @@ db.createDatabase(baseUrl, dbName)
 // get design document
 .then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //   { _id: '_design/ddoc1',
 //     _rev: '1-548c68d8cc2c1fac99964990a58f66fd',
 //     language: 'javascript',
@@ -43,7 +45,8 @@ db.createDatabase(baseUrl, dbName)
 // get design document info
 .then(() => db.getDesignDocumentInfo(baseUrl, dbName, 'ddoc1'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { name: 'ddoc1',
 //      view_index:
 //       { updates_pending: [Object],
@@ -68,7 +71,8 @@ db.createDatabase(baseUrl, dbName)
   limit: 3
 }))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { total_rows: 12,
 //      offset: 0,
 //      rows: [ [Object], [Object], [Object] ] },
@@ -80,7 +84,8 @@ db.createDatabase(baseUrl, dbName)
 .then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
 .then(response => db.deleteDesignDocument(baseUrl, dbName, 'ddoc1', response.data._rev))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: '_design/ddoc1',
 //      rev: '2-fd68157ec3c1915ebe0b248343292d34' },

@@ -71,6 +71,7 @@ function request (param) {
 
   if (!isValidUrl(url)) {
     return Promise.reject({
+      headers: {},
       data: new Error('Bad request'),
       status: 400,
       message: 'Error: Bad request'
@@ -83,6 +84,7 @@ function request (param) {
       body = JSON.stringify(postData)
     } catch (err) {
       return Promise.reject({
+        headers: {},
         data: err,
         status: 400,
         message: 'invalid document'
@@ -104,12 +106,14 @@ function request (param) {
         let ret
         try {
           ret = {
+            headers: res.headers,
             data: JSON.parse(buffer),
             status: res.statusCode,
             message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
           }
         } catch (err) {
           ret = {
+            headers: res.headers,
             data: err,
             status: 500,
             message: err.message || 'internal error'
@@ -127,6 +131,7 @@ function request (param) {
     req.setTimeout(requestTimeout, function () {
       req.abort()
       reject({
+        headers: {},
         data: new Error('request timed out'),
         status: 500,
         message: 'Error: request timed out'
@@ -135,6 +140,7 @@ function request (param) {
 
     req.on('error', function (err) {
       reject({
+        headers: {},
         data: err,
         status: 500,
         message: err.message || 'internal error'

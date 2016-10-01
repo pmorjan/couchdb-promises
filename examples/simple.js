@@ -4,7 +4,8 @@ const dbName = 'simpledb'
 
 db.createDatabase(baseUrl, dbName)
 .then(console.log)
-// { data: { ok: true },
+// { headers: { ... },
+//   data: { ok: true },
 //   status: 201,
 //   message: 'Created - Database created successfully' }
 
@@ -14,7 +15,8 @@ db.createDatabase(baseUrl, dbName)
   age: 42
 }, 'doc1'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //     id: 'doc1',
 //     rev: '1-8b44d4a8addaced8d023b53e208421f1' },
@@ -23,7 +25,8 @@ db.createDatabase(baseUrl, dbName)
 
 .then(() => db.getDocument(baseUrl, dbName, 'doc1'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { _id: 'doc1',
 //      _rev: '1-8b44d4a8addaced8d023b53e208421f1',
 //      firstName: 'Alice',
@@ -34,7 +37,8 @@ db.createDatabase(baseUrl, dbName)
 
 .then(() => db.deleteDatabase(baseUrl, dbName))
 .then(console.log)
-// { data: { ok: true },
+// { headers: { ... },
+//   data: { ok: true },
 //   status: 200,
 //   message: 'OK - Database removed successfully' }
 

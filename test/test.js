@@ -18,8 +18,9 @@ function getName () {
 function checkResponse (t, response, status) {
   t.test(t.name, function (ts) {
     // this will only fire when t finishes
-    ts.plan(6)
+    ts.plan(7)
     ts.equal(Object.prototype.toString.call(response), '[object Object]', 'response is real object')
+    ts.equal(typeof response.headers, 'object', 'type of response.headers is \'object\'')
     ts.equal(typeof response.data, 'object', 'type of response.data is \'object\'')
     ts.equal(typeof response.message, 'string', 'type of response.message is \'string\'')
     ts.true(response.message, 'response.message is not empty')

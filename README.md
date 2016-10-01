@@ -7,15 +7,18 @@
 
 ### Yet another Node.js module for CouchDB that uses ES6 promises
 
+<!--lint disable list-item-indent-->
 * **no dependencies**
 * **as simple as possible**
 
-Promises reject or resolve with an object of 3 properties:
-* **data**: {Object} - as returned from the database, e.g. a document or an error object
-* **status**: {Number} - HTTP status code, in most cases the original response from the server
+Promises reject or resolve with an object of 4 properties:
+<!--lint disable list-item-indent-->
+* **headers**: {Object} - HTTP response headers
+* **data**: {Object} - document or error object
+* **status**: {Number} - HTTP status code or 500 for server error
 * **message**: {String} - meaning of the status code
 
-A promise is resolved if the **status** code is **< 400** otherwise rejected. All data is simply passed on from the CouchDB server. ([API Reference](http://docs.couchdb.org/en/stable/api/index.html))
+A promise is resolved if the **status** code is **< 400** otherwise rejected.
 
 ### Installation
 ```
@@ -34,7 +37,8 @@ const dbName = 'testdb'
 ```javascript
 db.getInfo(baseUrl)
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { couchdb: 'Welcome',
 //      uuid: 'bce82829daa02c49fe5b57c542ea95a3',
 //      version: '1.6.1',
@@ -47,7 +51,8 @@ db.getInfo(baseUrl)
 ```javascript
 db.createDatabase(baseUrl, dbName)
 .then(console.log)
-// { data: { ok: true },
+// { headers: { ... },
+//   data: { ok: true },
 //   status: 201,
 //   message: 'Created - Database created successfully' }
 ```
@@ -56,7 +61,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.listDatabases(baseUrl))
 .then(console.log)
-// { data: [ '_replicator', '_users', 'testdb' ],
+// { headers: { ... },
+//   data: [ '_replicator', '_users', 'testdb' ],
 //   status: 200,
 //   message: 'OK - Request completed successfully' }
 ```
@@ -65,7 +71,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.createDocument(baseUrl, dbName, {name: 'Bob'}))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: 'daae0752c6909d7ca4cd833f46014605',
 //      rev: '1-5a26fa4b20e40bc9e2d3e47b168be460' },
@@ -77,7 +84,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.createDocument(baseUrl, dbName, {name: 'Alice'}, 'doc2'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: 'doc2',
 //      rev: '1-88b10f13383b5d1e34d1d66d296f061f' },
@@ -89,7 +97,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.getDocument(baseUrl, dbName, 'doc2'))
 .then(response => { console.log(response); return response.data })
-// { data:
+// { headers: { ... },
+//   data:
 //    { _id: 'doc2',
 //      _rev: '1-88b10f13383b5d1e34d1d66d296f061f',
 //      name: 'Alice' },
@@ -104,7 +113,8 @@ db.createDatabase(baseUrl, dbName)
   return db.createDocument(baseUrl, dbName, doc, 'doc2')
 })
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: 'doc2',
 //      rev: '2-ee5ea9ac0bb1bec913a9b5e7bc11b113' },
@@ -119,7 +129,8 @@ db.createDatabase(baseUrl, dbName)
   include_docs: true
 }))
 .then(console.log)
-// { data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
+// { headers: { ... },
+//   data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
 //   status: 200,
 //   message: 'OK - Request completed successfully' }
 ```
@@ -128,7 +139,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: 'doc2',
 //      rev: '3-ec0a86a95c5e98a5cd52c29b79b66372' },
@@ -142,7 +154,8 @@ db.createDatabase(baseUrl, dbName)
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
 ], {all_or_nothing: true}))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //   [ { ok: true,
 //       id: '5413cf41edaedaec6b63aee93db86e1f',
 //       rev: '1-d7f23e94e65978ea9252d753fe5dc3f6' },
@@ -160,7 +173,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.deleteDatabase(baseUrl, dbName))
 .then(console.log)
-// { data: { ok: true },
+// { headers: { ... },
+//   data: { ok: true },
 //   status: 200,
 //   message: 'OK - Database removed successfully' }
 ```
@@ -169,7 +183,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.getUuids(baseUrl, 3))
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { uuids:
 //       [ 'daae0752c6909d7ca4cd833f46014c47',
 //         'daae0752c6909d7ca4cd833f460150c5',
@@ -182,7 +197,8 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then(() => db.getDocument(baseUrl, dbName, 'doc1'))
 .catch(console.error)
-// { data: { error: 'not_found', reason: 'no_db_file' },
+// { headers: { ... },
+//   data: { error: 'not_found', reason: 'no_db_file' },
 //   status: 404,
 //   message: 'Not Found - Document not found' }
 ```
@@ -201,7 +217,8 @@ const docId = 'ddoc1'
 
 db.createDesignDocument(baseUrl, dbName, ddoc, docId)
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: '_design/ddoc1',
 //      rev: '1-548c68d8cc2c1fac99964990a58f66fd' },
@@ -213,7 +230,8 @@ db.createDesignDocument(baseUrl, dbName, ddoc, docId)
 ```javascript
 db.getDesignDocument(baseUrl, dbName, docId)
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { _id: '_design/ddoc1',
 //      _rev: '1-548c68d8cc2c1fac99964990a58f66fd',
 //      language: 'javascript',
@@ -226,7 +244,8 @@ db.getDesignDocument(baseUrl, dbName, docId)
 ```javascript
 db.getDesignDocumentInfo(baseUrl, dbName, docId)
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //   { name: 'ddoc1',
 //     view_index:
 //      { updates_pending: [Object],
@@ -249,7 +268,8 @@ db.getDesignDocumentInfo(baseUrl, dbName, docId)
 ```javascript
 db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { ok: true,
 //      id: '_design/ddoc1',
 //      rev: '2-fd68157ec3c1915ebe0b248343292d34' },
@@ -261,7 +281,8 @@ db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 ```javascript
 db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 .then(console.log)
-// { data:
+// { headers: { ... },
+//   data:
 //    { total_rows: 12,
 //      offset: 0,
 //      rows: [ [Object], [Object], [Object] ] },
