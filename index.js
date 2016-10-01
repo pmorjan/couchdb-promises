@@ -176,7 +176,8 @@ function getTimeout () {
 
 /**
  * All promisses are settled  with an object with the folloing properties
- *  data:  {Object|String} - response from the database server
+ *  headers: {Object} - response headers
+ *  data:  {Object} - response body from the database server
  *  status: {Number} - http status code
  *  message: {String} - http message
  */
@@ -226,6 +227,40 @@ function createDatabase (baseUrl, dbName) {
       400: 'Bad Request - Invalid database name',
       401: 'Unauthorized - CouchDB Server Administrator privileges required',
       412: 'Precondition Failed - Database already exists'
+    }
+  })
+}
+
+/**
+ * Get database
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @return {Promise}
+ */
+function getDatabase (baseUrl, dbName) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+    method: 'GET',
+    statusCodes: {
+      200: 'OK - Request completed successfully',
+      404: 'Not Found – Requested database not found'
+    }
+  })
+}
+
+/**
+ * Get database head
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @return {Promise}
+ */
+function getDatabaseHead (baseUrl, dbName) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+    method: 'HEAD',
+    statusCodes: {
+      200: 'OK - Database exists',
+      404: 'Not Found – Requested database not found'
     }
   })
 }
@@ -541,6 +576,8 @@ module.exports = {
   getAllDocs: getAllDocs,
   getDesignDocument: getDesignDocument,
   getDesignDocumentInfo: getDesignDocumentInfo,
+  getDatabase: getDatabase,
+  getDatabaseHead: getDatabaseHead,
   getDocument: getDocument,
   getDocumentHead: getDocumentHead,
   getUuids: getUuids,

@@ -57,6 +57,16 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created - Database created successfully' }
 ```
 
+#### get database head
+```javascript
+.then(() => db.getDatabaseHead(baseUrl, dbName))
+.then(console.log)
+// { headers: { ... },
+//   data: {},
+//   status: 200,
+//   message: 'OK - Database exists' }
+```
+
 #### list databases
 ```javascript
 .then(() => db.listDatabases(baseUrl))

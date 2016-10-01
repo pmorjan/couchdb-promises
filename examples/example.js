@@ -20,6 +20,13 @@ db.createDatabase(baseUrl, dbName)
 //   status: 201,
 //   message: 'Created - Database created successfully' }
 
+.then(() => db.getDatabaseHead(baseUrl, dbName))
+.then(console.log)
+// { headers: { ... },
+//   data: {},
+//   status: 200,
+//   message: 'OK - Database exists' }
+
 .then(() => db.listDatabases(baseUrl))
 .then(console.log)
 // { headers: { ... },

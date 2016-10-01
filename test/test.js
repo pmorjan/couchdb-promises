@@ -102,6 +102,40 @@ test('createDatabase() with error', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('getDatabase()', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.getDatabase(baseUrl, dbName))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
+test('getDatabase() with error', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  db.getDatabase(baseUrl, dbName)
+  .catch(response => checkResponse(t, response, 404))
+})
+
+test('getDatabaseHead()', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.getDatabase(baseUrl, dbName))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
+test('getDatabaseHead() with error', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  db.getDatabaseHead(baseUrl, dbName)
+  .catch(response => checkResponse(t, response, 404))
+})
+
 test('deleteDatabase()', function (t) {
   t.plan(1)
   const dbName = getName()
