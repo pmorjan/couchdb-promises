@@ -107,7 +107,7 @@ function request (param) {
         try {
           ret = {
             headers: res.headers,
-            data: JSON.parse(buffer),
+            data: JSON.parse(buffer || '{}'),
             status: res.statusCode,
             message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
           }
@@ -263,6 +263,28 @@ function getAllDocs (baseUrl, dbName, queryObj) {
     method: 'GET',
     statusCodes: {
       200: 'OK - Request completed successfully'
+    }
+  })
+}
+
+/**
+ * Get Document Head
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {Object} [query]
+ * @return {Promise}
+ */
+function getDocumentHead (baseUrl, dbName, docId, queryObj) {
+  const queryStr = createQueryString(queryObj)
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
+    method: 'HEAD',
+    statusCodes: {
+      200: 'OK - Document exists',
+      304: 'Not Modified - Document wasn’t modified since specified revision',
+      401: 'Unauthorized - Read privilege required',
+      404: 'Not Found - Document not found'
     }
   })
 }
@@ -520,6 +542,7 @@ module.exports = {
   getDesignDocument: getDesignDocument,
   getDesignDocumentInfo: getDesignDocumentInfo,
   getDocument: getDocument,
+  getDocumentHead: getDocumentHead,
   getUuids: getUuids,
   getInfo: getInfo,
   getView: getView,

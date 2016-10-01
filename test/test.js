@@ -236,6 +236,21 @@ test('getDocument()', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('getDocumentHead()', function (t) {
+  t.plan(3)
+  const dbName = getName()
+  const doc = {foo: 'bar'}
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(response => checkResponse(t, response, [201, 202]))
+  .then(response => db.getDocumentHead(baseUrl, dbName, 'doc'))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => db.getDocumentHead(baseUrl, dbName, 'doc', {rev: '1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}))
+  .catch(response => checkResponse(t, response, 404))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', function (t) {
   t.plan(7)
   const dbName = getName()

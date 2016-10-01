@@ -47,6 +47,19 @@ db.createDatabase(baseUrl, dbName)
 //   status: 201,
 //   message: 'Created – Document created and stored on disk' }
 
+.then(() => db.getDocumentHead(baseUrl, dbName, 'doc2'))
+.then(console.log)
+// { headers:
+//    { server: 'CouchDB/1.6.1 (Erlang OTP/18)',
+//      etag: '"1-88b10f13383b5d1e34d1d66d296f061f"',
+//      date: 'Sat, 01 Oct 2016 09:46:09 GMT',
+//      'content-type': 'application/json',
+//      'content-length': '74',
+//      'cache-control': 'must-revalidate' },
+//   data: {},
+//   status: 200,
+//   message: 'OK - Document exists' }
+
 .then(() => db.getDocument(baseUrl, dbName, 'doc2'))
 .then(response => { console.log(response); return response.data })
 // { headers: { ... },
