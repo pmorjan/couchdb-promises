@@ -11,12 +11,12 @@
 * **no dependencies**
 * **as simple as possible**
 
-Promises reject or resolve with an object of 4 properties:
+Methods return a Promise object that is resolved or rejected with an object of **4** properties:
 <!--lint disable list-item-indent-->
 * **headers**: {Object} - HTTP response headers
-* **data**: {Object} - document or error object
-* **status**: {Number} - HTTP status code or 500 for server error
-* **message**: {String} - meaning of the status code
+* **data**: {Object} - DB response object
+* **status**: {Number} - HTTP status code
+* **message**: {String} - description of the status code
 
 A promise is resolved if the **status** code is **< 400** otherwise rejected.
 
@@ -103,7 +103,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created – Document created and stored on disk' }
 ```
 
-#### get documentHead
+#### get document head
 ```javascript
 .then(() => db.getDocumentHead(baseUrl, dbName, 'doc2'))
 .then(console.log)
