@@ -9,10 +9,14 @@ const test = require('tape')
 const db = require('../index')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
-const prefix = 'testdb_' + Date.now() + '_'
 
 function getName () {
-  return prefix + Math.random().toString(36).slice(2, 8)
+  // return random DB name
+  if (!getName.prefix) {
+    getName.prefix = `testdb_${Date.now()}`
+    getName.count = 0
+  }
+  return `${getName.prefix}_${getName.count++}`
 }
 
 function checkResponse (t, response, status) {
@@ -367,7 +371,7 @@ test('createBulkDocuments())', function (t) {
 
 test('db server is clean', function (t) {
   t.plan(1)
-  const re = new RegExp('^' + prefix)
+  const re = new RegExp('^' + getName.prefix)
   db.listDatabases(baseUrl)
   .then(response => response.data.find(e => re.test(e)) ? Promise.reject() : Promise.resolve())
   .catch(() => new Promise(function (resolve, reject) {
