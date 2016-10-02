@@ -7,7 +7,7 @@ const months = ['January', 'February', 'March', 'April', 'Mai', 'June', 'July', 
 
 // create database and insert some documents
 db.createDatabase(baseUrl, dbName)
-.then(() => db.bulkDocs(baseUrl, dbName,
+.then(() => db.createBulkDocuments(baseUrl, dbName,
   months.map((x, i) => { return {name: x, number: i + 1} })
 ))
 .then(console.log)

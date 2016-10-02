@@ -291,7 +291,7 @@ function deleteDatabase (baseUrl, dbName) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getAllDocs (baseUrl, dbName, queryObj) {
+function getAllDocuments (baseUrl, dbName, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_all_docs${queryStr}`,
@@ -544,7 +544,7 @@ function getView (baseUrl, dbName, docId, viewName, queryObj) {
  * @param  {Object} [opts]
  * @return {Promise}
  */
-function bulkDocs (baseUrl, dbName, docs, opts) {
+function createBulkDocuments (baseUrl, dbName, docs, opts) {
   const obj = {
     docs: docs
   }
@@ -563,25 +563,44 @@ function bulkDocs (baseUrl, dbName, docs, opts) {
 }
 
 module.exports = {
-  setTimeout: setTimeout,
-  getTimeout: getTimeout,
   //
-  bulkDocs: bulkDocs,
+  // database functions
+  //
   createDatabase: createDatabase,
-  createDesignDocument: createDesignDocument,
-  createDocument: createDocument,
   deleteDatabase: deleteDatabase,
-  deleteDesignDocument: deleteDesignDocument,
-  deleteDocument: deleteDocument,
-  getAllDocs: getAllDocs,
-  getDesignDocument: getDesignDocument,
-  getDesignDocumentInfo: getDesignDocumentInfo,
   getDatabase: getDatabase,
   getDatabaseHead: getDatabaseHead,
+  listDatabases: listDatabases,
+  //
+  // document functions
+  //
+  getAllDocuments: getAllDocuments,
+  createDocument: createDocument,
+  deleteDocument: deleteDocument,
   getDocument: getDocument,
   getDocumentHead: getDocumentHead,
-  getUuids: getUuids,
-  getInfo: getInfo,
+  //
+  // views and design functions
+  //
+  createDesignDocument: createDesignDocument,
+  deleteDesignDocument: deleteDesignDocument,
+  getDesignDocument: getDesignDocument,
+  getDesignDocumentInfo: getDesignDocumentInfo,
   getView: getView,
-  listDatabases: listDatabases
+  //
+  // bulk document functions
+  //
+  createBulkDocuments: createBulkDocuments,
+  //
+  // miscellaneous functions
+  //
+  setTimeout: setTimeout,
+  getTimeout: getTimeout,
+  getInfo: getInfo,
+  getUuids: getUuids,
+  //
+  // aliases for backward compatibility
+  //
+  bulkDocs: createBulkDocuments,
+  getAllDocs: getAllDocuments
 }

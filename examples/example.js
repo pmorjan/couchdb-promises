@@ -90,7 +90,7 @@ db.createDatabase(baseUrl, dbName)
 //   status: 201,
 //   message: 'Created – Document created and stored on disk' }
 
-.then(() => db.getAllDocs(baseUrl, dbName, {
+.then(() => db.getAllDocuments(baseUrl, dbName, {
   descending: true,
   include_docs: true
 }))
@@ -110,7 +110,7 @@ db.createDatabase(baseUrl, dbName)
 //   status: 200,
 //   message: 'OK - Document successfully removed' }
 
-.then(() => db.bulkDocs(baseUrl, dbName, [
+.then(() => db.createBulkDocuments(baseUrl, dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
 ], {all_or_nothing: false}))
 .then(console.log)

@@ -230,13 +230,13 @@ test('deleteDocument()', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('getAllDocs()', function (t) {
+test('getAllDocuments()', function (t) {
   t.plan(3)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
   .then(response => db.createDocument(baseUrl, dbName, {foo: 1}, 'doc1'))
   .then(response => db.createDocument(baseUrl, dbName, {bar: 2}, 'doc2'))
-  .then(() => db.getAllDocs(baseUrl, dbName, {
+  .then(() => db.getAllDocuments(baseUrl, dbName, {
     include_docs: true,
     descending: true
   }))
@@ -340,7 +340,7 @@ test('setTimeout()', function (t) {
   })
 })
 
-test('bulkDocs())', function (t) {
+test('createBulkDocuments())', function (t) {
   function randomData () {
     return crypto.randomBytes(Math.floor(Math.random() * 1000)).toString('hex')
   }
@@ -353,9 +353,9 @@ test('bulkDocs())', function (t) {
   const oldTimeout = db.getTimeout()
   db.setTimeout(60000)
   db.createDatabase(baseUrl, dbName)
-  .then(() => db.bulkDocs(baseUrl, dbName, docs, {all_or_nothing: false}))
+  .then(() => db.createBulkDocuments(baseUrl, dbName, docs, {all_or_nothing: false}))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(() => db.getAllDocs(baseUrl, dbName, { limit: 1 }))
+  .then(() => db.getAllDocuments(baseUrl, dbName, { limit: 1 }))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
     t.true(response.data.total_rows === cnt, 'total_rows is ' + cnt)

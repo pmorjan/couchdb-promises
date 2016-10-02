@@ -7,18 +7,16 @@
 
 ### Yet another Node.js module for CouchDB that uses ES6 promises
 
-<!--lint disable list-item-indent-->
-* **no dependencies**
-* **as simple as possible**
+*   **no dependencies**
+*   **as simple as possible**
 
-Methods return a Promise object that is resolved or rejected with an object of **4** properties:
-<!--lint disable list-item-indent-->
-* **headers**: {Object} - HTTP response headers
-* **data**: {Object} - DB response object
-* **status**: {Number} - HTTP status code
-* **message**: {String} - description of the status code
+All Functions return a **Promise object** that is resolved or rejected with an object of **4** properties:
+*   **headers**: {Object} - HTTP response headers
+*   **data**: {Object} - DB response object
+*   **status**: {Number} - HTTP status code
+*   **message**: {String} - description of the status code
 
-A promise is resolved if the **status** code is **< 400** otherwise rejected.
+The promise is resolved if the **status** code is **< 400** otherwise rejected.
 
 ### Installation
 ```
@@ -150,7 +148,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### get all documents
 ```javascript
-.then(() => db.getAllDocs(baseUrl, dbName, {
+.then(() => db.getAllDocuments(baseUrl, dbName, {
   descending: true,
   include_docs: true
 }))
@@ -176,7 +174,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### bulk create documents
 ```javascript
-.then(() => db.bulkDocs(baseUrl, dbName, [
+.then(() => db.createBulkDocuments(baseUrl, dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
 ], {all_or_nothing: true}))
 .then(console.log)
@@ -321,11 +319,48 @@ db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 #### get request timeout
 ```javascript
 db.getTimeout()
-// 10000
+// -> 10000  (no Promise)
 ```
 
 #### set request timeout
 ```javascript
 db.setTimeout(3000)
-// 3000
+// -> 3000  (no Promise)
 ```
+
+--
+
+# Overview
+### database functions
+*   createDatabase()
+*   deleteDatabase()
+*   getDatabase()
+*   getDatabaseHead()
+*   listDatabases()
+
+### document functions
+*   getAllDocuments()
+*   createDocument()
+*   deleteDocument()
+*   getDocument()
+*   getDocumentHead()
+
+### view and design document functions
+*   createDesignDocument()
+*   deleteDesignDocument()
+*   getDesignDocument()
+*   getDesignDocumentInfo()
+*   getView()
+
+### bulk document functions
+*   createBulkDocuments()
+
+### miscellaneous functions
+*   setTimeout()
+*   getTimeout()
+*   getInfo()
+*   getUuids()
+
+### aliases for backward compatibility
+*   bulkDocs() -> createBulkDocuments()
+*   getAllDocs() -> getAllDocuments()
