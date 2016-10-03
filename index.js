@@ -42,8 +42,8 @@ function isValidUrl (url) {
 
 function createQueryString (queryObj) {
   const obj = Object.assign({}, queryObj)
-  Object.keys(obj).forEach((key) => {
-    if (QUERY_KEYS_JSON.indexOf(key) !== -1) {
+  QUERY_KEYS_JSON.forEach(key => {
+    if (key in obj) {
       obj[key] = JSON.stringify(obj[key])
     }
   })
