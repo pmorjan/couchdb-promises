@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+
 const db = require('../index')
 const baseUrl = 'http://localhost:5984'
 const dbName = 'testdb_' + Date.now()
@@ -15,27 +18,52 @@ const doc1 = {
 }
 
 //
-// attachment
+// attachments
 //
 const a1 = {
   name: 'hello.txt',
-  data: `hello world`,   // 11 chars
+  data: `hello\nworld`,   // 11 chars
   contentType: 'text/plain'
+}
+
+const a2 = {
+  name: 'test.png',
+  data: fs.readFileSync(path.join(__dirname, '../test/test.png')),
+  contentType: 'image/png'
 }
 
 db.createDatabase(baseUrl, dbName)
 .then(() => db.createDocument(baseUrl, dbName, doc1, 'myDocument'))
+
+// attach text file
 .then(response => {
   const rev = response.data.rev
   return db.addAttachment(baseUrl, dbName, 'myDocument', a1.name, rev, a1.contentType, a1.data)
 })
 .then(log)
 // {
-//   "headers": { ... },
-//   "data": {
+//  "headers": { ... },
+//  "data": {
+//    "ok": true,
+//    "id": "myDocument",
+//    "rev": "2-58ba51a03eb2da5f68b864e496eb0b9b"
+//  },
+//  "status": 201,
+//  "message": "OK - Created"
+// }
+
+// attach image file
+.then(response => {
+  const rev = response.data.rev
+  return db.addAttachment(baseUrl, dbName, 'myDocument', a2.name, rev, a2.contentType, a2.data)
+})
+.then(log)
+// {
+//  "headers": { ... },
+//  "data": {
 //     "ok": true,
 //     "id": "myDocument",
-//     "rev": "2-8e7a984fc45b0d19013ce8eb9009a472"
+//     "rev": "3-86da2d34bc4d1c0e80e283128d7644f8"
 //   },
 //   "status": 201,
 //   "message": "OK - Created"
@@ -47,14 +75,20 @@ db.createDatabase(baseUrl, dbName)
 //   "headers": { ... },
 //   "data": {
 //     "_id": "myDocument",
-//     "_rev": "2-8e7a984fc45b0d19013ce8eb9009a472",
+//     "_rev": "3-86da2d34bc4d1c0e80e283128d7644f8",
 //     "name": "test document",
 //     "_attachments": {
+//       "test.png": {
+//         "content_type": "image/png",
+//         "revpos": 3,
+//         "digest": "md5-6kpRjNkALl9BEDJoTyxGTg==",
+//         "data": "iVBORw0KGgoAAAANSUhEUgAAAK ... SuQmCC"
+//       },
 //       "hello.txt": {
 //         "content_type": "text/plain",
 //         "revpos": 2,
-//         "digest": "md5-hRGJCyHA9ydm4LSbkWIiFQ==",
-//         "data": "aGVsbG8Kd29ybGQ="
+//         "digest": "md5-7mkg+nM0HN26sZkLN8KVSA==",
+//         "data": "aGVsbG8gd29ybGQ="
 //       }
 //     }
 //   },
@@ -81,7 +115,7 @@ db.createDatabase(baseUrl, dbName)
 //   "data": {
 //     "ok": true,
 //     "id": "myDocument",
-//     "rev": "3-863c58969d601c2cd94663fe4ab915d1"
+//     "rev": "4-31db13e519dd8822f86b0ddee1456041"
 //   },
 //   "status": 200,
 //   "message": "OK – Attachment successfully removed"

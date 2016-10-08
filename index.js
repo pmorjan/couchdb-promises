@@ -80,8 +80,7 @@ function request (param) {
   }
 
   let body
-  if (typeof postData === 'object') {
-    //
+  if (Object.prototype.toString.call(postData) === '[object Object]') {
     try {
       body = JSON.stringify(postData)
     } catch (err) {
