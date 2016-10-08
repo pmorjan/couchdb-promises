@@ -345,6 +345,11 @@ db.setTimeout(3000)
 *   getDocument()
 *   getDocumentHead()
 
+### document attachment functions
+*   getAttachmentHead()
+*   addAttachment()
+*   deleteAttachment()
+
 ### view and design document functions
 *   createDesignDocument()
 *   deleteDesignDocument()
@@ -364,3 +369,4 @@ db.setTimeout(3000)
 ### aliases for backward compatibility
 *   bulkDocs() -> createBulkDocuments()
 *   getAllDocs() -> getAllDocuments()
+

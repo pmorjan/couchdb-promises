@@ -55,6 +55,7 @@ function request (param) {
   const url = param.url
   const statusCodes = param.statusCodes || {}
   const postData = param.postData
+  const postContentType = param.postContentType
   const o = urlParse(url)
   const httpOptions = {
     hostname: o.host && o.host.split(':')[0],
@@ -79,7 +80,8 @@ function request (param) {
   }
 
   let body
-  if (postData) {
+  if (typeof postData === 'object') {
+    //
     try {
       body = JSON.stringify(postData)
     } catch (err) {
@@ -92,6 +94,11 @@ function request (param) {
     }
     httpOptions.headers['content-length'] = Buffer.byteLength(body)
     httpOptions.headers['content-type'] = 'application/json'
+  } else if (postData) {
+    // buffer of base64
+    body = postData
+    httpOptions.headers['content-length'] = Buffer.byteLength(postData)
+    httpOptions.headers['content-type'] = postContentType
   }
 
   return new Promise(function (resolve, reject) {
@@ -362,6 +369,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
       url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
       method: 'PUT',
       postData: doc,
+      postContentType: 'application/json',
       statusCodes: {
         201: 'Created – Document created and stored on disk',
         202: 'Accepted – Document data accepted, but not yet stored on disk',
@@ -562,6 +570,108 @@ function createBulkDocuments (baseUrl, dbName, docs, opts) {
   })
 }
 
+// http://docs.couchdb.org/en/latest/api/document/common.html#attachments
+
+  /**
+ * Get attachment head
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {String} attName
+ * @param  {String} [rev]
+ * @return {Promise}
+ */
+function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
+  const queryStr = rev ? `?rev=${rev}` : ''
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+    method: 'HEAD',
+    statusCodes: {
+      200: 'OK - Attachment exists',
+      304: 'Not Modified - Attachment wasn’t modified if ETag equals specified If-None-Match header',
+      401: 'Unauthorized - Read privilege required',
+      404: 'Not Found - Specified database, document or attchment was not found'
+    }
+  })
+}
+
+/**
+ * For large attachements returning a promise might not be a good idea
+ * get attachment
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {String} attName
+ * @param  {String} [rev]
+ * @return {Promise}
+ */
+// function getAttachment (baseUrl, dbName, docId, attName, rev) {
+//   const queryStr = rev ? `?rev=${rev}` : ''
+//   return request({
+//     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+//     method: 'GET',
+//     statusCodes: {
+//       200: 'OK - Attachment exists',
+//       304: 'Not Modified - Attachment wasn’t modified if ETag equals specified If-None-Match header',
+//       401: 'Unauthorized - Read privilege required',
+//       404: 'Not Found - Specified database, document or attchment was not found'
+//     }
+//   })
+// }
+
+/**
+ * add attachment
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {String} attName
+ * @param  {String} rev
+ * @param  {String} contentType
+ * @param  {Buffer|String} att
+ * @return {Promise}
+ */
+function addAttachment (baseUrl, dbName, docId, attName, rev, contentType, data) {
+  const queryStr = rev ? `?rev=${rev}` : ''
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+    method: 'PUT',
+    postContentType: contentType,
+    postData: data,
+    statusCodes: {
+      201: 'OK - Created',  // TODO: check with API again
+      202: 'Accepted - Request was but changes are not yet stored on disk',
+      401: 'Unauthorized - Write privilege required',
+      404: 'Not Found - Specified database, document or attchment was not found',
+      409: '409 Conflict – Document’s revision wasn’t specified or it’s not the latest'
+    }
+  })
+}
+
+/**
+ * delete attachment
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId
+ * @param  {String} attName
+ * @param  {String} rev
+ * @return {Promise}
+ */
+function deleteAttachment (baseUrl, dbName, docId, attName, rev) {
+  const queryStr = rev ? `?rev=${rev}` : ''
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+    method: 'DELETE',
+    statusCodes: {
+      200: 'OK – Attachment successfully removed',
+      202: 'Accepted - Request was but changes are not yet stored on disk',
+      400: '400 Bad Request – Invalid request body or parameters',
+      401: 'Unauthorized - Write privilege required',
+      404: 'Not Found - Specified database, document or attchment was not found',
+      409: '409 Conflict – Document’s revision wasn’t specified or it’s not the latest'
+    }
+  })
+}
+
 module.exports = {
   //
   // database functions
@@ -579,6 +689,12 @@ module.exports = {
   deleteDocument: deleteDocument,
   getDocument: getDocument,
   getDocumentHead: getDocumentHead,
+  //
+  // document attachemnt functions
+  //
+  getAttachmentHead: getAttachmentHead,
+  addAttachment: addAttachment,
+  deleteAttachment: deleteAttachment,
   //
   // views and design functions
   //

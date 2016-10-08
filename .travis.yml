@@ -13,3 +13,4 @@ script:
  - node examples/example.js
  - node examples/view.js
  - node examples/simple.js
+ - node examples/attachment.js
