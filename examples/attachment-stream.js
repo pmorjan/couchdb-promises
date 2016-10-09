@@ -6,15 +6,15 @@ const db = require('../index')
 const baseUrl = 'http://localhost:5984'
 const dbName = 'testdb_' + Date.now()
 
-const tempfile = path.join(os.tmpDir(), 'testfile_' + Date.now())
+const testFile = '/bin/sh'
+const tempFile = path.join(os.tmpDir(), 'testfile_' + Date.now())
 
-const writeStream = fs.createWriteStream(tempfile)
+const writeStream = fs.createWriteStream(tempFile)
 writeStream.on('close', function () {
-  console.log('attachment written to: ' + tempfile)
+  console.log(`attachment "${testFile}" written to: ${tempFile}`)
 })
 writeStream.on('error', function (err) {
   console.error(err)
-  writeStream.close()
 })
 
 function log (obj) {
@@ -27,8 +27,8 @@ const doc1 = {
 }
 
 const attachment = {
-  name: os.userInfo().shell,
-  data: fs.createReadStream(os.userInfo().shell),
+  name: testFile,
+  data: fs.createReadStream(testFile),
   contentType: 'application/octet-stream'
 }
 
