@@ -18,7 +18,7 @@ const doc1 = {
 }
 
 //
-// attachments
+// small text attachment
 //
 const a1 = {
   name: 'hello.txt',
@@ -26,6 +26,9 @@ const a1 = {
   contentType: 'text/plain'
 }
 
+//
+// small binary attachment
+//
 const a2 = {
   name: 'test.png',
   data: fs.readFileSync(path.join(__dirname, '../test/test.png')),
@@ -52,7 +55,6 @@ db.createDatabase(baseUrl, dbName)
 //  "message": "OK - Created"
 // }
 
-// attach image file
 .then(response => {
   const rev = response.data.rev
   return db.addAttachment(baseUrl, dbName, 'myDocument', a2.name, rev, a2.contentType, a2.data)

@@ -80,29 +80,58 @@ function request (param) {
   }
 
   let body
-  if (Object.prototype.toString.call(postData) === '[object Object]') {
+  let stream
+  let error
+
+  if (Buffer.isBuffer(postData)) {
+    //
+    // buffer
+    //
+    body = postData
+    httpOptions.headers['content-type'] = postContentType
+    httpOptions.headers['content-length'] = Buffer.byteLength(postData)
+  } else if (postData && postData.readable && typeof postData._read === 'function') {
+    //
+    // stream
+    //
+    httpOptions.headers['content-type'] = postContentType
+    httpOptions.headers['Transfer-Encoding'] = 'chunked'
+    stream = postData
+  } else if (Object.prototype.toString.call(postData) === '[object Object]') {
+    //
+    // regular object -> JSON
+    //
     try {
       body = JSON.stringify(postData)
     } catch (err) {
-      return Promise.reject({
-        headers: {},
-        data: err,
-        status: 400,
-        message: 'invalid document'
-      })
+      error = err
     }
-    httpOptions.headers['content-length'] = Buffer.byteLength(body)
     httpOptions.headers['content-type'] = 'application/json'
-  } else if (postData) {
-    // buffer of base64
+    httpOptions.headers['content-length'] = Buffer.byteLength(body)
+  } else if (typeof postData === 'string') {
+    //
+    // string
+    //
     body = postData
-    httpOptions.headers['content-length'] = Buffer.byteLength(postData)
     httpOptions.headers['content-type'] = postContentType
+    httpOptions.headers['content-length'] = body.length
+  } else if (postData) {
+    error = 'unsoported post data'
+  }
+
+  if (error) {
+    return Promise.reject({
+      headers: {},
+      data: error,
+      status: 400,
+      message: 'invalid post data'
+    })
   }
 
   return new Promise(function (resolve, reject) {
     const lib = httpOptions.protocol === 'https:' ? https : http
     const req = lib.request(httpOptions, function (res) {
+      // console.error(res.req._headers)
       let buffer = ''
       res.setEncoding('utf8')
       res.on('data', function (data) {
@@ -155,8 +184,17 @@ function request (param) {
 
     if (body) {
       req.write(body)
+      req.end()
+    } else if (stream) {
+      stream.on('data', function (chunk) {
+        req.write(chunk)
+      })
+      stream.on('end', function () {
+        req.end()
+      })
+    } else {
+      req.end()
     }
-    req.end()
   })
 }
 

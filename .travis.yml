@@ -14,3 +14,4 @@ script:
  - node examples/view.js
  - node examples/simple.js
  - node examples/attachment.js
+ - node examples/attachment-stream.js
