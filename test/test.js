@@ -182,9 +182,20 @@ test('createDocument() with docId special name', function (t) {
   t.plan(1)
   const dbName = getName()
   const doc = {foo: 'bar'}
+  const docName = '`~!@#$%^&*()_+-=[]{}|;:\'",./<> ?'
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'a_$() : + -/'))
+  .then(response => db.createDocument(baseUrl, dbName, doc, docName))
   .then(response => checkResponse(t, response, [201, 202]))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
+test('createDocument() with invalid document', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createDocument(baseUrl, dbName, null, 'doc'))
+  .catch(response => checkResponse(t, response, 400))
   .then(response => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
