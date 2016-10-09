@@ -330,7 +330,10 @@ db.setTimeout(3000)
 
 --
 
-# Overview
+# API Reference
+
+Still incomplete. See [examples](examples/) for details.
+
 ### database functions
 *   createDatabase()
 *   deleteDatabase()
@@ -346,6 +349,7 @@ db.setTimeout(3000)
 *   getDocumentHead()
 
 ### document attachment functions
+*   getAttachment()
 *   getAttachmentHead()
 *   addAttachment()
 *   deleteAttachment()
@@ -369,4 +373,3 @@ db.setTimeout(3000)
 ### aliases for backward compatibility
 *   bulkDocs() -> createBulkDocuments()
 *   getAllDocs() -> getAllDocuments()
-

@@ -1,5 +1,6 @@
 // http://docs.couchdb.org/en/stable/api/index.html
 'use strict'
+const assert = require('assert')
 const http = require('http')
 const https = require('https')
 const querystring = require('querystring')
@@ -131,6 +132,7 @@ function request (param) {
   return new Promise(function (resolve, reject) {
     const lib = httpOptions.protocol === 'https:' ? https : http
     const req = lib.request(httpOptions, function (res) {
+      // console.error(url)
       // console.error(res.req._headers)
       let buffer = ''
       res.setEncoding('utf8')
@@ -195,6 +197,75 @@ function request (param) {
     } else {
       req.end()
     }
+  })
+}
+
+function requestStream (param) {
+  const url = param.url
+  const statusCodes = param.statusCodes || {}
+  const stream = param.stream
+
+  assert(stream && stream.writable && typeof stream._write === 'function', 'is writeable stream')
+
+  const o = urlParse(url)
+  const httpOptions = {
+    hostname: o.host && o.host.split(':')[0],
+    port: o.port || 443,
+    path: o.path,
+    auth: o.auth,
+    protocol: o.protocol,
+    method: 'GET',
+    headers: {
+      'user-agent': 'couchdb-promises'
+    }
+  }
+
+  if (!isValidUrl(url)) {
+    return Promise.reject({
+      headers: {},
+      data: new Error('Bad request'),
+      status: 400,
+      message: 'Error: Bad request'
+    })
+  }
+
+  return new Promise(function (resolve, reject) {
+    const lib = httpOptions.protocol === 'https:' ? https : http
+    const req = lib.request(httpOptions, function (res) {
+      res.pipe(stream)
+      let ret = {
+        headers: res.headers,
+        status: res.statusCode,
+        message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
+      }
+
+      if (ret.status < 400) {
+        resolve(ret)
+      } else {
+        reject(ret)
+      }
+    })
+
+    req.setTimeout(requestTimeout, function () {
+      req.abort()
+      reject({
+        headers: {},
+        data: new Error('request timed out'),
+        status: 500,
+        message: 'Error: request timed out'
+      })
+    })
+
+    req.on('error', function (err) {
+      reject({
+        headers: {},
+        data: err,
+        status: 500,
+        message: err.message || 'internal error'
+      })
+    })
+
+    req.end()
   })
 }
 
@@ -609,7 +680,7 @@ function createBulkDocuments (baseUrl, dbName, docs, opts) {
 
 // http://docs.couchdb.org/en/latest/api/document/common.html#attachments
 
-  /**
+/**
  * Get attachment head
  * @param  {String} baseUrl
  * @param  {String} dbName
@@ -633,28 +704,28 @@ function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
 }
 
 /**
- * For large attachements returning a promise might not be a good idea
  * get attachment
  * @param  {String} baseUrl
  * @param  {String} dbName
  * @param  {String} docId
  * @param  {String} attName
+ * @param  {StreamWritable} stream
  * @param  {String} [rev]
  * @return {Promise}
  */
-// function getAttachment (baseUrl, dbName, docId, attName, rev) {
-//   const queryStr = rev ? `?rev=${rev}` : ''
-//   return request({
-//     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
-//     method: 'GET',
-//     statusCodes: {
-//       200: 'OK - Attachment exists',
-//       304: 'Not Modified - Attachment wasn’t modified if ETag equals specified If-None-Match header',
-//       401: 'Unauthorized - Read privilege required',
-//       404: 'Not Found - Specified database, document or attchment was not found'
-//     }
-//   })
-// }
+function getAttachment (baseUrl, dbName, docId, attName, stream, rev) {
+  const queryStr = rev ? `?rev=${rev}` : ''
+  return requestStream({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+    stream: stream,
+    statusCodes: {
+      200: 'OK - Attachment exists',
+      304: 'Not Modified - Attachment wasn’t modified if ETag equals specified If-None-Match header',
+      401: 'Unauthorized - Read privilege required',
+      404: 'Not Found - Specified database, document or attchment was not found'
+    }
+  })
+}
 
 /**
  * add attachment
@@ -732,6 +803,7 @@ module.exports = {
   getAttachmentHead: getAttachmentHead,
   addAttachment: addAttachment,
   deleteAttachment: deleteAttachment,
+  getAttachment: getAttachment,
   //
   // views and design functions
   //
