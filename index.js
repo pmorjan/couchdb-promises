@@ -158,9 +158,9 @@ function request (param) {
         }
 
         if (ret.status < 400) {
-          resolve(ret)
+          return resolve(ret)
         } else {
-          reject(ret)
+          return reject(ret)
         }
       })
     })
@@ -240,9 +240,9 @@ function requestStream (param) {
       }
 
       if (ret.status < 400) {
-        resolve(ret)
+        return resolve(ret)
       } else {
-        reject(ret)
+        return reject(ret)
       }
     })
 
@@ -715,16 +715,33 @@ function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
  */
 function getAttachment (baseUrl, dbName, docId, attName, stream, rev) {
   const queryStr = rev ? `?rev=${rev}` : ''
-  return requestStream({
-    url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
-    stream: stream,
-    statusCodes: {
-      200: 'OK - Attachment exists',
-      304: 'Not Modified - Attachment wasn’t modified if ETag equals specified If-None-Match header',
-      401: 'Unauthorized - Read privilege required',
-      404: 'Not Found - Specified database, document or attchment was not found'
-    }
-  })
+  return Promise.resolve()
+    .then(() => requestStream({
+      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+      stream: stream,
+      statusCodes: {
+        200: 'OK - Attachment exists',
+        304: 'Not Modified - Attachment wasn’t modified if ETag equals specified If-None-Match header',
+        401: 'Unauthorized - Read privilege required',
+        404: 'Not Found - Specified database, document or attchment was not found'
+      }
+    })
+    .then(response => {
+      return new Promise(function (resolve, reject) {
+        stream.on('close', function () {
+          return resolve(response)
+        })
+        stream.on('error', function (err) {
+          return reject({
+            headers: {},
+            data: err,
+            status: 500,
+            message: err.message || 'stream error'
+          })
+        })
+      })
+    })
+  )
 }
 
 /**
