@@ -5,10 +5,8 @@ node_js:
 services:
  - couchdb
 install:
- - npm install -g standard
  - npm install
 script:
- - standard -v
  - npm test
  - node examples/example.js
  - node examples/view.js
