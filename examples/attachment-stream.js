@@ -9,13 +9,13 @@ const dbName = 'testdb_' + Date.now()
 
 const testFile = '/bin/sh'
 const tempFile = path.join(os.tmpDir(), 'testfile_' + Date.now())
+
 const writeStream = fs.createWriteStream(tempFile)
 
 function md5 (file) {
   return new Promise(function (resolve, reject) {
     const hash = crypto.createHash('md5')
     const stream = fs.createReadStream(file)
-
     stream.on('data', function (data) {
       hash.update(data, 'utf8')
     })
@@ -34,48 +34,46 @@ function log (obj) {
 }
 
 const doc1 = {
-  name: 'test document'
+  title: 'test document with large attachment'
 }
 
 const attachment = {
   name: testFile,
-  data: fs.createReadStream(testFile),
+  stream: fs.createReadStream(testFile),
   contentType: 'application/octet-stream'
 }
 
 db.createDatabase(baseUrl, dbName)
-.then(() => db.createDocument(baseUrl, dbName, doc1, 'myDocument'))
+.then(() => db.createDocument(baseUrl, dbName, doc1, 'myDoc'))
 
 .then(response => {
   const rev = response.data.rev
-  return db.addAttachment(baseUrl, dbName, 'myDocument', attachment.name, rev, attachment.contentType, attachment.data)
+  return db.addAttachment(baseUrl, dbName, 'myDoc', attachment.name, rev, attachment.contentType, attachment.stream)
 })
 
-.then(() => db.getDocument(baseUrl, dbName, 'myDocument'))
+.then(() => db.getDocument(baseUrl, dbName, 'myDoc'))
 .then(log)
 // {
-//   "headers": { ... },
-//   "data": {
-//     "_id": "myDocument",
-//     "_rev": "2-93204aa69c0dc921ba2640e349d14a74",
-//     "name": "test document",
-//     "_attachments": {
-//       "shell": {
-//         "content_type": "application/octet-stream",
-//         "revpos": 2,
-//         "digest": "md5-XXWD2A5TFKyETu3G1oxs1w==",
-//         "length": 628496,
-//         "stub": true
-//       }
+// "headers": { ... },
+// "data": {
+//   "_id": "myDoc",
+//   "_rev": "2-f7b9138c2817cc8e6082430c5d18c842",
+//   "title": "test document with large attachment",
+//   "_attachments": {
+//     "/bin/sh": {
+//       "content_type": "application/octet-stream",
+//       "revpos": 2,
+//       "digest": "md5-LMPCZkERLBvQFz85a312Yg==",
+//       "length": 632672,
+//       "stub": true
 //     }
-//   },
-//   "status": 200,
-//   "message": "OK - Request completed successfully"
-// }
+//   }
+// },
+// "status": 200,
+// "message": "OK - Request completed successfully"
 
-.then(() => db.getAttachment(baseUrl, dbName, 'myDocument', attachment.name, writeStream))
+.then(() => db.getAttachment(baseUrl, dbName, 'myDoc', attachment.name, writeStream))
 .then(log)
-// console.log(`attachment "${testFile}" written to: ${tempFile}`)
 // {
 //   "headers": { ... },
 //   "status": 200,
