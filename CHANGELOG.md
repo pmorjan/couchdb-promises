@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.2.0 - 2016-10-11
+New methods for working with attachments either as Buffer, String 
+or Stream.
+- Add new method getAttachment()
+- Add new method getAttachmentHead()
+- Add new method addAttachment()
+- Add new method deleteAttachment()
+
 ## 1.1.0 - 2016-10-01
 - The response object now includes a 4th property 'headers'
 - Add new method getDatabase()

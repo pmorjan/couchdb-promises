@@ -37,6 +37,9 @@ const doc1 = {
   title: 'test document with large attachment'
 }
 
+//
+// large binary attachment as Stream
+//
 const attachment = {
   name: testFile,
   stream: fs.createReadStream(testFile),

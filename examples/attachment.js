@@ -18,16 +18,16 @@ const doc1 = {
 }
 
 //
-// small text attachment
+// small text attachment as String
 //
 const a1 = {
   name: 'hello.txt',
-  data: `hello\nworld`,   // 11 chars
+  data: `hello\nworld`,
   contentType: 'text/plain'
 }
 
 //
-// small binary attachment
+// binary attachment as Buffer
 //
 const a2 = {
   name: 'test.png',

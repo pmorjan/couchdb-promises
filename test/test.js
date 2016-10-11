@@ -380,6 +380,43 @@ test('createBulkDocuments())', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('add/get/delete Attachment', function (t) {
+  t.plan(4)
+  const dbName = getName()
+  const doc = {foo: 'bar'}
+  const a1 = {
+    name: 'hello.txt',
+    data: `hello\nworld`,
+    contentType: 'text/plain'
+  }
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  // add
+  .then(response => {
+    const rev = response.data.rev
+    return db.addAttachment(baseUrl, dbName, 'doc', a1.name, rev, a1.contentType, a1.data)
+  })
+  .then(response => checkResponse(t, response, [201, 202]))
+  // get as base64
+  .then(() => db.getDocument(baseUrl, dbName, 'doc', {attachments: true}))
+  .then(response => checkResponse(t, response, 200))
+  // check retrieved attachment
+  .then(response => {
+    const base64 = response.data._attachments[a1.name].data
+    const a2 = Buffer.from(base64, 'base64').toString('utf8')
+    t.equal(a1.data, a2, 'sent attachment ===  retrieved attachment')
+    return response
+  })
+  // delete
+  .then(response => {
+    const rev = response.data._rev
+    return db.deleteAttachment(baseUrl, dbName, 'doc', a1.name, rev)
+  })
+  .then(response => checkResponse(t, response, [200, 202]))
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('db server is clean', function (t) {
   t.plan(1)
   const re = new RegExp('^' + getName.prefix)
