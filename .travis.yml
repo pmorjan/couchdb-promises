@@ -13,3 +13,4 @@ script:
  - node examples/simple.js
  - node examples/attachment.js
  - node examples/attachment-stream.js
+ - node examples/attachment-stream2.js

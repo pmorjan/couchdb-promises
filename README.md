@@ -332,7 +332,7 @@ db.setTimeout(3000)
 
 # API Reference
 
-Still incomplete. See [examples](examples/) for details.
+See [examples](examples/) for details.
 
 ### database functions
 *   createDatabase()
