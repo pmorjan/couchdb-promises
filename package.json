@@ -1,6 +1,6 @@
 {
   "name": "couchdb-promises",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "ES6 promises-based CouchDB client",
   "main": "index.js",
   "author": "Peter Morjan <pmorjan@gmail.com>",
