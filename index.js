@@ -205,7 +205,7 @@ function requestStream (param) {
   const statusCodes = param.statusCodes || {}
   const stream = param.stream
 
-  assert(stream && stream.writable && typeof stream._write === 'function', 'is writeable stream')
+  assert(stream && stream.writable && typeof stream.pipe === 'function', 'is writeable stream')
 
   const o = urlParse(url)
   const httpOptions = {
