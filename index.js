@@ -157,11 +157,7 @@ function request (param) {
           }
         }
 
-        if (ret.status < 400) {
           return resolve(ret)
-        } else {
-          return reject(ret)
-        }
       })
     })
 
