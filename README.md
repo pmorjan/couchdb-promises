@@ -10,7 +10,7 @@
 *   **no dependencies**
 *   **as simple as possible**
 
-All Functions return a **Promise object** that is resolved or rejected with an object of **4** properties:
+All Functions return a **Promise object** whose fulfillment or failure handler receives an object of **4** properties:
 *   **headers**: {Object} - HTTP response headers
 *   **data**: {Object} - DB response object
 *   **status**: {Number} - HTTP status code
@@ -319,16 +319,16 @@ db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 #### get request timeout
 ```javascript
 db.getTimeout()
-// -> 10000  (no Promise)
+// -> 10000  (returns Number)
 ```
 
 #### set request timeout
 ```javascript
 db.setTimeout(3000)
-// -> 3000  (no Promise)
+// -> 3000  (returns Number)
 ```
 
---
+---
 
 # API Reference
 
