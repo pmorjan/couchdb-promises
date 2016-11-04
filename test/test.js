@@ -11,7 +11,7 @@ const db = require('../index')
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 
 function getName () {
-  // return random DB name
+  // return uniq DB name e.g. testdb_1478345689284_16
   if (!getName.prefix) {
     getName.prefix = `testdb_${Date.now()}`
     getName.count = 0
@@ -24,16 +24,16 @@ function checkResponse (t, response, status) {
     // this will only fire when t finishes
     ts.plan(7)
     ts.equal(Object.prototype.toString.call(response), '[object Object]', 'response is real object')
-    ts.equal(typeof response.headers, 'object', 'type of response.headers is \'object\'')
-    ts.equal(typeof response.data, 'object', 'type of response.data is \'object\'')
-    ts.equal(typeof response.message, 'string', 'type of response.message is \'string\'')
+    ts.equal(typeof response.headers, 'object', `type of response.headers is 'object'`)
+    ts.equal(typeof response.data, 'object', `type of response.data is 'object'`)
+    ts.equal(typeof response.message, 'string', `type of response.message is 'string'`)
     ts.true(response.message, 'response.message is not empty')
     if (Object.prototype.toString.call(status) === '[object Array]') {
-      ts.true(status.indexOf(response.status) > -1, 'response.status is in [' + status + '], actual:' + response.status)
+      ts.true(status.indexOf(response.status) > -1, `response.status is in [${status}], actual: ${response.status}`)
     } else {
-      ts.equal(response.status, status, 'response.status is ' + status + ', actual:' + response.status)
+      ts.equal(response.status, status, `response.status is ${status}, actual: ${response.status}`)
     }
-    ts.pass(response.message)
+    ts.pass(response.message.slice(0, 70))
   })
   return response
 }
@@ -58,13 +58,15 @@ test('getInfo()', function (t) {
 })
 
 test('getUuids()', function (t) {
-  t.plan(4)
+  t.plan(13)
   db.getUuids(baseUrl, 10)
   .then(response => checkResponse(t, response, 200))
   .then(response => {
-    t.equal(Object.prototype.toString.call(response.data.uuids), '[object Array]', 'object is Array')
+    t.true(Array.isArray(response.data.uuids), 'object is Array')
     t.equal(response.data.uuids.length, 10, 'array contains 10 elements')
-    t.true(response.data.uuids[0].match(/^[a-z0-9]+$/), 'first element looks like a UUID')
+    response.data.uuids.forEach(uid => {
+      t.true(uid.match(/^[a-f0-9]{32}$/), 'array element is uid')
+    })
   })
   .catch(response => console.error(util.inspect(response)))
 })
@@ -337,21 +339,26 @@ test('getTimeout()', function (t) {
 })
 
 test('setTimeout()', function (t) {
+  // create an http server to simulate a couchdb server that does
+  // not response within a given time frame.
+  // no http request handler -> connecting works but no response
+  t.plan(2)
   const timeout = 1000
   const eps = 100
-  const port = 47474
-  const server = http.createServer().listen(port)
-  t.plan(2)
-  const oldTimeout = db.getTimeout()
-  t.timeoutAfter(timeout + 2 * eps)
-  db.setTimeout(timeout)
-  const t0 = Date.now()
-  db.getInfo('http://localhost:' + port)
-  .catch(response => checkResponse(t, response, 500))
-  .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
-  .then(() => {
-    server.close()
-    db.setTimeout(oldTimeout)
+  const server = http.createServer().listen(0)
+  server.on('listening', function () {
+    const port = server.address().port
+    const oldTimeout = db.getTimeout()
+    t.timeoutAfter(timeout + 2 * eps)
+    db.setTimeout(timeout)
+    const t0 = Date.now()
+    db.getInfo('http://localhost:' + port)
+    .catch(response => checkResponse(t, response, 500))
+    .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
+    .then(() => {
+      server.close()
+      db.setTimeout(oldTimeout)
+    })
   })
 })
 
@@ -418,6 +425,7 @@ test('add/get/delete Attachment', function (t) {
 })
 
 test('db server is clean', function (t) {
+  // no leftover databases
   t.plan(1)
   const re = new RegExp('^' + getName.prefix)
   db.listDatabases(baseUrl)
@@ -427,5 +435,6 @@ test('db server is clean', function (t) {
     setTimeout(() => resolve(), 1000)
   }))
   .then(() => db.listDatabases(baseUrl))
-  .then(response => t.false(response.data.find(e => re.test(e)), 'all tempdb deleted'))
+  .then(response => t.deepEqual(response.data.filter(e => re.test(e)), [], `all ${getName.count} temporary databases removed`))
+  .catch(response => console.error(util.inspect(response)))
 })
