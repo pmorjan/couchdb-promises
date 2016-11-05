@@ -269,12 +269,14 @@ function requestStream (param) {
   })
 }
 
+const couch = module.exports = {}
+
 /**
  * set request timeout
  * @param {Number} t in ms
  * @return {Number}
  */
-function setTimeout (t) {
+couch.setTimeout = function setTimeout (t) {
   if (typeof t === 'number' && t >= 0) {
     requestTimeout = t
   }
@@ -285,7 +287,7 @@ function setTimeout (t) {
  * get request timeout
  * @return {Number}
  */
-function getTimeout () {
+couch.getTimeout = function getTimeout () {
   return requestTimeout
 }
 
@@ -302,7 +304,7 @@ function getTimeout () {
  * @param  {String} baseUrl
  * @return {Promise}
  */
-function getInfo (baseUrl) {
+couch.getInfo = function getInfo (baseUrl) {
   return request({
     url: `${baseUrl}/`,
     method: 'GET',
@@ -317,7 +319,7 @@ function getInfo (baseUrl) {
  * @param  {String} baseUrl
  * @return {Promise}
  */
-function listDatabases (baseUrl) {
+couch.listDatabases = function listDatabases (baseUrl) {
   return request({
     url: `${baseUrl}/_all_dbs`,
     method: 'GET',
@@ -333,7 +335,7 @@ function listDatabases (baseUrl) {
  * @param  {String} dbName
  * @return {Promise}
  */
-function createDatabase (baseUrl, dbName) {
+couch.createDatabase = function createDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'PUT',
@@ -352,7 +354,7 @@ function createDatabase (baseUrl, dbName) {
  * @param  {String} dbName
  * @return {Promise}
  */
-function getDatabase (baseUrl, dbName) {
+couch.getDatabase = function getDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'GET',
@@ -369,7 +371,7 @@ function getDatabase (baseUrl, dbName) {
  * @param  {String} dbName
  * @return {Promise}
  */
-function getDatabaseHead (baseUrl, dbName) {
+couch.getDatabaseHead = function getDatabaseHead (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'HEAD',
@@ -386,7 +388,7 @@ function getDatabaseHead (baseUrl, dbName) {
  * @param  {String} dbName
  * @return {Promise}
  */
-function deleteDatabase (baseUrl, dbName) {
+couch.deleteDatabase = function deleteDatabase (baseUrl, dbName) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}`,
     method: 'DELETE',
@@ -406,7 +408,7 @@ function deleteDatabase (baseUrl, dbName) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getAllDocuments (baseUrl, dbName, queryObj) {
+couch.getAllDocuments = function getAllDocuments (baseUrl, dbName, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_all_docs${queryStr}`,
@@ -425,7 +427,7 @@ function getAllDocuments (baseUrl, dbName, queryObj) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getDocumentHead (baseUrl, dbName, docId, queryObj) {
+couch.getDocumentHead = function getDocumentHead (baseUrl, dbName, docId, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
@@ -447,7 +449,7 @@ function getDocumentHead (baseUrl, dbName, docId, queryObj) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getDocument (baseUrl, dbName, docId, queryObj) {
+couch.getDocument = function getDocument (baseUrl, dbName, docId, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
@@ -470,7 +472,7 @@ function getDocument (baseUrl, dbName, docId, queryObj) {
  * @param  {String} [docId]
  * @return {Promise}
  */
-function createDocument (baseUrl, dbName, doc, docId) {
+couch.createDocument = function createDocument (baseUrl, dbName, doc, docId) {
   if (docId) {
     // create document by id (PUT)
     return request({
@@ -513,7 +515,7 @@ function createDocument (baseUrl, dbName, doc, docId) {
  * @param  {String} rev
  * @return {Promise}
  */
-function deleteDocument (baseUrl, dbName, docId, rev) {
+couch.deleteDocument = function deleteDocument (baseUrl, dbName, docId, rev) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
@@ -534,7 +536,7 @@ function deleteDocument (baseUrl, dbName, docId, rev) {
  * @param  {Number} [count = 1]
  * @return {Promise}
  */
-function getUuids (baseUrl, count) {
+couch.getUuids = function getUuids (baseUrl, count) {
   return request({
     url: `${baseUrl}/_uuids?count=${count || 1}`,
     method: 'GET',
@@ -553,7 +555,7 @@ function getUuids (baseUrl, count) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getDesignDocument (baseUrl, dbName, docId, queryObj) {
+couch.getDesignDocument = function getDesignDocument (baseUrl, dbName, docId, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}${queryStr}`,
@@ -575,7 +577,7 @@ function getDesignDocument (baseUrl, dbName, docId, queryObj) {
  * @param  {String} docId
  * @return {Promise}
  */
-function getDesignDocumentInfo (baseUrl, dbName, docId) {
+couch.getDesignDocumentInfo = function getDesignDocumentInfo (baseUrl, dbName, docId) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_info`,
     method: 'GET',
@@ -593,7 +595,7 @@ function getDesignDocumentInfo (baseUrl, dbName, docId) {
  * @param  {String} docId
  * @return {Promise}
  */
-function createDesignDocument (baseUrl, dbName, doc, docId) {
+couch.createDesignDocument = function createDesignDocument (baseUrl, dbName, doc, docId) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}`,
     method: 'PUT',
@@ -617,7 +619,7 @@ function createDesignDocument (baseUrl, dbName, doc, docId) {
  * @param  {String} rev
  * @return {Promise}
  */
-function deleteDesignDocument (baseUrl, dbName, docId, rev) {
+couch.deleteDesignDocument = function deleteDesignDocument (baseUrl, dbName, docId, rev) {
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}?rev=${rev}`,
     method: 'DELETE',
@@ -641,7 +643,7 @@ function deleteDesignDocument (baseUrl, dbName, docId, rev) {
  * @param  {Object} [query]
  * @return {Promise}
  */
-function getView (baseUrl, dbName, docId, viewName, queryObj) {
+couch.getView = function getView (baseUrl, dbName, docId, viewName, queryObj) {
   const queryStr = createQueryString(queryObj)
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_view/${encodeURIComponent(viewName)}${queryStr}`,
@@ -660,7 +662,7 @@ function getView (baseUrl, dbName, docId, viewName, queryObj) {
  * @param  {Object} [opts]
  * @return {Promise}
  */
-function createBulkDocuments (baseUrl, dbName, docs, opts) {
+couch.createBulkDocuments = function createBulkDocuments (baseUrl, dbName, docs, opts) {
   const obj = {
     docs: docs
   }
@@ -689,7 +691,7 @@ function createBulkDocuments (baseUrl, dbName, docs, opts) {
  * @param  {String} [rev]
  * @return {Promise}
  */
-function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
+couch.getAttachmentHead = function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
   const queryStr = rev ? `?rev=${rev}` : ''
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
@@ -713,7 +715,7 @@ function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
  * @param  {String} [rev]
  * @return {Promise}
  */
-function getAttachment (baseUrl, dbName, docId, attName, stream, rev) {
+couch.getAttachment = function getAttachment (baseUrl, dbName, docId, attName, stream, rev) {
   const queryStr = rev ? `?rev=${rev}` : ''
   return Promise.resolve()
     .then(() => requestStream({
@@ -755,7 +757,7 @@ function getAttachment (baseUrl, dbName, docId, attName, stream, rev) {
  * @param  {Buffer|String} att
  * @return {Promise}
  */
-function addAttachment (baseUrl, dbName, docId, attName, rev, contentType, data) {
+couch.addAttachment = function addAttachment (baseUrl, dbName, docId, attName, rev, contentType, data) {
   const queryStr = rev ? `?rev=${rev}` : ''
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
@@ -781,7 +783,7 @@ function addAttachment (baseUrl, dbName, docId, attName, rev, contentType, data)
  * @param  {String} rev
  * @return {Promise}
  */
-function deleteAttachment (baseUrl, dbName, docId, attName, rev) {
+couch.deleteAttachment = function deleteAttachment (baseUrl, dbName, docId, attName, rev) {
   const queryStr = rev ? `?rev=${rev}` : ''
   return request({
     url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
@@ -797,52 +799,9 @@ function deleteAttachment (baseUrl, dbName, docId, attName, rev) {
   })
 }
 
-module.exports = {
-  //
-  // database functions
-  //
-  createDatabase: createDatabase,
-  deleteDatabase: deleteDatabase,
-  getDatabase: getDatabase,
-  getDatabaseHead: getDatabaseHead,
-  listDatabases: listDatabases,
-  //
-  // document functions
-  //
-  getAllDocuments: getAllDocuments,
-  createDocument: createDocument,
-  deleteDocument: deleteDocument,
-  getDocument: getDocument,
-  getDocumentHead: getDocumentHead,
-  //
-  // document attachemnt functions
-  //
-  getAttachmentHead: getAttachmentHead,
-  addAttachment: addAttachment,
-  deleteAttachment: deleteAttachment,
-  getAttachment: getAttachment,
-  //
-  // views and design functions
-  //
-  createDesignDocument: createDesignDocument,
-  deleteDesignDocument: deleteDesignDocument,
-  getDesignDocument: getDesignDocument,
-  getDesignDocumentInfo: getDesignDocumentInfo,
-  getView: getView,
-  //
-  // bulk document functions
-  //
-  createBulkDocuments: createBulkDocuments,
-  //
-  // miscellaneous functions
-  //
-  setTimeout: setTimeout,
-  getTimeout: getTimeout,
-  getInfo: getInfo,
-  getUuids: getUuids,
-  //
-  // aliases for backward compatibility
-  //
-  bulkDocs: createBulkDocuments,
-  getAllDocs: getAllDocuments
-}
+//
+// aliases for backward compatibility
+//
+couch.bulkDocs = couch.createBulkDocuments
+couch.getAllDocs = couch.getAllDocuments
+
