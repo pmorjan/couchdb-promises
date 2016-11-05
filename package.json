@@ -6,9 +6,8 @@
   "author": "Peter Morjan <pmorjan@gmail.com>",
   "scripts": {
     "examples": "set -e; for f in examples/*.js; do echo $f:; node $f; done",
-    "lint": "standard -v",
-    "test": "node test/test.js",
-    "posttest": "npm run lint"
+    "linter": "standard -v",
+    "test": "node test/test.js"
   },
   "repository": {
     "type": "git",

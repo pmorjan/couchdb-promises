@@ -7,7 +7,8 @@ services:
 install:
  - npm install
 script:
- - npm test
+ - npm run linter
+ - npm run test
  - node examples/example.js
  - node examples/view.js
  - node examples/simple.js
