@@ -10,6 +10,8 @@ const db = require('../index')
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 
+let couchVersion = ''
+
 function getName () {
   // return uniq DB name e.g. testdb_1478345689284_16
   if (!getName.prefix) {
@@ -54,6 +56,7 @@ test('getInfo()', function (t) {
   t.plan(1)
   db.getInfo(baseUrl)
   .then(response => checkResponse(t, response, 200))
+  .then(response => { couchVersion = response.data.version })
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -302,6 +305,36 @@ test('getDocumentHead()', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('findDocuments()', function (t) {
+  if (!couchVersion.match(/^2\./)) {
+    t.comment(`couchVersion: ${couchVersion} -> ${t.name} skipped`)
+    return t.end()
+  }
+  t.plan(4)
+  const dbName = getName()
+  db.createDatabase(baseUrl, dbName)
+  .then(() => db.createBulkDocuments(baseUrl, dbName, [
+    {x: 1, y: 'a', _id: 'doc1'},
+    {x: 2, y: 'b', _id: 'doc2'},
+    {x: 3, y: 'c', _id: 'doc3'}
+  ]))
+  .then(response => db.findDocuments(baseUrl, dbName, {
+    selector: {
+      x: {'$gt': 1}
+    },
+    fields: ['_id', 'y']
+  }))
+  .then(response => checkResponse(t, response, 200))
+  // .then(response => { console.log(response.data.docs); return response })
+  .then(response => {
+    t.true(Array.isArray(response.data.docs), 'response.data.docs is array')
+    t.true(response.data.docs.length === 2, 'doc array has 2 elements')
+    t.equal(response.data.docs[0]._id, 'doc2', 'first doc is doc2')
+  })
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', function (t) {
   t.plan(7)
   const dbName = getName()
@@ -444,3 +477,5 @@ test('db server is clean', function (t) {
   .then(response => t.deepEqual(response.data.filter(e => re.test(e)), [], `all ${getName.count} temporary databases removed`))
   .catch(response => console.error(util.inspect(response)))
 })
+
+test.onFinish(() => console.log(`\n# CouchDB version: ${couchVersion}`))

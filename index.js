@@ -531,6 +531,27 @@ couch.deleteDocument = function deleteDocument (baseUrl, dbName, docId, rev) {
 }
 
 /**
+ * Find documents (only in CouchDB Version >= 2.0.0)
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {Object} queryObj
+ * @return {Promise}
+ */
+couch.findDocuments = function findDocuments (baseUrl, dbName, queryObj) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_find`,
+    method: 'POST',
+    postData: queryObj,
+    statusCodes: {
+      200: 'OK - Request completed successfully',
+      400: 'Bad Request - Invalid request',
+      401: 'Unauthorized - Read permission required',
+      500: 'Internal Server Error - Query execution error'
+    }
+  })
+}
+
+/**
  * Get one or more UUIDs
  * @param  {String} baseUrl
  * @param  {Number} [count = 1]
@@ -804,4 +825,3 @@ couch.deleteAttachment = function deleteAttachment (baseUrl, dbName, docId, attN
 //
 couch.bulkDocs = couch.createBulkDocuments
 couch.getAllDocs = couch.getAllDocuments
-

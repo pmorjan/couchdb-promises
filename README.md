@@ -337,6 +337,7 @@ See [examples](examples/) for details.
 ### database functions
 *   createDatabase()
 *   deleteDatabase()
+*   findDocuments()
 *   getDatabase()
 *   getDatabaseHead()
 *   listDatabases()
