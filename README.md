@@ -15,7 +15,7 @@ All Functions return a **Promise object** whose fulfillment or failure handler r
 *   **data**: {Object} - DB response object
 *   **status**: {Number} - HTTP status code
 *   **message**: {String} - description of the status code
-*   **duration**: {Number} - duration in milliseconds
+*   **duration**: {Number} - execution time in milliseconds
 
 The promise is resolved if the **status** code is **< 400** otherwise rejected.
 
