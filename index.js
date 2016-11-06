@@ -52,6 +52,7 @@ function createQueryString (queryObj) {
 }
 
 function request (param) {
+  const t0 = Date.now()
   const method = param.method
   const url = param.url
   const statusCodes = param.statusCodes || {}
@@ -76,7 +77,8 @@ function request (param) {
       headers: {},
       data: new Error('Bad request'),
       status: 400,
-      message: 'Error: Bad request'
+      message: 'Error: Bad request',
+      duration: Date.now() - t0
     })
   }
 
@@ -125,7 +127,8 @@ function request (param) {
       headers: {},
       data: error,
       status: 400,
-      message: 'invalid post data'
+      message: 'invalid post data',
+      duration: Date.now() - t0
     })
   }
 
@@ -146,14 +149,16 @@ function request (param) {
             headers: res.headers,
             data: JSON.parse(buffer || '{}'),
             status: res.statusCode,
-            message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
+            message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status'),
+            duration: Date.now() - t0
           }
         } catch (err) {
           ret = {
             headers: res.headers,
             data: err,
             status: 500,
-            message: err.message || 'internal error'
+            message: err.message || 'internal error',
+            duration: Date.now() - t0
           }
         }
 
@@ -171,7 +176,8 @@ function request (param) {
         headers: {},
         data: new Error('request timed out'),
         status: 500,
-        message: 'Error: request timed out'
+        message: 'Error: request timed out',
+        duration: Date.now() - t0
       })
     })
 
@@ -180,7 +186,8 @@ function request (param) {
         headers: {},
         data: err,
         status: 500,
-        message: err.message || 'internal error'
+        message: err.message || 'internal error',
+        duration: Date.now() - t0
       })
     })
 
@@ -201,6 +208,7 @@ function request (param) {
 }
 
 function requestStream (param) {
+  const t0 = Date.now()
   const url = param.url
   const statusCodes = param.statusCodes || {}
   const stream = param.stream
@@ -225,7 +233,8 @@ function requestStream (param) {
       headers: {},
       data: new Error('Bad request'),
       status: 400,
-      message: 'Error: Bad request'
+      message: 'Error: Bad request',
+      duration: Date.now() - t0
     })
   }
 
@@ -236,7 +245,8 @@ function requestStream (param) {
       let ret = {
         headers: res.headers,
         status: res.statusCode,
-        message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status')
+        message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status'),
+        duration: Date.now() - t0
       }
 
       if (ret.status < 400) {
@@ -252,7 +262,8 @@ function requestStream (param) {
         headers: {},
         data: new Error('request timed out'),
         status: 500,
-        message: 'Error: request timed out'
+        message: 'Error: request timed out',
+        duration: Date.now() - t0
       })
     })
 
@@ -261,7 +272,8 @@ function requestStream (param) {
         headers: {},
         data: err,
         status: 500,
-        message: err.message || 'internal error'
+        message: err.message || 'internal error',
+        duration: Date.now() - t0
       })
     })
 

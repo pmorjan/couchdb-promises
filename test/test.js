@@ -28,8 +28,8 @@ function checkResponse (t, response, status) {
     ts.equal(Object.prototype.toString.call(response), '[object Object]', 'response is real object')
     ts.equal(typeof response.headers, 'object', `type of response.headers is 'object'`)
     ts.equal(typeof response.data, 'object', `type of response.data is 'object'`)
-    ts.equal(typeof response.message, 'string', `type of response.message is 'string'`)
-    ts.true(response.message, 'response.message is not empty')
+    ts.true(typeof response.message === 'string' && response.message, `type of response.message is 'string'`)
+    ts.true(typeof response.duration === 'number' && response.duration >= 0, `type of response.duration is 'number'`)
     if (Object.prototype.toString.call(status) === '[object Array]') {
       ts.true(status.indexOf(response.status) > -1, `response.status is in [${status}], actual: ${response.status}`)
     } else {

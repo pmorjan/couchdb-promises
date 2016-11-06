@@ -17,7 +17,8 @@ db.listDatabases(baseUrl)
 // { headers: { ... },
 //   data: { ok: true },
 //   status: 201,
-//   message: 'Created - Database created successfully' }
+//   message: 'Created - Database created successfully',
+//   duration: 131 }
 
 //
 // update existing document or create new
@@ -46,7 +47,8 @@ db.listDatabases(baseUrl)
 //     id: 'mydoc',
 //     rev: '1-bd2f1679ee2b78d8b90ebdf383af59b2',
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 41 }
 
 .then(() => db.getDocument(baseUrl, dbName, 'mydoc'))
 .then(response => console.log(response.data.counter, response.data.date))
@@ -57,6 +59,7 @@ db.listDatabases(baseUrl)
 // { headers: { ... },
 //   data: { ok: true },
 //   status: 200,
-//   message: 'OK - Database removed successfully' }
+//   message: 'OK - Database removed successfully',
+//   duration: 42 }
 
 .catch(console.error)

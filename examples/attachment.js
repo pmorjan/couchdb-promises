@@ -52,7 +52,8 @@ db.createDatabase(baseUrl, dbName)
 //    "rev": "2-58ba51a03eb2da5f68b864e496eb0b9b"
 //  },
 //  "status": 201,
-//  "message": "OK - Created"
+//  "message": "OK - Created",
+//  "duration": 49
 // }
 
 .then(response => {
@@ -67,8 +68,9 @@ db.createDatabase(baseUrl, dbName)
 //     "id": "myDocument",
 //     "rev": "3-86da2d34bc4d1c0e80e283128d7644f8"
 //   },
-//   "status": 201,
-//   "message": "OK - Created"
+//  "status": 201,
+//  "message": "OK - Created",
+//  "duration": 41
 // }
 
 .then(() => db.getDocument(baseUrl, dbName, 'myDocument', {attachments: true}))
@@ -95,7 +97,8 @@ db.createDatabase(baseUrl, dbName)
 //     }
 //   },
 //   "status": 200,
-//   "message": "OK - Request completed successfully"
+//   "message": "OK - Request completed successfully",
+//   "duration": 9
 // }
 
 .then(response => {
@@ -120,7 +123,8 @@ db.createDatabase(baseUrl, dbName)
 //     "rev": "4-31db13e519dd8822f86b0ddee1456041"
 //   },
 //   "status": 200,
-//   "message": "OK – Attachment successfully removed"
+//   "message": "OK – Attachment successfully removed",
+//   "duration": 40
 // }
 
 .then(() => db.deleteDatabase(baseUrl, dbName))

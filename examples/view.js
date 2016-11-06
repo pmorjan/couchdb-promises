@@ -28,7 +28,8 @@ db.createDatabase(baseUrl, dbName)
 //     id: '_design/ddoc1',
 //     rev: '1-548c68d8cc2c1fac99964990a58f66fd' },
 //  status: 201,
-//  message: 'Created – Document created and stored on disk' }
+//  message: 'Created – Document created and stored on disk',
+//  duration: 271 }
 
 // get design document
 .then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
@@ -40,7 +41,8 @@ db.createDatabase(baseUrl, dbName)
 //     language: 'javascript',
 //     views: { view1: [Object] } },
 //  status: 200,
-//  message: 'OK - Request completed successfully' }
+//  message: 'OK - Request completed successfully',
+//  duration: 5 }
 
 // get design document info
 .then(() => db.getDesignDocumentInfo(baseUrl, dbName, 'ddoc1'))
@@ -55,14 +57,15 @@ db.createDatabase(baseUrl, dbName)
 //         updater_running: false,
 //         update_seq: 0,
 //         sizes: [Object],
-//         signature: '09da8e42090600707a71a85434663e4f',
+//         signature: '1e86d92af43c47ef58da4b645dbd47f1',
 //         purge_seq: 0,
 //         language: 'javascript',
 //         disk_size: 408,
 //         data_size: 0,
 //         compact_running: false } },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 54 }
 
 // request some data from view
 // see https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
@@ -77,7 +80,8 @@ db.createDatabase(baseUrl, dbName)
 //      offset: 0,
 //      rows: [ [Object], [Object], [Object] ] },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 834 }
 
 // delete design document
 // get current revision - then delete
@@ -90,7 +94,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: '_design/ddoc1',
 //      rev: '2-fd68157ec3c1915ebe0b248343292d34' },
 //   status: 200,
-//   message: 'OK - Document successfully removed' }
+//   message: 'OK - Document successfully removed',
+//   duration: 49 }
 
 // delete database
 .then(() => db.deleteDatabase(baseUrl, dbName))

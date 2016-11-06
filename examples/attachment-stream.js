@@ -57,23 +57,24 @@ db.createDatabase(baseUrl, dbName)
 .then(() => db.getDocument(baseUrl, dbName, 'myDoc'))
 .then(log)
 // {
-// "headers": { ... },
-// "data": {
-//   "_id": "myDoc",
-//   "_rev": "2-f7b9138c2817cc8e6082430c5d18c842",
-//   "title": "test document with large attachment",
-//   "_attachments": {
-//     "/bin/sh": {
-//       "content_type": "application/octet-stream",
-//       "revpos": 2,
-//       "digest": "md5-LMPCZkERLBvQFz85a312Yg==",
-//       "length": 632672,
-//       "stub": true
+//   "headers": { ... },
+//   "data": {
+//     "_id": "myDoc",
+//     "_rev": "2-f7b9138c2817cc8e6082430c5d18c842",
+//     "title": "test document with large attachment",
+//     "_attachments": {
+//       "/bin/sh": {
+//         "content_type": "application/octet-stream",
+//         "revpos": 2,
+//         "digest": "md5-LMPCZkERLBvQFz85a312Yg==",
+//         "length": 632672,
+//         "stub": true
+//       }
 //     }
-//   }
-// },
-// "status": 200,
-// "message": "OK - Request completed successfully"
+//   },
+//   "status": 200,
+//   "message": "OK - Request completed successfully"
+//   "durataion": 6
 
 .then(() => db.getAttachment(baseUrl, dbName, 'myDoc', attachment.name, writeStream))
 .then(log)
@@ -81,6 +82,7 @@ db.createDatabase(baseUrl, dbName)
 //   "headers": { ... },
 //   "status": 200,
 //   "message": "OK - Attachment exists"
+//   "durataion": 6
 // }
 .then(() => Promise.all([md5(testFile), md5(tempFile)]))
 .then(values => {

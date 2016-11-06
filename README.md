@@ -10,11 +10,12 @@
 *   **no dependencies**
 *   **as simple as possible**
 
-All Functions return a **Promise object** whose fulfillment or failure handler receives an object of **4** properties:
+All Functions return a **Promise object** whose fulfillment or failure handler receives an object of **5** properties:
 *   **headers**: {Object} - HTTP response headers
 *   **data**: {Object} - DB response object
 *   **status**: {Number} - HTTP status code
 *   **message**: {String} - description of the status code
+*   **duration**: {Number} - duration in milliseconds
 
 The promise is resolved if the **status** code is **< 400** otherwise rejected.
 
@@ -38,11 +39,11 @@ db.getInfo(baseUrl)
 // { headers: { ... },
 //   data:
 //    { couchdb: 'Welcome',
-//      uuid: 'bce82829daa02c49fe5b57c542ea95a3',
-//      version: '1.6.1',
-//      vendor: { name: 'The Apache Software Foundation', version: '1.6.1' } },
+//      version: '2.0.0',
+//      vendor: { name: 'The Apache Software Foundation' } },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully'
+//   duration: 36 }
 ```
 
 #### create database
@@ -52,7 +53,8 @@ db.createDatabase(baseUrl, dbName)
 // { headers: { ... },
 //   data: { ok: true },
 //   status: 201,
-//   message: 'Created - Database created successfully' }
+//   message: 'Created - Database created successfully',
+//   duration: 131 }
 ```
 
 #### get database head
@@ -62,7 +64,8 @@ db.createDatabase(baseUrl, dbName)
 // { headers: { ... },
 //   data: {},
 //   status: 200,
-//   message: 'OK - Database exists' }
+//   message: 'OK - Database exists',
+//   duration: 4 }
 ```
 
 #### list databases
@@ -72,7 +75,8 @@ db.createDatabase(baseUrl, dbName)
 // { headers: { ... },
 //   data: [ '_replicator', '_users', 'testdb' ],
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 4 }
 ```
 
 #### create document
@@ -85,7 +89,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'daae0752c6909d7ca4cd833f46014605',
 //      rev: '1-5a26fa4b20e40bc9e2d3e47b168be460' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 42 }
 ```
 
 #### create document by id
@@ -98,23 +103,27 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'doc2',
 //      rev: '1-88b10f13383b5d1e34d1d66d296f061f' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 38 }
 ```
 
 #### get document head
 ```javascript
 .then(() => db.getDocumentHead(baseUrl, dbName, 'doc2'))
 .then(console.log)
-// { headers:
-//    { server: 'CouchDB/1.6.1 (Erlang OTP/18)',
-//      etag: '"1-88b10f13383b5d1e34d1d66d296f061f"',
-//      date: 'Sat, 01 Oct 2016 09:46:09 GMT',
-//      'content-type': 'application/json',
-//      'content-length': '74',
-//      'cache-control': 'must-revalidate' },
+// { 'cache-control': 'must-revalidate',
+//   connection: 'close',
+//   'content-length': '74',
+//   'content-type': 'application/json',
+//   date: 'Sun, 06 Nov 2016 08:56:47 GMT',
+//   etag: '"1-88b10f13383b5d1e34d1d66d296f061f"',
+//   server: 'CouchDB/2.0.0 (Erlang OTP/17)',
+//   'x-couch-request-id': '041e46071b',
+//   'x-couchdb-body-time': '0' },
 //   data: {},
 //   status: 200,
-//   message: 'OK - Document exists' }
+//   message: 'OK - Document exists',
+//   duration: 6 }
 ```
 
 #### get document
@@ -127,7 +136,8 @@ db.createDatabase(baseUrl, dbName)
 //      _rev: '1-88b10f13383b5d1e34d1d66d296f061f',
 //      name: 'Alice' },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 11 }
 ```
 
 #### update document
@@ -143,7 +153,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'doc2',
 //      rev: '2-ee5ea9ac0bb1bec913a9b5e7bc11b113' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 36 }
 ```
 
 #### get all documents
@@ -156,7 +167,8 @@ db.createDatabase(baseUrl, dbName)
 // { headers: { ... },
 //   data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 9 }
 ```
 
 #### delete document
@@ -169,7 +181,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'doc2',
 //      rev: '3-ec0a86a95c5e98a5cd52c29b79b66372' },
 //   status: 200,
-//   message: 'OK - Document successfully removed' }
+//   message: 'OK - Document successfully removed',
+//   duration: 39 }
 ```
 
 #### bulk create documents
@@ -189,18 +202,9 @@ db.createDatabase(baseUrl, dbName)
 //     { ok: true,
 //       id: '5413cf41edaedaec6b63aee93db87c3d',
 //       rev: '1-9cc8cf1e775b686ca337f69cd39ff772' } ],
-//  status: 201,
-//  message: 'Created – Document(s) have been created or updated' }
-```
-
-#### delete database
-```javascript
-.then(() => db.deleteDatabase(baseUrl, dbName))
-.then(console.log)
-// { headers: { ... },
-//   data: { ok: true },
-//   status: 200,
-//   message: 'OK - Database removed successfully' }
+//   status: 201,
+//   message: 'Created – Document(s) have been created or updated',
+//   duration: 74 }
 ```
 
 #### get uuids
@@ -214,7 +218,19 @@ db.createDatabase(baseUrl, dbName)
 //         'daae0752c6909d7ca4cd833f460150c5',
 //         'daae0752c6909d7ca4cd833f460156c5' ] },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 4 }
+```
+
+#### delete database
+```javascript
+.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(console.log)
+// { headers: { ... },
+//   data: { ok: true },
+//   status: 200,
+//   message: 'OK - Database removed successfully' }
+//   duration: 40 }
 ```
 
 #### on error
@@ -222,9 +238,10 @@ db.createDatabase(baseUrl, dbName)
 .then(() => db.getDocument(baseUrl, dbName, 'doc1'))
 .catch(console.error)
 // { headers: { ... },
-//   data: { error: 'not_found', reason: 'no_db_file' },
+//   data: { error: 'not_found', reason: 'Database does not exist.' },
 //   status: 404,
-//   message: 'Not Found - Document not found' }
+//   message: 'Not Found - Document not found',
+//   duration: 5 }
 ```
 
 ---
@@ -247,7 +264,8 @@ db.createDesignDocument(baseUrl, dbName, ddoc, docId)
 //      id: '_design/ddoc1',
 //      rev: '1-548c68d8cc2c1fac99964990a58f66fd' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 271 }
 ```
 
 #### get design document
@@ -261,7 +279,8 @@ db.getDesignDocument(baseUrl, dbName, docId)
 //      language: 'javascript',
 //      views: { view1: [Object] } },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 5 }
 ```
 
 #### get design document info
@@ -278,27 +297,15 @@ db.getDesignDocumentInfo(baseUrl, dbName, docId)
 //        updater_running: false,
 //        update_seq: 0,
 //        sizes: [Object],
-//        signature: '09da8e42090600707a71a85434663e4f',
+//        signature: '1e86d92af43c47ef58da4b645dbd47f1',
 //        purge_seq: 0,
 //        language: 'javascript',
 //        disk_size: 408,
 //        data_size: 0,
 //        compact_running: false } },
-//  status: 200,
-//  message: 'OK - Request completed successfully' }
-```
-
-#### delete design document
-```javascript
-db.deleteDesignDocument(baseUrl, dbName, docId, rev)
-.then(console.log)
-// { headers: { ... },
-//   data:
-//    { ok: true,
-//      id: '_design/ddoc1',
-//      rev: '2-fd68157ec3c1915ebe0b248343292d34' },
 //   status: 200,
-//   message: 'OK - Document successfully removed' }
+//   message: 'OK - Request completed successfully',
+//   duration: 54 }
 ```
 
 #### get view
@@ -311,9 +318,23 @@ db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 //      offset: 0,
 //      rows: [ [Object], [Object], [Object] ] },
 //   status: 200,
-//   message: 'OK' }
+//   message: 'OK - Request completed successfully',
+//   duration: 834 }
 ```
 
+#### delete design document
+```javascript
+db.deleteDesignDocument(baseUrl, dbName, docId, rev)
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { ok: true,
+//      id: '_design/ddoc1',
+//      rev: '2-fd68157ec3c1915ebe0b248343292d34' },
+//   status: 200,
+//   message: 'OK - Document successfully removed',
+//   duration: 49 }
+```
 ---
 
 #### get request timeout

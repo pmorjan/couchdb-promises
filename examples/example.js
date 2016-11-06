@@ -7,32 +7,35 @@ db.getInfo(baseUrl)
 // { headers: { ... },
 //   data:
 //    { couchdb: 'Welcome',
-//      uuid: 'bce82829daa02c49fe5b57c542ea95a3',
-//      version: '1.6.1',
-//      vendor: { name: 'The Apache Software Foundation', version: '1.6.1' } },
+//      version: '2.0.0',
+//      vendor: { name: 'The Apache Software Foundation' } },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 36 }
 
 db.createDatabase(baseUrl, dbName)
 .then(console.log)
 // { headers: { ... },
 //   data: { ok: true },
 //   status: 201,
-//   message: 'Created - Database created successfully' }
+//   message: 'Created - Database created successfully',
+//   duration: 131 }
 
 .then(() => db.getDatabaseHead(baseUrl, dbName))
 .then(console.log)
 // { headers: { ... },
 //   data: {},
 //   status: 200,
-//   message: 'OK - Database exists' }
+//   message: 'OK - Database exists',
+//   duration: 4 }
 
 .then(() => db.listDatabases(baseUrl))
 .then(console.log)
 // { headers: { ... },
 //   data: [ '_replicator', '_users', 'testdb' ],
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 4 }
 
 .then(() => db.createDocument(baseUrl, dbName, {name: 'Bob'}))
 .then(console.log)
@@ -42,7 +45,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'daae0752c6909d7ca4cd833f46014605',
 //      rev: '1-5a26fa4b20e40bc9e2d3e47b168be460' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 42 }
 
 .then(() => db.createDocument(baseUrl, dbName, {name: 'Alice'}, 'doc2'))
 .then(console.log)
@@ -52,7 +56,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'doc2',
 //      rev: '1-88b10f13383b5d1e34d1d66d296f061f' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 38 }
 
 .then(() => db.getDocumentHead(baseUrl, dbName, 'doc2'))
 .then(console.log)
@@ -65,7 +70,8 @@ db.createDatabase(baseUrl, dbName)
 //      'cache-control': 'must-revalidate' },
 //   data: {},
 //   status: 200,
-//   message: 'OK - Document exists' }
+//   message: 'OK - Document exists',
+//   duration: 6 }
 
 .then(() => db.getDocument(baseUrl, dbName, 'doc2'))
 .then(response => { console.log(response); return response.data })
@@ -75,7 +81,8 @@ db.createDatabase(baseUrl, dbName)
 //      _rev: '1-88b10f13383b5d1e34d1d66d296f061f',
 //      name: 'Alice' },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 11 }
 
 .then((doc) => {
   doc.age = 42
@@ -88,7 +95,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'doc2',
 //      rev: '2-ee5ea9ac0bb1bec913a9b5e7bc11b113' },
 //   status: 201,
-//   message: 'Created – Document created and stored on disk' }
+//   message: 'Created – Document created and stored on disk',
+//   duration: 36 }
 
 .then(() => db.getAllDocuments(baseUrl, dbName, {
   descending: true,
@@ -98,7 +106,8 @@ db.createDatabase(baseUrl, dbName)
 // { headers: { ... },
 //   data: { total_rows: 2, offset: 0, rows: [ [Object], [Object] ] },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 9 }
 
 .then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
 .then(console.log)
@@ -108,7 +117,8 @@ db.createDatabase(baseUrl, dbName)
 //      id: 'doc2',
 //      rev: '3-ec0a86a95c5e98a5cd52c29b79b66372' },
 //   status: 200,
-//   message: 'OK - Document successfully removed' }
+//   message: 'OK - Document successfully removed',
+//   duration: 39 }
 
 .then(() => db.createBulkDocuments(baseUrl, dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
@@ -125,8 +135,9 @@ db.createDatabase(baseUrl, dbName)
 //     { ok: true,
 //       id: '5413cf41edaedaec6b63aee93db87c3d',
 //       rev: '1-9cc8cf1e775b686ca337f69cd39ff772' } ],
-//  status: 201,
-//  message: 'Created – Document(s) have been created or updated' }
+//   status: 201,
+//   message: 'Created – Document(s) have been created or updated',
+//   duration: 74 }
 
 .then(() => db.getUuids(baseUrl, 3))
 .then(console.log)
@@ -137,18 +148,21 @@ db.createDatabase(baseUrl, dbName)
 //         'daae0752c6909d7ca4cd833f460150c5',
 //         'daae0752c6909d7ca4cd833f460156c5' ] },
 //   status: 200,
-//   message: 'OK - Request completed successfully' }
+//   message: 'OK - Request completed successfully',
+//   duration: 4 }
 
 .then(() => db.deleteDatabase(baseUrl, dbName))
 .then(console.log)
 // { headers: { ... },
 //   data: { ok: true },
 //   status: 200,
-//   message: 'OK - Database removed successfully' }
+//   message: 'OK - Database removed successfully',
+//   duration: 40 }
 
 .then(() => db.getDocument(baseUrl, dbName, 'doc1'))
 .catch(console.error)
 // { headers: { ... },
 //   data: { error: 'not_found', reason: 'no_db_file' },
 //   status: 404,
-//   message: 'Not Found - Document not found' }
+//   message: 'Not Found - Document not found',
+//   duration: 5 }
