@@ -207,6 +207,24 @@ db.createDatabase(baseUrl, dbName)
 //   duration: 74 }
 ```
 
+#### find documents
+```javascript
+.then(() => db.findDocuments(baseUrl, dbName, {
+  selector: {
+    $or: [{ name: 'Tick' }, {name: 'Track'}]
+  },
+  fields: ['_id', 'name']
+}))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { warning: 'no matching index found, create an index to optimize query time',
+//      docs: [ [Object], [Object] ] },
+//   status: 200,
+//   message: 'OK - Request completed successfully',
+//   duration: 14 }
+```
+
 #### get uuids
 ```javascript
 .then(() => db.getUuids(baseUrl, 3))

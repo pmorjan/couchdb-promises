@@ -109,17 +109,6 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Request completed successfully',
 //   duration: 9 }
 
-.then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
-.then(console.log)
-// { headers: { ... },
-//   data:
-//    { ok: true,
-//      id: 'doc2',
-//      rev: '3-ec0a86a95c5e98a5cd52c29b79b66372' },
-//   status: 200,
-//   message: 'OK - Document successfully removed',
-//   duration: 39 }
-
 .then(() => db.createBulkDocuments(baseUrl, dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
 ], {all_or_nothing: false}))
@@ -138,6 +127,32 @@ db.createDatabase(baseUrl, dbName)
 //   status: 201,
 //   message: 'Created – Document(s) have been created or updated',
 //   duration: 74 }
+
+.then(() => db.findDocuments(baseUrl, dbName, {
+  selector: {
+    $or: [{ name: 'Tick' }, {name: 'Track'}]
+  },
+  fields: ['_id', 'name']
+}))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { warning: 'no matching index found, create an index to optimize query time',
+//      docs: [ [Object], [Object] ] },
+//   status: 200,
+//   message: 'OK - Request completed successfully',
+//   duration: 14 }
+
+.then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { ok: true,
+//      id: 'doc2',
+//      rev: '3-ec0a86a95c5e98a5cd52c29b79b66372' },
+//   status: 200,
+//   message: 'OK - Document successfully removed',
+//   duration: 39 }
 
 .then(() => db.getUuids(baseUrl, 3))
 .then(console.log)
