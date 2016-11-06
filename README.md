@@ -207,7 +207,7 @@ db.createDatabase(baseUrl, dbName)
 //   duration: 74 }
 ```
 
-#### find documents
+#### find documents (requires CouchDB >= 2.0.0)
 ```javascript
 .then(() => db.findDocuments(baseUrl, dbName, {
   selector: {

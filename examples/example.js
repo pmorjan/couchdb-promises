@@ -134,6 +134,11 @@ db.createDatabase(baseUrl, dbName)
   },
   fields: ['_id', 'name']
 }))
+.catch(response => {
+  if (response.status === 400) {
+    return 'Warning: findDocument() requires CouchDB >= 2.0.0. Error ignored'
+  }
+})
 .then(console.log)
 // { headers: { ... },
 //   data:
