@@ -476,8 +476,7 @@ test('createIndex() getIndex() deleteIndex()', function (t) {
   .then(response => db.getIndex(baseUrl, dbName))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
-    const docId = response.data.indexes.find(e => e.name === 'foo-index')
-      .ddoc.replace(/^_design\//, '')
+    const docId = response.data.indexes.find(e => e.name === 'foo-index').ddoc
     return db.deleteIndex(baseUrl, dbName, docId, 'foo-index')
       .then(response => checkResponse(t, response, 200))
   })

@@ -882,7 +882,7 @@ couch.getIndex = function getIndex (baseUrl, dbName) {
  */
 couch.deleteIndex = function deleteIndex (baseUrl, dbName, docId, name) {
   return request({
-    url: `${baseUrl}/${encodeURIComponent(dbName)}/_index/_design/${encodeURIComponent(docId)}/json/${encodeURIComponent(name)}`,
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_index/${encodeURIComponent(docId)}/json/${encodeURIComponent(name)}`,
     method: 'DELETE',
     statusCodes: {
       200: 'OK - Success',
