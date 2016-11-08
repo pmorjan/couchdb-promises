@@ -457,6 +457,34 @@ test('add/get/delete Attachment', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
+test('createIndex() getIndex() deleteIndex()', function (t) {
+  if (!couchVersion.match(/^2\./)) {
+    t.comment(`couchVersion: ${couchVersion} -> ${t.name} skipped`)
+    return t.end()
+  }
+  t.plan(3)
+  const dbName = getName()
+  const indexObj = {
+    index: {
+      fields: ['foo']
+    },
+    name: 'foo-index'
+  }
+  db.createDatabase(baseUrl, dbName)
+  .then(response => db.createIndex(baseUrl, dbName, indexObj))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => db.getIndex(baseUrl, dbName))
+  .then(response => checkResponse(t, response, 200))
+  .then(response => {
+    const docId = response.data.indexes.find(e => e.name === 'foo-index')
+      .ddoc.replace(/^_design\//, '')
+    return db.deleteIndex(baseUrl, dbName, docId, 'foo-index')
+      .then(response => checkResponse(t, response, 200))
+  })
+  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('aliases', function (t) {
   t.plan(2)
   t.equal(db.bulkDocs, db.createBulkDocuments, 'alias bulkDocs')

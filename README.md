@@ -388,6 +388,11 @@ See [examples](examples/) for details.
 *   getDocument()
 *   getDocumentHead()
 
+### index functions (requires CouchDB >= 2.0.0)
+*   createIndex()
+*   getIndex()
+*   deleteIndex()
+
 ### document attachment functions
 *   getAttachment()
 *   getAttachmentHead()

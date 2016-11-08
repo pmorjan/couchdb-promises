@@ -543,7 +543,7 @@ couch.deleteDocument = function deleteDocument (baseUrl, dbName, docId, rev) {
 }
 
 /**
- * Find documents (only in CouchDB Version >= 2.0.0)
+ * Find documents (requires CouchDB >= 2.0.0)
  * @param  {String} baseUrl
  * @param  {String} dbName
  * @param  {Object} queryObj
@@ -828,6 +828,68 @@ couch.deleteAttachment = function deleteAttachment (baseUrl, dbName, docId, attN
       401: 'Unauthorized - Write privilege required',
       404: 'Not Found - Specified database, document or attchment was not found',
       409: '409 Conflict – Document’s revision wasn’t specified or it’s not the latest'
+    }
+  })
+}
+
+/**
+ * create index (requires CouchDB >= 2.0.0)
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {Object} queryObj
+ * @return {Promise}
+ */
+couch.createIndex = function createIndex (baseUrl, dbName, queryObj) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_index`,
+    method: 'POST',
+    postData: queryObj,
+    statusCodes: {
+      200: 'OK - Index created successfully or already exists',
+      400: 'Bad Request - Invalid request',
+      401: 'Unauthorized - Admin permission required',
+      500: 'Internal Server Error - Execution error'
+    }
+  })
+}
+
+/**
+ * get index (requires CouchDB >= 2.0.0)
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @return {Promise}
+ */
+couch.getIndex = function getIndex (baseUrl, dbName) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_index`,
+    method: 'GET',
+    statusCodes: {
+      200: 'OK - Success',
+      400: 'Bad Request - Invalid request',
+      401: 'Unauthorized - Read permission required',
+      500: 'Internal Server Error - Execution error'
+    }
+  })
+}
+
+/**
+ * delete index (requires CouchDB >= 2.0.0)
+ * @param  {String} baseUrl
+ * @param  {String} dbName
+ * @param  {String} docId - design document id
+ * @param  {String} name - index name
+ * @return {Promise}
+ */
+couch.deleteIndex = function deleteIndex (baseUrl, dbName, docId, name) {
+  return request({
+    url: `${baseUrl}/${encodeURIComponent(dbName)}/_index/_design/${encodeURIComponent(docId)}/json/${encodeURIComponent(name)}`,
+    method: 'DELETE',
+    statusCodes: {
+      200: 'OK - Success',
+      400: 'Bad Request - Invalid request',
+      401: 'Unauthorized - Writer permission required',
+      404: 'Not Found - Index not found',
+      500: 'Internal Server Error - Execution error'
     }
   })
 }
