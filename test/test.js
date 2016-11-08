@@ -86,7 +86,7 @@ test('createDatabase()', function (t) {
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
   .then(response => checkResponse(t, response, 201))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -95,7 +95,7 @@ test('createDatabase() with special name', function (t) {
   const dbName = getName() + '_$()+-/'
   db.createDatabase(baseUrl, dbName)
   .then(response => checkResponse(t, response, 201))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -103,11 +103,11 @@ test('createDatabase() with error', function (t) {
   t.plan(2)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDatabase(baseUrl, '%123'))   // invalid dbName
+  .then(() => db.createDatabase(baseUrl, '%123'))   // invalid dbName
   .catch(response => checkResponse(t, response, 400))
-  .then(response => db.createDatabase(baseUrl, dbName))   // db alredy exists
+  .then(() => db.createDatabase(baseUrl, dbName))   // db alredy exists
   .catch(response => checkResponse(t, response, 412))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -115,9 +115,9 @@ test('getDatabase()', function (t) {
   t.plan(1)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.getDatabase(baseUrl, dbName))
+  .then(() => db.getDatabase(baseUrl, dbName))
   .then(response => checkResponse(t, response, 200))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -132,9 +132,9 @@ test('getDatabaseHead()', function (t) {
   t.plan(1)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.getDatabase(baseUrl, dbName))
+  .then(() => db.getDatabase(baseUrl, dbName))
   .then(response => checkResponse(t, response, 200))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -149,7 +149,7 @@ test('deleteDatabase()', function (t) {
   t.plan(1)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .then(response => checkResponse(t, response, 200))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -166,9 +166,9 @@ test('createDocument() without docId', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc))
+  .then(() => db.createDocument(baseUrl, dbName, doc))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -177,9 +177,9 @@ test('createDocument() with docId', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -189,9 +189,9 @@ test('createDocument() with docId special name', function (t) {
   const doc = {foo: 'bar'}
   const docName = '`~!@#$%^&*()_+-=[]{}|;:\'",./<> ?'
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, docName))
+  .then(() => db.createDocument(baseUrl, dbName, doc, docName))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -199,9 +199,9 @@ test('createDocument() with invalid document', function (t) {
   t.plan(1)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, null, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, null, 'doc'))
   .catch(response => checkResponse(t, response, 400))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -210,11 +210,11 @@ test('createDocument() with docId with error', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc')) // conflict
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc')) // conflict
   .catch(response => checkResponse(t, response, 409))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -223,16 +223,16 @@ test('createDocument() update', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
-  .then(response => db.getDocument(baseUrl, dbName, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.getDocument(baseUrl, dbName, 'doc'))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
-    let doc = response.data
+    const doc = response.data
     doc.baz = 42
     return db.createDocument(baseUrl, dbName, doc, 'doc')
   })
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -241,12 +241,12 @@ test('deleteDocument()', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
-  .then(response => db.getDocument(baseUrl, dbName, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.getDocument(baseUrl, dbName, 'doc'))
   .then(response => checkResponse(t, response, 200))
   .then(response => db.deleteDocument(baseUrl, dbName, 'doc', response.data._rev))
   .then(response => checkResponse(t, response, [200, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -254,8 +254,8 @@ test('getAllDocuments()', function (t) {
   t.plan(3)
   const dbName = getName()
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, {foo: 1}, 'doc1'))
-  .then(response => db.createDocument(baseUrl, dbName, {bar: 2}, 'doc2'))
+  .then(() => db.createDocument(baseUrl, dbName, {foo: 1}, 'doc1'))
+  .then(() => db.createDocument(baseUrl, dbName, {bar: 2}, 'doc2'))
   .then(() => db.getAllDocuments(baseUrl, dbName, {
     include_docs: true,
     descending: true
@@ -265,7 +265,7 @@ test('getAllDocuments()', function (t) {
     t.true(response.data.total_rows === 2, 'total_rows is ok')
     t.equal(response.data.rows[0].id, 'doc2', 'query paramter decending ok')
   })
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -274,11 +274,11 @@ test('getDocument()', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
-  .then(response => db.getDocument(baseUrl, dbName, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.getDocument(baseUrl, dbName, 'doc'))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
-    let doc = response.data
+    const doc = response.data
     doc.baz = 42
     return db.createDocument(baseUrl, dbName, doc, 'doc')
   })
@@ -286,7 +286,7 @@ test('getDocument()', function (t) {
   .then(response => db.getDocument(baseUrl, dbName, 'doc', {rev: response.data.rev}))
   .then(response => checkResponse(t, response, 200))
   .then(response => t.equal(response.data.baz, 42), 'doc constains new property')
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -295,20 +295,21 @@ test('getDocumentHead()', function (t) {
   const dbName = getName()
   const doc = {foo: 'bar'}
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.getDocumentHead(baseUrl, dbName, 'doc'))
+  .then(() => db.getDocumentHead(baseUrl, dbName, 'doc'))
   .then(response => checkResponse(t, response, 200))
-  .then(response => db.getDocumentHead(baseUrl, dbName, 'doc', {rev: '1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}))
+  .then(() => db.getDocumentHead(baseUrl, dbName, 'doc', {rev: '1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}))
   .catch(response => checkResponse(t, response, 404))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
 test('findDocuments()', function (t) {
   if (!couchVersion.match(/^2\./)) {
     t.comment(`couchVersion: ${couchVersion} -> ${t.name} skipped`)
-    return t.end()
+    t.end()
+    return
   }
   t.plan(4)
   const dbName = getName()
@@ -318,9 +319,9 @@ test('findDocuments()', function (t) {
     {x: 2, y: 'b', _id: 'doc2'},
     {x: 3, y: 'c', _id: 'doc3'}
   ]))
-  .then(response => db.findDocuments(baseUrl, dbName, {
+  .then(() => db.findDocuments(baseUrl, dbName, {
     selector: {
-      x: {'$gt': 1}
+      x: { $gt: 1 }
     },
     fields: ['_id', 'y']
   }))
@@ -331,7 +332,7 @@ test('findDocuments()', function (t) {
     t.true(response.data.docs.length === 2, 'doc array has 2 elements')
     t.equal(response.data.docs[0]._id, 'doc2', 'first doc is doc2')
   })
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -344,24 +345,24 @@ test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', 
     views: { all: { map: 'function (doc) {emit(null, doc.foo)}' } }
   }
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, {foo: 'bar'}, 'doc1'))
-  .then(response => db.createDocument(baseUrl, dbName, {foo: 'baz'}, 'doc2'))
-  .then(response => db.createDesignDocument(baseUrl, dbName, ddoc, docId))
+  .then(() => db.createDocument(baseUrl, dbName, {foo: 'bar'}, 'doc1'))
+  .then(() => db.createDocument(baseUrl, dbName, {foo: 'baz'}, 'doc2'))
+  .then(() => db.createDesignDocument(baseUrl, dbName, ddoc, docId))
   .then(response => checkResponse(t, response, [201, 202]))
-  .then(response => db.getView(baseUrl, dbName, docId, 'all', {descending: true}))
+  .then(() => db.getView(baseUrl, dbName, docId, 'all', {descending: true}))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
     t.true(response.data.total_rows, 2, 'number of rows returned')
     t.equal(response.data.rows[0].value, 'baz', 'row order')
     return response
   })
-  .then(response => db.getDesignDocumentInfo(baseUrl, dbName, docId))
+  .then(() => db.getDesignDocumentInfo(baseUrl, dbName, docId))
   .then(response => checkResponse(t, response, 200))
-  .then(response => db.getDesignDocument(baseUrl, dbName, docId))
+  .then(() => db.getDesignDocument(baseUrl, dbName, docId))
   .then(response => checkResponse(t, response, 200))
   .then(response => db.deleteDesignDocument(baseUrl, dbName, docId, response.data._rev))
   .then(response => checkResponse(t, response, [200, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -382,10 +383,10 @@ test('setTimeout()', function (t) {
   server.on('listening', function () {
     const port = server.address().port
     const oldTimeout = db.getTimeout()
-    t.timeoutAfter(timeout + 2 * eps)
+    t.timeoutAfter(timeout + (2 * eps))
     db.setTimeout(timeout)
     const t0 = Date.now()
-    db.getInfo('http://localhost:' + port)
+    db.getInfo(`http://localhost:${port}`)
     .catch(response => checkResponse(t, response, 500))
     .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
     .then(() => {
@@ -413,9 +414,9 @@ test('createBulkDocuments())', function (t) {
   .then(() => db.getAllDocuments(baseUrl, dbName, { limit: 1 }))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
-    t.true(response.data.total_rows === cnt, 'total_rows is ' + cnt)
+    t.true(response.data.total_rows === cnt, `total_rows is ${cnt}`)
   })
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .then(() => db.setTimeout(oldTimeout))
   .catch(response => console.error(util.inspect(response)))
 })
@@ -430,7 +431,7 @@ test('add/get/delete Attachment', function (t) {
     contentType: 'text/plain'
   }
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
   // add
   .then(response => {
     const rev = response.data.rev
@@ -453,14 +454,15 @@ test('add/get/delete Attachment', function (t) {
     return db.deleteAttachment(baseUrl, dbName, 'doc', a1.name, rev)
   })
   .then(response => checkResponse(t, response, [200, 202]))
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 
 test('createIndex() getIndex() deleteIndex()', function (t) {
   if (!couchVersion.match(/^2\./)) {
     t.comment(`couchVersion: ${couchVersion} -> ${t.name} skipped`)
-    return t.end()
+    t.end()
+    return
   }
   t.plan(3)
   const dbName = getName()
@@ -471,16 +473,16 @@ test('createIndex() getIndex() deleteIndex()', function (t) {
     name: 'foo-index'
   }
   db.createDatabase(baseUrl, dbName)
-  .then(response => db.createIndex(baseUrl, dbName, indexObj))
+  .then(() => db.createIndex(baseUrl, dbName, indexObj))
   .then(response => checkResponse(t, response, 200))
-  .then(response => db.getIndex(baseUrl, dbName))
+  .then(() => db.getIndex(baseUrl, dbName))
   .then(response => checkResponse(t, response, 200))
   .then(response => {
     const docId = response.data.indexes.find(e => e.name === 'foo-index').ddoc
     return db.deleteIndex(baseUrl, dbName, docId, 'foo-index')
-      .then(response => checkResponse(t, response, 200))
+      .then(response2 => checkResponse(t, response2, 200))
   })
-  .then(response => db.deleteDatabase(baseUrl, dbName))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
   .catch(response => console.error(util.inspect(response)))
 })
 

@@ -48,7 +48,7 @@ function createQueryString (queryObj) {
       obj[key] = JSON.stringify(obj[key])
     }
   })
-  return Object.keys(obj).length ? '?' + querystring.stringify(obj) : ''
+  return Object.keys(obj).length ? `?${querystring.stringify(obj)}` : ''
 }
 
 function request (param) {
@@ -242,7 +242,7 @@ function requestStream (param) {
     const lib = httpOptions.protocol === 'https:' ? https : http
     const req = lib.request(httpOptions, function (res) {
       res.pipe(stream)
-      let ret = {
+      const ret = {
         headers: res.headers,
         status: res.statusCode,
         message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status'),
@@ -761,21 +761,19 @@ couch.getAttachment = function getAttachment (baseUrl, dbName, docId, attName, s
         404: 'Not Found - Specified database, document or attchment was not found'
       }
     })
-    .then(response => {
-      return new Promise(function (resolve, reject) {
-        stream.on('close', function () {
-          return resolve(response)
-        })
-        stream.on('error', function (err) {
-          return reject({
-            headers: {},
-            data: err,
-            status: 500,
-            message: err.message || 'stream error'
-          })
+    .then(response => new Promise(function (resolve, reject) {
+      stream.on('close', function () {
+        return resolve(response)
+      })
+      stream.on('error', function (err) {
+        return reject({
+          headers: {},
+          data: err,
+          status: 500,
+          message: err.message || 'stream error'
         })
       })
-    })
+    }))
   )
 }
 
