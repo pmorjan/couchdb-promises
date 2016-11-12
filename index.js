@@ -6,25 +6,6 @@ const https = require('https')
 const querystring = require('querystring')
 const urlParse = require('url').parse
 
-// http://docs.couchdb.org/en/stable/api/basics.html#http-status-codes
-const GENERIC_STATUS_CODES = {
-  200: 'OK',
-  201: 'Created',
-  202: 'Accepted',
-  304: 'Not Modified',
-  400: 'Bad Request',
-  401: 'Unauthorized',
-  403: 'Forbidden',
-  404: 'Not Found',
-  405: 'Resource Not Allowed',
-  406: 'Not Acceptable',
-  409: 'Conflict',
-  412: 'Precondition Failed',
-  415: 'Bad Content Type',
-  416: 'Requested Range Not Satisfiable',
-  417: 'Expectation Failed',
-  500: 'Internal Server Error'
-}
 // https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
 const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
@@ -149,7 +130,7 @@ function request (param) {
             headers: res.headers,
             data: JSON.parse(buffer || '{}'),
             status: res.statusCode,
-            message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status'),
+            message: (statusCodes[res.statusCode] || http.STATUS_CODES[res.statusCode] || 'unknown status'),
             duration: Date.now() - t0
           }
         } catch (err) {
@@ -245,7 +226,7 @@ function requestStream (param) {
       const ret = {
         headers: res.headers,
         status: res.statusCode,
-        message: (statusCodes[res.statusCode] || GENERIC_STATUS_CODES[res.statusCode] || 'unknown status'),
+        message: (statusCodes[res.statusCode] || http.STATUS_CODES[res.statusCode] || 'unknown status'),
         duration: Date.now() - t0
       }
 
