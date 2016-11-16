@@ -11,10 +11,10 @@
 *   **as simple as possible**
 
 All Functions return a **Promise object** whose fulfillment or failure handler receives an object of **5** properties:
-*   **headers**: {Object} - HTTP response headers
-*   **data**: {Object} - DB response object
-*   **status**: {Number} - HTTP status code
-*   **message**: {String} - description of the status code
+*   **headers**: {Object} - HTTP response headers from CouchDB
+*   **data**: {Object} - CouchDB response body
+*   **status**: {Number} - HTTP status code from CouchDB
+*   **message**: {String} - description of the status code from CouchDB API
 *   **duration**: {Number} - execution time in milliseconds
 
 The promise is resolved if the **status** code is **< 400** otherwise rejected.
@@ -264,7 +264,7 @@ db.createDatabase(baseUrl, dbName)
 
 ---
 
-### [View.js](examples/view.js)
+### View and Design Functions ([View.js](examples/view.js))
 
 #### create design document
 ```javascript
@@ -355,6 +355,54 @@ db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 ```
 ---
 
+### Index Functions (CouchDB >= 2.0)
+
+### create index
+```javascript
+db.createIndex(baseUrl, dbName, {
+  index: {
+    fields: ['foo']
+  },
+  name: 'foo-index'
+})
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { result: 'exists',
+//      id: '_design/a5f4711fc9448864a13c81dc71e660b524d7410c',
+//      name: 'foo-index' },
+//   status: 200,
+//   message: 'OK - Index created successfully or already exists',
+//   duration: 14 }
+```
+
+### get index
+```javascript
+db.getIndex(baseUrl, dbName)
+.then(console.log)
+// { headers: { ... },
+//   data: { total_rows: 2, indexes: [ [Object], [Object] ] },
+//   status: 200,
+//   message: 'OK - Success',
+//   duration: 6 }
+```
+
+### delete index
+```javascript
+db.getIndex(baseUrl, dbName)
+.then(response => {
+  const docId = response.data.indexes.find(e => e.name === 'foo-index').ddoc
+  return db.deleteIndex(baseUrl, dbName, docId, 'foo-index')
+})
+.then(console.log)
+// { headers: { ... },
+//  data: { ok: true },
+//  status: 200,
+//  message: 'OK - Success',
+//  duration: 45 }
+```
+
+---
 #### get request timeout
 ```javascript
 db.getTimeout()
@@ -388,7 +436,7 @@ See [examples](examples/) for details.
 *   getDocument()
 *   getDocumentHead()
 
-### index functions (requires CouchDB >= 2.0.0)
+### index functions (CouchDB >= 2.0)
 *   createIndex()
 *   getIndex()
 *   deleteIndex()
