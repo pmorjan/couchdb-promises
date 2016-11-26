@@ -42,13 +42,20 @@ function checkResponse (t, response, status) {
 
 test('url does not belong to a couchdb server', function (t) {
   t.plan(1)
-  db.listDatabases('http://www.google.com')
+  db.listDatabases('http://www.google.com:80')
   .catch(response => checkResponse(t, response, 500))
 })
 
-test('url with invalid protocol', function (t) {
-  t.plan(1)
-  db.listDatabases('ftp://www.google.com')
+test('invalid url', function (t) {
+  t.plan(3)
+  // invalid protocol ftp://...
+  db.listDatabases('f' + baseUrl.slice(2))
+  .catch(response => checkResponse(t, response, 400))
+  // no port
+  .then(() => db.listDatabases(baseUrl.substr(0, baseUrl.lastIndexOf(':'))))
+  .catch(response => checkResponse(t, response, 400))
+  // invalid port
+  .then(() => db.listDatabases(baseUrl.substr(0, baseUrl.lastIndexOf(':')) + 'abc'))
   .catch(response => checkResponse(t, response, 400))
 })
 

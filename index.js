@@ -14,12 +14,12 @@ let requestTimeout = 10000 // ms
 function isValidUrl (url) {
   const o = urlParse(url)
   if (
-    ['http:', 'https:'].indexOf(o.protocol) === -1 ||
-    o.slashes === false ||
-    Number.isNaN(Number(o.port)) ||
-    !o.hostname
-  ) return false
-  return true
+    ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
+    o.slashes === true &&
+    !Number.isNaN(parseInt(o.port, 10)) &&
+    o.hostname
+  ) return true
+  return false
 }
 
 function createQueryString (queryObj) {
@@ -42,7 +42,7 @@ function request (param) {
   const o = urlParse(url)
   const httpOptions = {
     hostname: o.host && o.host.split(':')[0],
-    port: o.port || 443,
+    port: o.port,
     path: o.path,
     auth: o.auth,
     protocol: o.protocol,

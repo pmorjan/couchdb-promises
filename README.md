@@ -28,7 +28,7 @@ npm install couchdb-promises
 
 ```javascript
 const db = require('couchdb-promises')
-const baseUrl = 'http://localhost:5984'  // https://[user:password@]server[:port]
+const baseUrl = 'http://localhost:5984'  // https://[user:password@]server:port
 const dbName = 'testdb'
 ```
 
