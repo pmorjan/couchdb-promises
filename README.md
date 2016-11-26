@@ -27,7 +27,9 @@ npm install couchdb-promises
 ### [Example.js](examples/example.js)
 
 ```javascript
-const db = require('couchdb-promises')
+const db = require('couchdb-promises')({
+  requestTimeout: 5000     // default: 10,000 [ms]
+})
 const baseUrl = 'http://localhost:5984'  // https://[user:password@]server:port
 const dbName = 'testdb'
 ```
@@ -403,23 +405,14 @@ db.getIndex(baseUrl, dbName)
 ```
 
 ---
-#### get request timeout
-```javascript
-db.getTimeout()
-// -> 10000  (returns Number)
-```
-
-#### set request timeout
-```javascript
-db.setTimeout(3000)
-// -> 3000  (returns Number)
-```
-
----
 
 # API Reference
 
 See [examples](examples/) for details.
+
+### module argument properties
+*   requestTimeout    // http request timeout in milliseconds, default: 10000
+*   verifyCertificate // verify server SSL certificate, default: true
 
 ### database functions
 *   createDatabase()
@@ -458,8 +451,6 @@ See [examples](examples/) for details.
 *   createBulkDocuments()
 
 ### miscellaneous functions
-*   setTimeout()
-*   getTimeout()
 *   getInfo()
 *   getUuids()
 

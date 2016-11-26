@@ -6,7 +6,10 @@ const http = require('http')
 const util = require('util')
 //
 const test = require('tape')
-const db = require('../index')
+const couchdb = require('../index')
+const db = couchdb({
+  requestTimeout: 5000
+})
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 
@@ -373,37 +376,30 @@ test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', 
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('getTimeout()', function (t) {
-  t.plan(1)
-  const curTimeout = db.getTimeout()
-  t.true(typeof curTimeout === 'number', 'getTimeout() returns number')
-})
-
 test('setTimeout()', function (t) {
   // create an http server to simulate a couchdb server that does
   // not response within a given time frame.
   // no http request handler -> connecting works but no response
-  t.plan(2)
   const timeout = 1000
+  const db = couchdb({ requestTimeout: timeout })
+  t.plan(2)
   const eps = 100
   const server = http.createServer().listen(0)
   server.on('listening', function () {
     const port = server.address().port
-    const oldTimeout = db.getTimeout()
     t.timeoutAfter(timeout + (2 * eps))
-    db.setTimeout(timeout)
     const t0 = Date.now()
     db.getInfo(`http://localhost:${port}`)
     .catch(response => checkResponse(t, response, 500))
     .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
     .then(() => {
       server.close()
-      db.setTimeout(oldTimeout)
     })
   })
 })
 
 test('createBulkDocuments())', function (t) {
+  const db = couchdb({ requestTimeout: 60000 })
   function randomData () {
     return crypto.randomBytes(Math.floor(Math.random() * 1000)).toString('hex')
   }
@@ -413,8 +409,6 @@ test('createBulkDocuments())', function (t) {
   const docs = new Array(cnt).fill().map((x, i) => {
     return { n: i, value: randomData() }
   })
-  const oldTimeout = db.getTimeout()
-  db.setTimeout(60000)
   db.createDatabase(baseUrl, dbName)
   .then(() => db.createBulkDocuments(baseUrl, dbName, docs, {all_or_nothing: false}))
   .then(response => checkResponse(t, response, [201, 202]))
@@ -424,7 +418,6 @@ test('createBulkDocuments())', function (t) {
     t.true(response.data.total_rows === cnt, `total_rows is ${cnt}`)
   })
   .then(() => db.deleteDatabase(baseUrl, dbName))
-  .then(() => db.setTimeout(oldTimeout))
   .catch(response => console.error(util.inspect(response)))
 })
 
