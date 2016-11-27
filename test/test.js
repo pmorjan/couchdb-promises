@@ -44,9 +44,9 @@ function checkResponse (t, response, status) {
   return response
 }
 
-test('url does not belong to a couchdb server', function (t) {
+test('response is no JSON', function (t) {
   t.plan(1)
-  db.listDatabases('http://www.google.com:80')
+  db.listDatabases(`${baseUrl}/_utils/`)
   .catch(response => checkResponse(t, response, 500))
 })
 
