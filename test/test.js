@@ -566,10 +566,10 @@ hYeJ01PF45xiQ/rN8ewhvEbBF5J+JlRHB0p5VKo/vGc0YzuhTHVxwMoer5kSMUBZ
   server.on('listening', function () {
     const port = server.address().port
     // verifyCertificate: false
-    db1.getInfo(`https://localhost:${port}`)
+    db1.getUrl(`https://localhost:${port}`)
     .then(response => checkResponse(t, response, 200))
     // verifyCertificate: true
-    .then(() => db2.getInfo(`https://localhost:${port}`))
+    .then(() => db2.getUrl(`https://localhost:${port}`))
     .catch(response => checkResponse(t, response, 500))
     .then(() => {
       server.close()
