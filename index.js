@@ -37,13 +37,20 @@ module.exports = function (opt) {
     return Object.keys(obj).length ? `?${querystring.stringify(obj)}` : ''
   }
 
+  function statusCode (statusCodes, status) {
+    const codes = Object.assign({}, http.STATUS_CODES, statusCodes)
+    return codes[status] || 'unknown status'
+  }
+
   function request (param) {
     const t0 = Date.now()
+
     const method = param.method
     const url = param.url
-    const statusCodes = param.statusCodes || {}
+    const statusCodes = param.statusCodes
     const postData = param.postData
     const postContentType = param.postContentType
+
     const o = urlParse(url)
     const httpOptions = {
       hostname: o.host && o.host.split(':')[0],
@@ -136,7 +143,7 @@ module.exports = function (opt) {
               headers: res.headers,
               data: JSON.parse(buffer || '{}'),
               status: res.statusCode,
-              message: (statusCodes[res.statusCode] || http.STATUS_CODES[res.statusCode] || 'unknown status'),
+              message: statusCode(statusCodes, res.statusCode),
               duration: Date.now() - t0
             }
           } catch (err) {
@@ -196,8 +203,9 @@ module.exports = function (opt) {
 
   function requestStream (param) {
     const t0 = Date.now()
+
     const url = param.url
-    const statusCodes = param.statusCodes || {}
+    const statusCodes = param.statusCodes
     const stream = param.stream
 
     assert(stream && stream.writable && typeof stream.pipe === 'function', 'is writeable stream')
@@ -233,7 +241,7 @@ module.exports = function (opt) {
         const ret = {
           headers: res.headers,
           status: res.statusCode,
-          message: (statusCodes[res.statusCode] || http.STATUS_CODES[res.statusCode] || 'unknown status'),
+          message: statusCode(statusCodes, res.statusCode),
           duration: Date.now() - t0
         }
 
