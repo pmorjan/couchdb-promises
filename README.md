@@ -252,6 +252,19 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Database removed successfully' }
 //   duration: 40 }
 ```
+#### run generic HTTP GET request
+```javascript
+.then(() => db.getUrl(baseUrl))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { couchdb: 'Welcome',
+//      version: '2.0.0',
+//      vendor: { name: 'The Apache Software Foundation' } },
+//   status: 200,
+//   message: 'OK',
+//   duration: 3 }
+```
 
 #### on error
 ```javascript
@@ -410,50 +423,187 @@ db.getIndex(baseUrl, dbName)
 
 See [examples](examples/) for details.
 
-### module options properties
-*   requestTimeout    // http request timeout in milliseconds, default: 10000
-*   verifyCertificate // verify server SSL certificate, default: true
+## configuration
+#### db = couchdb-promises(options)
+The options object may contain the following properties:
+*   requestTimeout: Number=10000  - http request timeout in milliseconds
+*   verifyCertificate: Boolean=true - verify server SSL certificate (https only)
 
-### database functions
-*   createDatabase()
-*   deleteDatabase()
-*   findDocuments()
-*   getDatabase()
-*   getDatabaseHead()
-*   listDatabases()
+## database functions
+#### db.createDatabase( baseUrl, dbName )
+create new database
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#put--db)
+[[example]](examples/example.js)
 
-### document functions
-*   getAllDocuments()
-*   createDocument()
-*   deleteDocument()
-*   getDocument()
-*   getDocumentHead()
+#### db.getDatabase( baseUrl, dbName )
+get information about the specified database
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#get--db)
+[[example]](examples/example.js)
 
-### index functions (CouchDB >= 2.0)
-*   createIndex()
-*   getIndex()
-*   deleteIndex()
+#### db.getDatabaseHead( baseUrl, dbName )
+get minimal amount of information about the specified database
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#head--db)
+[[example]](examples/example.js)
 
-### document attachment functions
-*   getAttachment()
-*   getAttachmentHead()
-*   addAttachment()
-*   deleteAttachment()
+#### db.deleteDatabase( baseUrl, dbName )
+delete the specified database
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#delete--db)
+[[example]](examples/example.js)
 
-### view and design document functions
-*   createDesignDocument()
-*   deleteDesignDocument()
-*   getDesignDocument()
-*   getDesignDocumentInfo()
-*   getView()
+#### db.listDatabases( baseUrl )
+get list of all databases
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs)
+[[example]](examples/example.js)
 
-### bulk document functions
-*   createBulkDocuments()
+#### db.findDocuments( baseUrl, dbName, queryObj )
+find documents using a declarative JSON querying syntax (CouchDB >= 2.0)
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#db-find)
+[[example]](examples/example.js)
 
-### miscellaneous functions
-*   getInfo()
-*   getUuids()
+## document functions
+#### db.getAllDocuments( baseUrl, dbName, \[queryObj] )
+returns a JSON structure of all of the documents in a given database
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-all-docs)
+[[example]](examples/example.js)
 
-### aliases for backward compatibility
-*   bulkDocs() -> createBulkDocuments()
-*   getAllDocs() -> getAllDocuments()
+#### db.createDocument( baseUrl, dbName, doc )
+create a new document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#post--db)
+[[example]](examples/example.js)
+
+#### db.createDocument( baseUrl, dbName, doc, \[docId] )
+create a new document or a new revision of the existing document.
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid)
+[[example]](examples/example.js)
+
+#### db.deleteDocument( baseUrl, dbName, docId, rev )
+marks the specified document as deleted
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid)
+[[example]](examples/example.js)
+
+#### db.getDocument( baseUrl, dbName, docId, \[queryObj] )
+get document by the specified docId
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid)
+[[example]](examples/example.js)
+
+#### db.getDocumentHead(baseUrl, dbName, docId, \[queryObj])
+get a minimal amount of information about the specified document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#db-doc)
+[[example]](examples/example.js)
+
+## index functions
+#### db.createIndex( baseUrl, dbName, queryObj )
+create database index
+(CouchDB >= 2.0)
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#db-index)
+
+#### db.getIndex( baseUrl, dbName )
+get all database indexes
+(CouchDB >= 2.0)
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index)
+
+#### db.deleteIndex( baseUrl, dbName, docId, name )
+delete database index
+(CouchDB >= 2.0)
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name)
+
+
+## document attachment functions
+#### db.addAttachment( baseUrl, dbName, docId, attName, rev, contentType, data )
+upload the supplied data as an attachment to the specified document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname)
+[[example]](examples/attachment.js)
+
+#### db.getAttachment( baseUrl, dbName, docId, attachmentName, writeStream, \[rev] )
+get the attachment associated with the document
+<br>
+[[CouchDB API]]( http://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname) [[example]](examples/attachment-stream.js)
+
+#### db.getAttachmentHead( baseUrl, dbName, docName, docId, attachmentName, \[rev] )
+get minimal amount of information about the specified attachment
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/attachments.html#db-doc-attachment)
+[[example]](examples/attachment-stream.js)
+
+#### db.deleteAttachment( baseUrl, dbName, docId, attachmentName, rev )
+deletes the attachment attachment of the specified doc
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/attachments.html#delete--db-docid-attname)
+[[example]](examples/attachment.js)
+
+## view and design document functions
+#### db.createDesignDocument( baseUrl, dbName, doc, docId )
+create new design document or new revision of an existing design document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc)
+[[example]](examples/view.js)
+
+#### db.deleteDesignDocument( baseUrl, dbName, doc, docId, rev)
+delete design document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc)
+[[example]](examples/view.js)
+
+#### db.getDesignDocument( baseUrl, dbName, docId, queryObj )
+get the contents of the design document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc)
+[[example]](examples/view.js)
+
+#### db.getDesignDocumentInfo( baseUrl, dbName, docId )
+obtain information about the specified design document, including the index, index size and current status of the design document and associated index information
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#db-design-design-doc-info)
+[[example]](examples/view.js)
+
+#### db.getView( baseUrl, dbName, docId, viewName, queryObj )
+execute the specified view function from the specified design document
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/views.html#db-design-design-doc-view-view-name)
+[[example]](examples/view.js)
+
+## bulk document functions
+#### db.createBulkDocuments( baseUrl, dbName, docs, opts )
+create or update multiple documents at the same time within a single request
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs)
+[[example]](examples/example.js)
+
+## miscellaneous functions
+#### db.getInfo( baseUrl )
+get meta information about the CouchDB server
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#get--)
+[[example]](examples/example.js)
+
+#### db.getUuids( baseUrl, count )
+get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
+<br>
+[[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#uuids)
+[[example]](examples/example.js)
+
+#### db.getUrl( url )
+generic http request
+```
+db.getUrl('http://localhost:5948/_all_dbs')
+```
+
+## aliases for backward compatibility
+##### db.bulkDocs() -> db.createBulkDocuments()
+##### db.getAllDocs() -> db.getAllDocuments()
