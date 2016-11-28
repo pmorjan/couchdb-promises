@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.5.0 - 2016-11-28
+- new generic function db.getUrl(url)
+- check for mandatory port portion of baseUrl
+- update documentation
+- example.js: correct error handling
+
 ## 1.4.0 - 2016-11-16
 - New index functions (CouchDB >= 2.0)
 - createIndex()
