@@ -63,6 +63,13 @@ test('invalid url', function (t) {
   .catch(response => checkResponse(t, response, 400))
 })
 
+test('getUrl()', function (t) {
+  t.plan(1)
+  db.getUrl(`${baseUrl}/`)
+  .then(response => checkResponse(t, response, 200))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('getInfo()', function (t) {
   t.plan(1)
   db.getInfo(baseUrl)

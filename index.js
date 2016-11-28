@@ -871,7 +871,6 @@ module.exports = function (opt) {
   /**
    * generic request function
    * @param  {String} url    e.g. http://localhost:5948/_all_dbs
-   * @param  {String} method GET/PUT/POST
    * @return {Promise}
    */
   couch.getUrl = function (url) {
