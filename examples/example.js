@@ -181,6 +181,17 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Database removed successfully',
 //   duration: 40 }
 
+.then(() => db.getUrl(baseUrl))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { couchdb: 'Welcome',
+//      version: '2.0.0',
+//      vendor: { name: 'The Apache Software Foundation' } },
+//   status: 200,
+//   message: 'OK',
+//   duration: 3 }
+
 .then(() => db.getDocument(baseUrl, dbName, 'doc1'))
 .catch(console.error)
 // { headers: { ... },
