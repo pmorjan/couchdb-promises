@@ -10,14 +10,14 @@
 *   **no dependencies**
 *   **as simple as possible**
 
-All Functions return a **Promise object** whose fulfillment or failure handler receives an object of **5** properties:
+All Functions return a [**Promise object**](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) whose fulfillment or failure handler receives an object of **5** properties:
 *   **headers**: {Object} - HTTP response headers from CouchDB
 *   **data**: {Object} - CouchDB response body
 *   **status**: {Number} - HTTP status code from CouchDB
 *   **message**: {String} - description of the status code from CouchDB API
 *   **duration**: {Number} - execution time in milliseconds
 
-The promise is resolved if the **status** code is **< 400** otherwise rejected.
+The promise is resolved if the [**CouchDB status code**](http://docs.couchdb.org/en/latest/api/basics.html?highlight=status%20codes#http-status-codes) is **< 400** otherwise rejected.
 
 ### Installation
 ```
@@ -30,7 +30,7 @@ npm install couchdb-promises
 const db = require('couchdb-promises')({
   requestTimeout: 5000
 })
-const baseUrl = 'http://localhost:5984'  // https://[user:password@]server:port
+const baseUrl = 'http://localhost:5984'  // https://[user:password@]hostname:port
 const dbName = 'testdb'
 ```
 
@@ -599,10 +599,8 @@ get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
 [[example]](examples/example.js)
 
 #### db.getUrl( url )
-generic http request
-```
-db.getUrl('http://localhost:5948/_all_dbs')
-```
+generic http GET request function
+<br>[[example]](examples/example.js)
 
 ## aliases for backward compatibility
 ##### db.bulkDocs() -> db.createBulkDocuments()
