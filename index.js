@@ -69,9 +69,9 @@ module.exports = function (opt) {
     if (!isValidUrl(url)) {
       return Promise.reject({
         headers: {},
-        data: new Error('Bad request'),
+        data: new Error('Bad request - Invalid url'),
         status: 400,
-        message: 'Error: Bad request',
+        message: 'Bad request - Invalid url',
         duration: Date.now() - t0
       })
     }
@@ -227,9 +227,9 @@ module.exports = function (opt) {
     if (!isValidUrl(url)) {
       return Promise.reject({
         headers: {},
-        data: new Error('Bad request'),
+        data: new Error('Bad request - Invalid url'),
         status: 400,
-        message: 'Error: Bad request',
+        message: 'Bad request - Invalid url',
         duration: Date.now() - t0
       })
     }
