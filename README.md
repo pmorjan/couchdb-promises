@@ -369,7 +369,8 @@ db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 ```
 ---
 
-### Index Functions (CouchDB >= 2.0)
+### Index Functions ([index.js](examples/index.js))
+#### CouchDB >= 2.0
 
 ### create index
 ```javascript
