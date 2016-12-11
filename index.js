@@ -882,3 +882,9 @@ module.exports = function (opt) {
 
   return couch
 }
+
+Object.keys(module.exports()).forEach(func => {
+  module.exports[func] = () => {
+    throw new TypeError('couchdb-promises 2.x now returns a factory function - see documentation for details')
+  }
+})
