@@ -472,12 +472,6 @@ test('createIndex() getIndex() deleteIndex()', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('aliases', function (t) {
-  t.plan(2)
-  t.equal(db.bulkDocs, db.createBulkDocuments, 'alias bulkDocs')
-  t.equal(db.getAllDocs, db.getAllDocuments, 'alias getAllDocs')
-})
-
 test('db server is clean', function (t) {
   // no leftover databases
   t.plan(1)

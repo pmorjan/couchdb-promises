@@ -880,11 +880,5 @@ module.exports = function (opt) {
     })
   }
 
-  //
-  // aliases for backward compatibility
-  //
-  couch.bulkDocs = couch.createBulkDocuments
-  couch.getAllDocs = couch.getAllDocuments
-
   return couch
 }

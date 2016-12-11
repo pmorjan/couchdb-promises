@@ -602,7 +602,3 @@ get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
 #### db.getUrl( url )
 generic http GET request function
 <br>[[example]](examples/example.js)
-
-## aliases for backward compatibility
-##### db.bulkDocs() -> db.createBulkDocuments()
-##### db.getAllDocs() -> db.getAllDocuments()
