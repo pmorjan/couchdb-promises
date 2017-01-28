@@ -179,6 +179,34 @@ test('deleteDatabase() with error', function (t) {
   .catch(response => checkResponse(t, response, 404))   // not found
 })
 
+test('copyDocument() to new doc', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  const doc = {foo: 'bar'}
+  db.createDatabase(baseUrl, dbName)
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(response => checkResponse(t, response, [201, 202]))
+  .then(() => db.copyDocument(baseUrl, dbName, 'doc', 'doc2'))
+  .then(response => checkResponse(t, response, 201))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
+test('copyDocument() to existing doc with error', function (t) {
+  t.plan(1)
+  const dbName = getName()
+  const doc = {foo: 'bar'}
+  db.createDatabase(baseUrl, dbName)
+  .then(() => db.createDocument(baseUrl, dbName, doc, 'doc'))
+  .then(response => checkResponse(t, response, [201, 202]))
+  .then(() => db.copyDocument(baseUrl, dbName, 'doc', 'doc2'))
+  .then(response => checkResponse(t, response, 201))
+  .then(() => db.copyDocument(baseUrl, dbName, 'doc', 'doc2'))
+  .catch(response => checkResponse(t, response, 409))
+  .then(() => db.deleteDatabase(baseUrl, dbName))
+  .catch(response => console.error(util.inspect(response)))
+})
+
 test('createDocument() without docId', function (t) {
   t.plan(1)
   const dbName = getName()

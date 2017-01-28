@@ -66,6 +66,11 @@ module.exports = function (opt) {
       }
     }
 
+    // If passed, propagate Destination header required for HTTP COPY
+    if (param.headers && param.headers.Destination) {
+      httpOptions.headers.Destination = param.headers.Destination
+    }
+
     if (!isValidUrl(url)) {
       return Promise.reject({
         headers: {},
@@ -450,6 +455,32 @@ module.exports = function (opt) {
         404: 'Not Found - Document not found'
       }
     })
+  }
+
+  /**
+   * Copy an existing document to a new document
+   * @param  {String} baseUrl
+   * @param  {String} dbName
+   * @param  {String} docId
+   * @param  {String} newDocId
+   * @return {Promise}
+   */
+  couch.copyDocument = function copyDocument(baseUrl, dbName, docId, newDocId) {
+    if (docId && newDocId) {
+      return request({
+        headers: { Destination: newDocId },
+        url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
+        method: 'COPY',
+        statusCodes: {
+          201: 'Created – Document created and stored on disk',
+          202: 'Accepted – Document data accepted, but not yet stored on disk',
+          400: 'Bad Request – Invalid request body or parameters',
+          401: 'Unauthorized – Write privileges required',
+          404: 'Not Found – Specified database or document ID doesn’t exists',
+          409: 'Conflict – Document with the specified ID already exists or specified revision is not latest for target document'
+        }
+      });
+    }
   }
 
   /**
