@@ -81,6 +81,20 @@ db.createDatabase(baseUrl, dbName)
 //   duration: 4 }
 ```
 
+#### copy document
+```javascript
+.then(() => db.copyDocument(baseUrl, dbName, 'doc2', 'doc3'))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { ok: true,
+//      id: 'doc3',
+//      rev: '1-4c6114c65e295552ab1019e2b046b10e' },
+//   status: 201,
+//   message: 'Created – Document created and stored on disk',
+//   duration: 42 }
+```
+
 #### create document
 ```javascript
 .then(() => db.createDocument(baseUrl, dbName, {name: 'Bob'}))
