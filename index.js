@@ -465,7 +465,7 @@ module.exports = function (opt) {
    * @param  {String} newDocId
    * @return {Promise}
    */
-  couch.copyDocument = function copyDocument(baseUrl, dbName, docId, newDocId) {
+  couch.copyDocument = function copyDocument (baseUrl, dbName, docId, newDocId) {
     if (docId && newDocId) {
       return request({
         headers: { Destination: newDocId },
@@ -479,7 +479,7 @@ module.exports = function (opt) {
           404: 'Not Found – Specified database or document ID doesn’t exists',
           409: 'Conflict – Document with the specified ID already exists or specified revision is not latest for target document'
         }
-      });
+      })
     }
   }
 
