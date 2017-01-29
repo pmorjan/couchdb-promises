@@ -2,6 +2,24 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.0 - 2017-01-29
+- require now returns a factory function with an optional property object.
+This is an API breaking change.
+
+```
+old:
+const db = require('couchdb-promises')
+
+new:
+const db = require('couchdb-promises')({
+  requestTimeout: 5000,
+  verifyCertificate: true
+})
+```
+
+- new function copyDocument() to copy an existing document to a new document
+(by <dsquier@slitscan.com>)
+
 ## 1.5.0 - 2016-11-28
 - new generic function db.getUrl(url)
 - check for mandatory port portion of baseUrl
