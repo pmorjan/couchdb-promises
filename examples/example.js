@@ -1,4 +1,7 @@
-const db = require('../index')
+const db = require('../index')({
+  requestTimeout: 2000,    // default is 10000
+  verifyCertificate: false // default is true
+})
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
 

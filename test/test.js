@@ -3,10 +3,14 @@
 'use strict'
 const crypto = require('crypto')
 const http = require('http')
+const https = require('https')
 const util = require('util')
 //
 const test = require('tape')
-const db = require('../index')
+const couchdb = require('../index')
+const db = couchdb({
+  requestTimeout: 5000
+})
 
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 
@@ -35,14 +39,14 @@ function checkResponse (t, response, status) {
     } else {
       ts.equal(response.status, status, `response.status is ${status}, actual: ${response.status}`)
     }
-    ts.pass(response.message.slice(0, 70))
+    ts.pass(`response message: '${response.message.slice(0, 60)}'`)
   })
   return response
 }
 
-test('url does not belong to a couchdb server', function (t) {
+test('response is no JSON', function (t) {
   t.plan(1)
-  db.listDatabases('http://www.google.com:80')
+  db.listDatabases(`${baseUrl}/_utils/`)
   .catch(response => checkResponse(t, response, 500))
 })
 
@@ -380,37 +384,8 @@ test('[create|delete|get]DesignDocument(), getDesignDocumentInfo(), getView()', 
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('getTimeout()', function (t) {
-  t.plan(1)
-  const curTimeout = db.getTimeout()
-  t.true(typeof curTimeout === 'number', 'getTimeout() returns number')
-})
-
-test('setTimeout()', function (t) {
-  // create an http server to simulate a couchdb server that does
-  // not response within a given time frame.
-  // no http request handler -> connecting works but no response
-  t.plan(2)
-  const timeout = 1000
-  const eps = 100
-  const server = http.createServer().listen(0)
-  server.on('listening', function () {
-    const port = server.address().port
-    const oldTimeout = db.getTimeout()
-    t.timeoutAfter(timeout + (2 * eps))
-    db.setTimeout(timeout)
-    const t0 = Date.now()
-    db.getInfo(`http://localhost:${port}`)
-    .catch(response => checkResponse(t, response, 500))
-    .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
-    .then(() => {
-      server.close()
-      db.setTimeout(oldTimeout)
-    })
-  })
-})
-
 test('createBulkDocuments())', function (t) {
+  const db = couchdb({ requestTimeout: 60000 })
   function randomData () {
     return crypto.randomBytes(Math.floor(Math.random() * 1000)).toString('hex')
   }
@@ -420,8 +395,6 @@ test('createBulkDocuments())', function (t) {
   const docs = new Array(cnt).fill().map((x, i) => {
     return { n: i, value: randomData() }
   })
-  const oldTimeout = db.getTimeout()
-  db.setTimeout(60000)
   db.createDatabase(baseUrl, dbName)
   .then(() => db.createBulkDocuments(baseUrl, dbName, docs, {all_or_nothing: false}))
   .then(response => checkResponse(t, response, [201, 202]))
@@ -431,7 +404,6 @@ test('createBulkDocuments())', function (t) {
     t.true(response.data.total_rows === cnt, `total_rows is ${cnt}`)
   })
   .then(() => db.deleteDatabase(baseUrl, dbName))
-  .then(() => db.setTimeout(oldTimeout))
   .catch(response => console.error(util.inspect(response)))
 })
 
@@ -500,12 +472,6 @@ test('createIndex() getIndex() deleteIndex()', function (t) {
   .catch(response => console.error(util.inspect(response)))
 })
 
-test('aliases', function (t) {
-  t.plan(2)
-  t.equal(db.bulkDocs, db.createBulkDocuments, 'alias bulkDocs')
-  t.equal(db.getAllDocs, db.getAllDocuments, 'alias getAllDocs')
-})
-
 test('db server is clean', function (t) {
   // no leftover databases
   t.plan(1)
@@ -519,6 +485,67 @@ test('db server is clean', function (t) {
   .then(() => db.listDatabases(baseUrl))
   .then(response => t.deepEqual(response.data.filter(e => re.test(e)), [], `all ${getName.count} temporary databases removed`))
   .catch(response => console.error(util.inspect(response)))
+})
+
+test('requestTimeout', function (t) {
+  // create an http server to simulate a couchdb server that does
+  // not response within a given time frame.
+  // no http request handler -> connecting works but no response
+  const timeout = 1000
+  const db = couchdb({ requestTimeout: timeout })
+  t.plan(2)
+  const eps = 100
+  const server = http.createServer().listen(0)
+  server.on('listening', function () {
+    const port = server.address().port
+    t.timeoutAfter(timeout + (2 * eps))
+    const t0 = Date.now()
+    db.getInfo(`http://localhost:${port}`)
+    .catch(response => checkResponse(t, response, 500))
+    .then(() => t.true(Date.now() - t0 < timeout + eps, 'time difference is ok'))
+    .then(() => server.close())
+  })
+})
+
+test('verifyCertificate true/false', function (t) {
+  // create an https server to simulate a couchdb server
+  // use self signed certificates
+  const cert = `
+-----BEGIN CERTIFICATE-----
+MIICSjCCAbOgAwIBAgIFCVOQGEEwDQYJKoZIhvcNAQELBQAwaTEUMBIGA1UEAxMLZXhhbXBsZS5vcmcxCzAJBgNVBAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTETMBEGA1UEBxMKQmxhY2tzYnVyZzENMAsGA1UEChMEVGVzdDENMAsGA1UECxMEVGVzdDAeFw0xNjExMjYyMTI1MjZaFw0xNzExMjYyMTI1MjZaMGkxFDASBgNVBAMTC2V4YW1wbGUub3JnMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2luaWExEzARBgNVBAcTCkJsYWNrc2J1cmcxDTALBgNVBAoTBFRlc3QxDTALBgNVBAsTBFRlc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALssy8NcUbjA4zhxAWE/jAIlHIBUIPOqVpokhBKq4pOEEXnc+zJMZbakaH1JMsIWgYhvSlitgYACPwa/qPQZ++gmxjtipWPmuv0sGYRpvm4mhGKkS4RG+DQtr0n9CXZnyWOtoxHdcrqzex/itNGZyL6jY0BXnkwwlw87y2hVuls5AgMBAAEwDQYJKoZIhvcNAQELBQADgYEANbUZ1LNLEONFm4e3iMy6ilDjTHn1Nnrx8oqbA+YMAwsXnlz1sZbN4VAyBd8X3BdEuU0GoVpGna8fToMB9CvLmRqL6pgku+Ki6raUsrqs96PL5LhNI1zC10Rfnf8bLc3KIgLbgSmKBrz+tREgPGAmLSCo2wpnGHkis7jeyr5vBBs=
+-----END CERTIFICATE-----
+`
+  const key = `
+-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQC7LMvDXFG4wOM4cQFhP4wCJRyAVCDzqlaaJIQSquKThBF53PsyTGW2pGh9STLCFoGIb0pYrYGAAj8Gv6j0GfvoJsY7YqVj5rr9LBmEab5uJoRipEuERvg0La9J/Ql2Z8ljraMR3XK6s3sf4rTRmci+o2NAV55MMJcPO8toVbpbOQIDAQABAoGAKl0ELU5KzMcTZmXlSw5n8OBXaBAieSPXgAG9xr/Ykky06+EBFaxG5SSm5ZxYmacgYDHYIOP8SG25uBxO8Bilc8125pmgjG9WZgpLOQwXxKHge+R9Q5tvYfeh930PahIRMRVxvU3UPhntW8M8JPEDD44DqS/49XS0I10GJmV7L1ECQQDoYK4e15afr/IzgP5EqinlUoDGL9SP9s9UlYfIT6r+HYmLeV9LAIlfibMQMe/nC9bB5KsDnxDfPtDhAhplCaj9AkEAzjPGukQO5cIQ6dXAnLza/9EDNkxJGWGAV1DCp3s2PI1e01Ph5zZBB852zg9h8hy79LMmclF2avJP1cOIYold7QJBAN+rV022g3O3HjC244diJqtlqy+YEEh17wBiYWzMSjEIa0EFlVSS8qcz2lgnSNwiSBcfLABzVgEb7F/370H7d10CQBdxhYeJ01PF45xiQ/rN8ewhvEbBF5J+JlRHB0p5VKo/vGc0YzuhTHVxwMoer5kSMUBZ2eYnYto34GHCUFA7o+UCQDeroZCW20YfhnT8T1YvbUQToqR4zN0lTLJbydndxDsK4b507XqGTX/DCi+I+vS4ClgViR/ruFk4EvLWkLz+N0I=
+-----END RSA PRIVATE KEY-----
+`
+  const db1 = couchdb({ verifyCertificate: false })
+  const db2 = couchdb() // default verifyCertificate: true
+  t.plan(2)
+
+  const server = https.createServer({
+    key: key,
+    cert: cert
+  }, function (req, res) {
+    const msg = JSON.stringify({ msg: 'hello test' })
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Content-length': msg.length
+    })
+    res.end(msg)
+  }).listen(0)
+
+  server.on('listening', function () {
+    const port = server.address().port
+    // verifyCertificate: false
+    db1.getUrl(`https://localhost:${port}`)
+    .then(response => checkResponse(t, response, 200))
+    // verifyCertificate: true
+    .then(() => db2.getUrl(`https://localhost:${port}`))
+    .catch(response => checkResponse(t, response, 500))
+    .then(() => server.close())
+  })
 })
 
 test.onFinish(() => console.log(`\n# CouchDB version: ${couchVersion}`))

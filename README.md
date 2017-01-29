@@ -27,7 +27,9 @@ npm install couchdb-promises
 ### [Example.js](examples/example.js)
 
 ```javascript
-const db = require('couchdb-promises')
+const db = require('couchdb-promises')({
+  requestTimeout: 5000
+})
 const baseUrl = 'http://localhost:5984'  // https://[user:password@]hostname:port
 const dbName = 'testdb'
 ```
@@ -250,7 +252,6 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Database removed successfully' }
 //   duration: 40 }
 ```
-
 #### run generic HTTP GET request
 ```javascript
 .then(() => db.getUrl(baseUrl))
@@ -422,6 +423,12 @@ db.getIndex(baseUrl, dbName)
 # API Reference
 
 See [examples](examples/) for details.
+
+## configuration
+#### db = couchdb-promises(options)
+The options object may contain the following properties:
+*   requestTimeout: Number=10000  - http request timeout in milliseconds
+*   verifyCertificate: Boolean=true - verify server SSL certificate (https only)
 
 ## database functions
 #### db.createDatabase( baseUrl, dbName )
@@ -595,7 +602,3 @@ get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
 #### db.getUrl( url )
 generic http GET request function
 <br>[[example]](examples/example.js)
-
-## aliases for backward compatibility
-##### db.bulkDocs() -> db.createBulkDocuments()
-##### db.getAllDocs() -> db.getAllDocuments()

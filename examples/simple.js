@@ -1,4 +1,6 @@
-const db = require('../index')
+const db = require('../index')({
+  requestTimeout: 5000
+})
 const baseUrl = 'http://localhost:5984'
 const dbName = 'simpledb'
 

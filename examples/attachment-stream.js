@@ -3,7 +3,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
-const db = require('../index')
+const db = require('../index')()
 const baseUrl = 'http://localhost:5984'
 const dbName = 'testdb_' + Date.now()
 

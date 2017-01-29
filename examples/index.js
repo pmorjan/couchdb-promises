@@ -2,7 +2,10 @@
 // CouchDB version >= 2.0 only !
 //
 'use strict'
-const db = require('../index')
+const db = require('../index')({
+  requestTimeout: 3000
+})
+
 const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'indexdb_' + Date.now()
 
