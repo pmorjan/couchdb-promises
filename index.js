@@ -74,7 +74,7 @@ module.exports = function (opt) {
     if (!isValidUrl(url)) {
       return Promise.reject({
         headers: {},
-        data: new Error('Bad request - Invalid url'),
+        data: {error: 'Bad request - Invalid url'},
         status: 400,
         message: 'Bad request - Invalid url',
         duration: Date.now() - t0
@@ -117,14 +117,14 @@ module.exports = function (opt) {
       body = postData
       httpOptions.headers['content-type'] = postContentType
       httpOptions.headers['content-length'] = body.length
-    } else if (postData) {
+    } else if (postData || postData === null) {
       error = 'unsoported post data'
     }
 
     if (error) {
       return Promise.reject({
         headers: {},
-        data: error,
+        data: {error: error},
         status: 400,
         message: 'invalid post data',
         duration: Date.now() - t0
@@ -154,7 +154,7 @@ module.exports = function (opt) {
           } catch (err) {
             ret = {
               headers: res.headers,
-              data: err,
+              data: {error: err},
               status: 500,
               message: err.message || 'internal error',
               duration: Date.now() - t0
@@ -173,7 +173,7 @@ module.exports = function (opt) {
         req.abort()
         reject({
           headers: {},
-          data: new Error('request timed out'),
+          data: {error: 'request timed out'},
           status: 500,
           message: 'Error: request timed out',
           duration: Date.now() - t0
@@ -183,7 +183,7 @@ module.exports = function (opt) {
       req.on('error', function (err) {
         reject({
           headers: {},
-          data: err,
+          data: {error: err},
           status: 500,
           message: err.message || 'internal error',
           duration: Date.now() - t0
@@ -232,7 +232,7 @@ module.exports = function (opt) {
     if (!isValidUrl(url)) {
       return Promise.reject({
         headers: {},
-        data: new Error('Bad request - Invalid url'),
+        data: {error: 'Bad request - Invalid url'},
         status: 400,
         message: 'Bad request - Invalid url',
         duration: Date.now() - t0
@@ -261,7 +261,7 @@ module.exports = function (opt) {
         req.abort()
         reject({
           headers: {},
-          data: new Error('request timed out'),
+          data: {error: 'request timed out'},
           status: 500,
           message: 'Error: request timed out',
           duration: Date.now() - t0
@@ -271,7 +271,7 @@ module.exports = function (opt) {
       req.on('error', function (err) {
         reject({
           headers: {},
-          data: err,
+          data: {error: err},
           status: 500,
           message: err.message || 'internal error',
           duration: Date.now() - t0
