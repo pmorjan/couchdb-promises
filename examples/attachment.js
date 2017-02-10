@@ -1,8 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 
-const db = require('../index')()
-const baseUrl = 'http://localhost:5984'
+const db = require('../index')({
+  baseUrl: 'http://localhost:5984'
+})
 const dbName = 'testdb_' + Date.now()
 
 function log (obj) {
@@ -35,13 +36,13 @@ const a2 = {
   contentType: 'image/png'
 }
 
-db.createDatabase(baseUrl, dbName)
-.then(() => db.createDocument(baseUrl, dbName, doc1, 'myDocument'))
+db.createDatabase(dbName)
+.then(() => db.createDocument(dbName, doc1, 'myDocument'))
 
 // attach text file
 .then(response => {
   const rev = response.data.rev
-  return db.addAttachment(baseUrl, dbName, 'myDocument', a1.name, rev, a1.contentType, a1.data)
+  return db.addAttachment(dbName, 'myDocument', a1.name, rev, a1.contentType, a1.data)
 })
 .then(log)
 // {
@@ -58,7 +59,7 @@ db.createDatabase(baseUrl, dbName)
 
 .then(response => {
   const rev = response.data.rev
-  return db.addAttachment(baseUrl, dbName, 'myDocument', a2.name, rev, a2.contentType, a2.data)
+  return db.addAttachment(dbName, 'myDocument', a2.name, rev, a2.contentType, a2.data)
 })
 .then(log)
 // {
@@ -73,7 +74,7 @@ db.createDatabase(baseUrl, dbName)
 //  "duration": 41
 // }
 
-.then(() => db.getDocument(baseUrl, dbName, 'myDocument', {attachments: true}))
+.then(() => db.getDocument(dbName, 'myDocument', {attachments: true}))
 .then(log)
 // {
 //   "headers": { ... },
@@ -112,7 +113,7 @@ db.createDatabase(baseUrl, dbName)
 
 .then(response => {
   const rev = response.data._rev
-  return db.deleteAttachment(baseUrl, dbName, 'myDocument', a1.name, rev)
+  return db.deleteAttachment(dbName, 'myDocument', a1.name, rev)
 })
 .then(log)
 // {
@@ -127,5 +128,5 @@ db.createDatabase(baseUrl, dbName)
 //   "duration": 40
 // }
 
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.deleteDatabase(dbName))
 .catch(console.error)

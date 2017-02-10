@@ -11,20 +11,31 @@ const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
 module.exports = function (opt) {
   const config = {
+    baseUrl: 'http://localhost:5984',
     requestTimeout: 10000, // ms
     verifyCertificate: true
   }
   Object.assign(config, opt)
 
-  function isValidUrl (url) {
-    const o = urlParse(url)
-    if (
-      ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
-      o.slashes === true &&
-      !Number.isNaN(parseInt(o.port, 10)) &&
-      o.hostname
-    ) return true
-    return false
+  console.log('debug: ' + config.baseUrl)
+  const o = urlParse(config.baseUrl)
+  if (
+    ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
+    o.slashes === true &&
+    !Number.isNaN(parseInt(o.port, 10)) &&
+    o.hostname === false
+  ) throw new Error('invalid baseUrl')
+
+  const httpOptions = {
+    hostname: o.host && o.host.split(':')[0],
+    port: o.port,
+    auth: o.auth,
+    protocol: o.protocol,
+    rejectUnauthorized: config.verifyCertificate,
+    headers: {
+      'user-agent': 'couchdb-promises',
+      accept: 'application/json'
+    }
   }
 
   function createQueryString (queryObj) {
@@ -45,40 +56,16 @@ module.exports = function (opt) {
   function request (param) {
     const t0 = Date.now()
 
-    const method = param.method
-    const url = param.url
+    httpOptions.method = param.method
+    httpOptions.path = '/' + param.path
+
     const statusCodes = param.statusCodes
     const postData = param.postData
     const postContentType = param.postContentType
 
-    const o = urlParse(url)
-    const httpOptions = {
-      hostname: o.host && o.host.split(':')[0],
-      port: o.port,
-      path: o.path,
-      auth: o.auth,
-      protocol: o.protocol,
-      method: method,
-      rejectUnauthorized: config.verifyCertificate,
-      headers: {
-        'user-agent': 'couchdb-promises',
-        accept: 'application/json'
-      }
-    }
-
     // If passed, propagate Destination header required for HTTP COPY
     if (param.headers && param.headers.Destination) {
       httpOptions.headers.Destination = param.headers.Destination
-    }
-
-    if (!isValidUrl(url)) {
-      return Promise.reject({
-        headers: {},
-        data: {error: 'Bad request - Invalid url'},
-        status: 400,
-        message: 'Bad request - Invalid url',
-        duration: Date.now() - t0
-      })
     }
 
     let body
@@ -118,7 +105,7 @@ module.exports = function (opt) {
       httpOptions.headers['content-type'] = postContentType
       httpOptions.headers['content-length'] = body.length
     } else if (postData || postData === null) {
-      error = 'unsoported post data'
+      error = 'unsupported post data'
     }
 
     if (error) {
@@ -134,8 +121,6 @@ module.exports = function (opt) {
     return new Promise(function (resolve, reject) {
       const lib = httpOptions.protocol === 'https:' ? https : http
       const req = lib.request(httpOptions, function (res) {
-        // console.error(url)
-        // console.error(res.req._headers)
         let buffer = ''
         res.setEncoding('utf8')
         res.on('data', function (data) {
@@ -209,35 +194,13 @@ module.exports = function (opt) {
   function requestStream (param) {
     const t0 = Date.now()
 
-    const url = param.url
     const statusCodes = param.statusCodes
     const stream = param.stream
 
     assert(stream && stream.writable && typeof stream.pipe === 'function', 'is writeable stream')
 
-    const o = urlParse(url)
-    const httpOptions = {
-      hostname: o.host && o.host.split(':')[0],
-      port: o.port || 443,
-      path: o.path,
-      auth: o.auth,
-      protocol: o.protocol,
-      method: 'GET',
-      rejectUnauthorized: config.verifyCertificate,
-      headers: {
-        'user-agent': 'couchdb-promises'
-      }
-    }
-
-    if (!isValidUrl(url)) {
-      return Promise.reject({
-        headers: {},
-        data: {error: 'Bad request - Invalid url'},
-        status: 400,
-        message: 'Bad request - Invalid url',
-        duration: Date.now() - t0
-      })
-    }
+    httpOptions.method = 'GET'
+    httpOptions.path = '/' + param.path
 
     return new Promise(function (resolve, reject) {
       const lib = httpOptions.protocol === 'https:' ? https : http
@@ -294,12 +257,11 @@ module.exports = function (opt) {
 
   /**
    * Get server info
-   * @param  {String} baseUrl
    * @return {Promise}
    */
-  couch.getInfo = function getInfo (baseUrl) {
+  couch.getInfo = function getInfo () {
     return request({
-      url: `${baseUrl}/`,
+      path: '',
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully'
@@ -309,12 +271,11 @@ module.exports = function (opt) {
 
   /**
    * Get the list of all databases.
-   * @param  {String} baseUrl
    * @return {Promise}
    */
-  couch.listDatabases = function listDatabases (baseUrl) {
+  couch.listDatabases = function listDatabases () {
     return request({
-      url: `${baseUrl}/_all_dbs`,
+      path: '_all_dbs',
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully'
@@ -324,13 +285,12 @@ module.exports = function (opt) {
 
   /**
    * Create database
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @return {Promise}
    */
-  couch.createDatabase = function createDatabase (baseUrl, dbName) {
+  couch.createDatabase = function createDatabase (dbName) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+      path: encodeURIComponent(dbName),
       method: 'PUT',
       statusCodes: {
         201: 'Created - Database created successfully',
@@ -343,13 +303,12 @@ module.exports = function (opt) {
 
   /**
    * Get database
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @return {Promise}
    */
-  couch.getDatabase = function getDatabase (baseUrl, dbName) {
+  couch.getDatabase = function getDatabase (dbName) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+      path: encodeURIComponent(dbName),
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully',
@@ -360,13 +319,12 @@ module.exports = function (opt) {
 
   /**
    * Get database head
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @return {Promise}
    */
-  couch.getDatabaseHead = function getDatabaseHead (baseUrl, dbName) {
+  couch.getDatabaseHead = function getDatabaseHead (dbName) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+      path: encodeURIComponent(dbName),
       method: 'HEAD',
       statusCodes: {
         200: 'OK - Database exists',
@@ -377,13 +335,12 @@ module.exports = function (opt) {
 
   /**
    * Delete database
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @return {Promise}
    */
-  couch.deleteDatabase = function deleteDatabase (baseUrl, dbName) {
+  couch.deleteDatabase = function deleteDatabase (dbName) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+      path: encodeURIComponent(dbName),
       method: 'DELETE',
       statusCodes: {
         200: 'OK - Database removed successfully',
@@ -396,15 +353,14 @@ module.exports = function (opt) {
 
   /**
    * Get all documents
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {Object} [query]
    * @return {Promise}
    */
-  couch.getAllDocuments = function getAllDocuments (baseUrl, dbName, queryObj) {
+  couch.getAllDocuments = function getAllDocuments (dbName, queryObj) {
     const queryStr = createQueryString(queryObj)
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_all_docs${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/_all_docs${queryStr}`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully'
@@ -414,16 +370,15 @@ module.exports = function (opt) {
 
   /**
    * Get Document Head
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {Object} [query]
    * @return {Promise}
    */
-  couch.getDocumentHead = function getDocumentHead (baseUrl, dbName, docId, queryObj) {
+  couch.getDocumentHead = function getDocumentHead (dbName, docId, queryObj) {
     const queryStr = createQueryString(queryObj)
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
       method: 'HEAD',
       statusCodes: {
         200: 'OK - Document exists',
@@ -436,16 +391,15 @@ module.exports = function (opt) {
 
   /**
    * Get Document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {Object} [query]
    * @return {Promise}
    */
-  couch.getDocument = function getDocument (baseUrl, dbName, docId, queryObj) {
+  couch.getDocument = function getDocument (dbName, docId, queryObj) {
     const queryStr = createQueryString(queryObj)
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}${queryStr}`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully',
@@ -459,17 +413,16 @@ module.exports = function (opt) {
 
   /**
    * Copy an existing document to a new document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} newDocId
    * @return {Promise}
    */
-  couch.copyDocument = function copyDocument (baseUrl, dbName, docId, newDocId) {
+  couch.copyDocument = function copyDocument (dbName, docId, newDocId) {
     if (docId && newDocId) {
       return request({
         headers: { Destination: newDocId },
-        url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
+        path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
         method: 'COPY',
         statusCodes: {
           201: 'Created – Document created and stored on disk',
@@ -485,17 +438,16 @@ module.exports = function (opt) {
 
   /**
    * Create a new document or new revision of an existing document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {Object} doc
    * @param  {String} [docId]
    * @return {Promise}
    */
-  couch.createDocument = function createDocument (baseUrl, dbName, doc, docId) {
+  couch.createDocument = function createDocument (dbName, doc, docId) {
     if (docId) {
       // create document by id (PUT)
       return request({
-        url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
+        path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}`,
         method: 'PUT',
         postData: doc,
         postContentType: 'application/json',
@@ -511,7 +463,7 @@ module.exports = function (opt) {
     } else {
       // create document without explicit id (POST)
       return request({
-        url: `${baseUrl}/${encodeURIComponent(dbName)}`,
+        path: encodeURIComponent(dbName),
         method: 'POST',
         postData: doc,
         statusCodes: {
@@ -528,15 +480,14 @@ module.exports = function (opt) {
 
   /**
    * Delete a named document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} rev
    * @return {Promise}
    */
-  couch.deleteDocument = function deleteDocument (baseUrl, dbName, docId, rev) {
+  couch.deleteDocument = function deleteDocument (dbName, docId, rev) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}?rev=${rev}`,
+      path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}?rev=${rev}`,
       method: 'DELETE',
       statusCodes: {
         200: 'OK - Document successfully removed',
@@ -551,14 +502,13 @@ module.exports = function (opt) {
 
   /**
    * Find documents (requires CouchDB >= 2.0.0)
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {Object} queryObj
    * @return {Promise}
    */
-  couch.findDocuments = function findDocuments (baseUrl, dbName, queryObj) {
+  couch.findDocuments = function findDocuments (dbName, queryObj) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_find`,
+      path: `${encodeURIComponent(dbName)}/_find`,
       method: 'POST',
       postData: queryObj,
       statusCodes: {
@@ -572,13 +522,12 @@ module.exports = function (opt) {
 
   /**
    * Get one or more UUIDs
-   * @param  {String} baseUrl
    * @param  {Number} [count = 1]
    * @return {Promise}
    */
-  couch.getUuids = function getUuids (baseUrl, count) {
+  couch.getUuids = function getUuids (count) {
     return request({
-      url: `${baseUrl}/_uuids?count=${count || 1}`,
+      path: `_uuids?count=${count || 1}`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully',
@@ -589,16 +538,15 @@ module.exports = function (opt) {
 
   /**
    * Get design document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {Object} [query]
    * @return {Promise}
    */
-  couch.getDesignDocument = function getDesignDocument (baseUrl, dbName, docId, queryObj) {
+  couch.getDesignDocument = function getDesignDocument (dbName, docId, queryObj) {
     const queryStr = createQueryString(queryObj)
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}${queryStr}`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully',
@@ -612,14 +560,13 @@ module.exports = function (opt) {
 
   /**
    * Get design document info
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @return {Promise}
    */
-  couch.getDesignDocumentInfo = function getDesignDocumentInfo (baseUrl, dbName, docId) {
+  couch.getDesignDocumentInfo = function getDesignDocumentInfo (dbName, docId) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_info`,
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_info`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully'
@@ -629,15 +576,14 @@ module.exports = function (opt) {
 
   /**
    * Create a new design document or new revision of an existing design document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {Object} doc
    * @param  {String} docId
    * @return {Promise}
    */
-  couch.createDesignDocument = function createDesignDocument (baseUrl, dbName, doc, docId) {
+  couch.createDesignDocument = function createDesignDocument (dbName, doc, docId) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}`,
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}`,
       method: 'PUT',
       postData: doc,
       statusCodes: {
@@ -653,15 +599,14 @@ module.exports = function (opt) {
 
   /**
    * Delete a named design document
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} rev
    * @return {Promise}
    */
-  couch.deleteDesignDocument = function deleteDesignDocument (baseUrl, dbName, docId, rev) {
+  couch.deleteDesignDocument = function deleteDesignDocument (dbName, docId, rev) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}?rev=${rev}`,
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}?rev=${rev}`,
       method: 'DELETE',
       statusCodes: {
         200: 'OK - Document successfully removed',
@@ -676,17 +621,16 @@ module.exports = function (opt) {
 
   /**
    * Get view
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} viewName
    * @param  {Object} [query]
    * @return {Promise}
    */
-  couch.getView = function getView (baseUrl, dbName, docId, viewName, queryObj) {
+  couch.getView = function getView (dbName, docId, viewName, queryObj) {
     const queryStr = createQueryString(queryObj)
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_view/${encodeURIComponent(viewName)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(docId)}/_view/${encodeURIComponent(viewName)}${queryStr}`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully'
@@ -696,19 +640,18 @@ module.exports = function (opt) {
 
   /**
    * Bulk docs
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {Array} docs
    * @param  {Object} [opts]
    * @return {Promise}
    */
-  couch.createBulkDocuments = function createBulkDocuments (baseUrl, dbName, docs, opts) {
+  couch.createBulkDocuments = function createBulkDocuments (dbName, docs, opts) {
     const obj = {
       docs: docs
     }
     Object.assign(obj, opts)
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_bulk_docs`,
+      path: `${encodeURIComponent(dbName)}/_bulk_docs`,
       method: 'POST',
       postData: obj,
       statusCodes: {
@@ -724,17 +667,16 @@ module.exports = function (opt) {
 
   /**
    * Get attachment head
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} attName
    * @param  {String} [rev]
    * @return {Promise}
    */
-  couch.getAttachmentHead = function getAttachmentHead (baseUrl, dbName, docId, attName, rev) {
+  couch.getAttachmentHead = function getAttachmentHead (dbName, docId, attName, rev) {
     const queryStr = rev ? `?rev=${rev}` : ''
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
       method: 'HEAD',
       statusCodes: {
         200: 'OK - Attachment exists',
@@ -747,7 +689,6 @@ module.exports = function (opt) {
 
   /**
    * get attachment
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} attName
@@ -755,11 +696,11 @@ module.exports = function (opt) {
    * @param  {String} [rev]
    * @return {Promise}
    */
-  couch.getAttachment = function getAttachment (baseUrl, dbName, docId, attName, stream, rev) {
+  couch.getAttachment = function getAttachment (dbName, docId, attName, stream, rev) {
     const queryStr = rev ? `?rev=${rev}` : ''
     return Promise.resolve()
       .then(() => requestStream({
-        url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+        path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
         stream: stream,
         statusCodes: {
           200: 'OK - Attachment exists',
@@ -775,7 +716,7 @@ module.exports = function (opt) {
         stream.on('error', function (err) {
           return reject({
             headers: {},
-            data: err,
+            data: {error: err},
             status: 500,
             message: err.message || 'stream error'
           })
@@ -786,7 +727,6 @@ module.exports = function (opt) {
 
   /**
    * add attachment
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} attName
@@ -795,10 +735,10 @@ module.exports = function (opt) {
    * @param  {Buffer|String} att
    * @return {Promise}
    */
-  couch.addAttachment = function addAttachment (baseUrl, dbName, docId, attName, rev, contentType, data) {
+  couch.addAttachment = function addAttachment (dbName, docId, attName, rev, contentType, data) {
     const queryStr = rev ? `?rev=${rev}` : ''
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
       method: 'PUT',
       postContentType: contentType,
       postData: data,
@@ -814,17 +754,16 @@ module.exports = function (opt) {
 
   /**
    * delete attachment
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId
    * @param  {String} attName
    * @param  {String} rev
    * @return {Promise}
    */
-  couch.deleteAttachment = function deleteAttachment (baseUrl, dbName, docId, attName, rev) {
+  couch.deleteAttachment = function deleteAttachment (dbName, docId, attName, rev) {
     const queryStr = rev ? `?rev=${rev}` : ''
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
+      path: `${encodeURIComponent(dbName)}/${encodeURIComponent(docId)}/${encodeURIComponent(attName)}${queryStr}`,
       method: 'DELETE',
       statusCodes: {
         200: 'OK – Attachment successfully removed',
@@ -839,14 +778,13 @@ module.exports = function (opt) {
 
   /**
    * create index (requires CouchDB >= 2.0.0)
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {Object} queryObj
    * @return {Promise}
    */
-  couch.createIndex = function createIndex (baseUrl, dbName, queryObj) {
+  couch.createIndex = function createIndex (dbName, queryObj) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_index`,
+      path: `${encodeURIComponent(dbName)}/_index`,
       method: 'POST',
       postData: queryObj,
       statusCodes: {
@@ -860,13 +798,12 @@ module.exports = function (opt) {
 
   /**
    * get index (requires CouchDB >= 2.0.0)
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @return {Promise}
    */
-  couch.getIndex = function getIndex (baseUrl, dbName) {
+  couch.getIndex = function getIndex (dbName) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_index`,
+      path: `${encodeURIComponent(dbName)}/_index`,
       method: 'GET',
       statusCodes: {
         200: 'OK - Success',
@@ -879,15 +816,14 @@ module.exports = function (opt) {
 
   /**
    * delete index (requires CouchDB >= 2.0.0)
-   * @param  {String} baseUrl
    * @param  {String} dbName
    * @param  {String} docId - design document id
    * @param  {String} name - index name
    * @return {Promise}
    */
-  couch.deleteIndex = function deleteIndex (baseUrl, dbName, docId, name) {
+  couch.deleteIndex = function deleteIndex (dbName, docId, name) {
     return request({
-      url: `${baseUrl}/${encodeURIComponent(dbName)}/_index/${encodeURIComponent(docId)}/json/${encodeURIComponent(name)}`,
+      path: `${encodeURIComponent(dbName)}/_index/${encodeURIComponent(docId)}/json/${encodeURIComponent(name)}`,
       method: 'DELETE',
       statusCodes: {
         200: 'OK - Success',
@@ -901,12 +837,12 @@ module.exports = function (opt) {
 
   /**
    * generic request function
-   * @param  {String} url    e.g. http://localhost:5948/_all_dbs
+   * @param  {String} path    e.g. '_all_dbs'
    * @return {Promise}
    */
-  couch.getUrl = function (url) {
+  couch.getPath = function (path) {
     return request({
-      url: url,
+      path: path,
       methode: 'GET'
     })
   }
@@ -914,8 +850,3 @@ module.exports = function (opt) {
   return couch
 }
 
-Object.keys(module.exports()).forEach(func => {
-  module.exports[func] = () => {
-    throw new TypeError('couchdb-promises 2.x now returns a factory function - see documentation for details')
-  }
-})

@@ -3,24 +3,24 @@
 //
 'use strict'
 const db = require('../index')({
+  baseUrl: process.env.DB_URL || 'http://localhost:5984',
   requestTimeout: 3000
 })
 
-const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'indexdb_' + Date.now()
 
 //
 // create database and insert some documents
 //
-db.createDatabase(baseUrl, dbName)
-.then(() => db.createBulkDocuments(baseUrl, dbName,
+db.createDatabase(dbName)
+.then(() => db.createBulkDocuments(dbName,
   Array(1000).fill().map(() => { return {name: Math.random().toString(36).slice(2, 8)} })
 ))
 
 //
 // create index
 //
-.then(() => db.createIndex(baseUrl, dbName, {
+.then(() => db.createIndex(dbName, {
   index: {
     fields: ['name']
   },
@@ -39,7 +39,7 @@ db.createDatabase(baseUrl, dbName)
 //
 // get index
 //
-.then(() => db.getIndex(baseUrl, dbName))
+.then(() => db.getIndex(dbName))
 .then(response => { console.log(response); return response })
 // { headers: { ... },
 //  data: { total_rows: 2, indexes: [ [Object], [Object] ] },
@@ -65,7 +65,7 @@ db.createDatabase(baseUrl, dbName)
 //
 .then(response => {
   const docId = response.data.indexes.find(e => e.name === 'name-index').ddoc
-  return db.deleteIndex(baseUrl, dbName, docId, 'name-index')
+  return db.deleteIndex(dbName, docId, 'name-index')
 })
 .then(console.log)
 // { headers: { ... }
@@ -75,6 +75,6 @@ db.createDatabase(baseUrl, dbName)
 //   duration: 42 }
 
 // delete database
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.deleteDatabase(dbName))
 .catch(console.error)
 

@@ -1,11 +1,11 @@
 const db = require('../index')({
+  baseUrl: process.env.DB_URL || 'http://localhost:5984',
   requestTimeout: 2000,    // default is 10000
   verifyCertificate: false // default is true
 })
-const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb'
 
-db.getInfo(baseUrl)
+db.getInfo()
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -16,7 +16,7 @@ db.getInfo(baseUrl)
 //   message: 'OK - Request completed successfully',
 //   duration: 36 }
 
-db.createDatabase(baseUrl, dbName)
+db.createDatabase(dbName)
 .then(console.log)
 // { headers: { ... },
 //   data: { ok: true },
@@ -24,7 +24,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created - Database created successfully',
 //   duration: 131 }
 
-.then(() => db.getDatabaseHead(baseUrl, dbName))
+.then(() => db.getDatabaseHead(dbName))
 .then(console.log)
 // { headers: { ... },
 //   data: {},
@@ -32,7 +32,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Database exists',
 //   duration: 4 }
 
-.then(() => db.listDatabases(baseUrl))
+.then(() => db.listDatabases())
 .then(console.log)
 // { headers: { ... },
 //   data: [ '_replicator', '_users', 'testdb' ],
@@ -40,7 +40,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Request completed successfully',
 //   duration: 4 }
 
-.then(() => db.createDocument(baseUrl, dbName, {name: 'Bob'}))
+.then(() => db.createDocument(dbName, {name: 'Bob'}))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -51,7 +51,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created – Document created and stored on disk',
 //   duration: 42 }
 
-.then(() => db.createDocument(baseUrl, dbName, {name: 'Alice'}, 'doc2'))
+.then(() => db.createDocument(dbName, {name: 'Alice'}, 'doc2'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -62,7 +62,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created – Document created and stored on disk',
 //   duration: 38 }
 
-.then(() => db.getDocumentHead(baseUrl, dbName, 'doc2'))
+.then(() => db.getDocumentHead(dbName, 'doc2'))
 .then(console.log)
 // { headers:
 //    { server: 'CouchDB/1.6.1 (Erlang OTP/18)',
@@ -76,7 +76,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Document exists',
 //   duration: 6 }
 
-.then(() => db.getDocument(baseUrl, dbName, 'doc2'))
+.then(() => db.getDocument(dbName, 'doc2'))
 .then(response => { console.log(response); return response.data })
 // { headers: { ... },
 //   data:
@@ -89,7 +89,7 @@ db.createDatabase(baseUrl, dbName)
 
 .then((doc) => {
   doc.age = 42
-  return db.createDocument(baseUrl, dbName, doc, 'doc2')
+  return db.createDocument(dbName, doc, 'doc2')
 })
 .then(console.log)
 // { headers: { ... },
@@ -101,7 +101,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created – Document created and stored on disk',
 //   duration: 36 }
 
-.then(() => db.getAllDocuments(baseUrl, dbName, {
+.then(() => db.getAllDocuments(dbName, {
   descending: true,
   include_docs: true
 }))
@@ -112,7 +112,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Request completed successfully',
 //   duration: 9 }
 
-.then(() => db.createBulkDocuments(baseUrl, dbName, [
+.then(() => db.createBulkDocuments(dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
 ], {all_or_nothing: false}))
 .then(console.log)
@@ -131,7 +131,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'Created – Document(s) have been created or updated',
 //   duration: 74 }
 
-.then(() => db.findDocuments(baseUrl, dbName, {
+.then(() => db.findDocuments(dbName, {
   selector: {
     $or: [{ name: 'Tick' }, {name: 'Track'}]
   },
@@ -153,7 +153,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Request completed successfully',
 //   duration: 14 }
 
-.then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
+.then(() => db.deleteDocument(dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -164,7 +164,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Document successfully removed',
 //   duration: 39 }
 
-.then(() => db.getUuids(baseUrl, 3))
+.then(() => db.getUuids(3))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -176,7 +176,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Request completed successfully',
 //   duration: 4 }
 
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.deleteDatabase(dbName))
 .then(console.log)
 // { headers: { ... },
 //   data: { ok: true },
@@ -184,7 +184,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK - Database removed successfully',
 //   duration: 40 }
 
-.then(() => db.getUrl(baseUrl))
+.then(() => db.getUrl())
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -195,7 +195,7 @@ db.createDatabase(baseUrl, dbName)
 //   message: 'OK',
 //   duration: 3 }
 
-.then(() => db.getDocument(baseUrl, dbName, 'doc1'))
+.then(() => db.getDocument(dbName, 'doc1'))
 .catch(console.error)
 // { headers: { ... },
 //   data: { error: 'not_found', reason: 'no_db_file' },

@@ -1,19 +1,20 @@
 'use strict'
-const db = require('../index')()
+const db = require('../index')({
+  baseUrl: process.env.DB_URL || 'http://localhost:5984'
+})
 
-const baseUrl = process.env.DB_URL || 'http://localhost:5984'
 const dbName = 'testdb_' + Math.random().toString(36).slice(2, 8)
 const months = ['January', 'February', 'March', 'April', 'Mai', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 // create database and insert some documents
-db.createDatabase(baseUrl, dbName)
-.then(() => db.createBulkDocuments(baseUrl, dbName,
+db.createDatabase(dbName)
+.then(() => db.createBulkDocuments(dbName,
   months.map((x, i) => { return {name: x, number: i + 1} })
 ))
 .then(console.log)
 
 // create new design document
-.then(() => db.createDesignDocument(baseUrl, dbName, {
+.then(() => db.createDesignDocument(dbName, {
   language: 'javascript',
   views: {
     view1: {
@@ -32,7 +33,7 @@ db.createDatabase(baseUrl, dbName)
 //  duration: 271 }
 
 // get design document
-.then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
+.then(() => db.getDesignDocument(dbName, 'ddoc1'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -45,7 +46,7 @@ db.createDatabase(baseUrl, dbName)
 //  duration: 5 }
 
 // get design document info
-.then(() => db.getDesignDocumentInfo(baseUrl, dbName, 'ddoc1'))
+.then(() => db.getDesignDocumentInfo(dbName, 'ddoc1'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -69,7 +70,7 @@ db.createDatabase(baseUrl, dbName)
 
 // request some data from view
 // see https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
-.then(() => db.getView(baseUrl, dbName, 'ddoc1', 'view1', {
+.then(() => db.getView(dbName, 'ddoc1', 'view1', {
   decending: true,
   limit: 3
 }))
@@ -85,8 +86,8 @@ db.createDatabase(baseUrl, dbName)
 
 // delete design document
 // get current revision - then delete
-.then(() => db.getDesignDocument(baseUrl, dbName, 'ddoc1'))
-.then(response => db.deleteDesignDocument(baseUrl, dbName, 'ddoc1', response.data._rev))
+.then(() => db.getDesignDocument(dbName, 'ddoc1'))
+.then(response => db.deleteDesignDocument(dbName, 'ddoc1', response.data._rev))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -98,5 +99,5 @@ db.createDatabase(baseUrl, dbName)
 //   duration: 49 }
 
 // delete database
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.deleteDatabase(dbName))
 .catch(console.error)

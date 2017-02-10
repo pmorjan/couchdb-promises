@@ -1,8 +1,9 @@
 const spawn = require('child_process').spawn
 const os = require('os')
 
-const db = require('../index')()
-const baseUrl = 'http://localhost:5984'
+const db = require('../index')({
+  baseUrl: 'http://localhost:5984'
+})
 const dbName = 'testdb'
 
 /**
@@ -10,14 +11,14 @@ const dbName = 'testdb'
  * @return {Promise}
  */
 function initDB () {
-  return db.listDatabases(baseUrl)
+  return db.listDatabases()
     .then(response => {
       if (response.data.indexOf(dbName) !== -1) {
         // database already exists
         return Promise.resolve('ok')
       } else {
         // create new database
-        return db.createDatabase(baseUrl, dbName).then(() => 'ok')
+        return db.createDatabase(dbName).then(() => 'ok')
       }
     })
 }
@@ -28,12 +29,12 @@ function initDB () {
  * @return {Promise} - fulfilled with document revision
  */
 function initDocument (docName) {
-  return db.getDocument(baseUrl, dbName, docName)
+  return db.getDocument(dbName, docName)
     .then(response => response.data._rev) // document already exists
     .catch(response => {
       if (response.status === 404) {
         // create new document
-        return db.createDocument(baseUrl, dbName, {foo: 'bar'}, docName)
+        return db.createDocument(dbName, {foo: 'bar'}, docName)
           .then(response => response.data.rev)
       } else {
         // real error
@@ -53,14 +54,14 @@ function addAttachment (docName, docRev) {
   const stream = spawn('top', args).stdout
   const attName = `top-${Date.now()}.txt`
   const attContentType = 'text/plain'
-  return db.addAttachment(baseUrl, dbName, docName, attName, docRev, attContentType, stream)
+  return db.addAttachment(dbName, docName, attName, docRev, attContentType, stream)
     .then(response => response.data.rev)
 }
 
 initDB()
 .then(() => initDocument('top'))
 .then(rev => addAttachment('top', rev))
-.then(() => db.getDocument(baseUrl, dbName, 'top'))
+.then(() => db.getDocument(dbName, 'top'))
 .then(response => console.log(response.data))
 .catch(console.error)
 

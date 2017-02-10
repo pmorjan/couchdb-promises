@@ -3,8 +3,9 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
-const db = require('../index')()
-const baseUrl = 'http://localhost:5984'
+const db = require('../index')({
+  baseUrl: 'http://localhost:5984'
+})
 const dbName = 'testdb_' + Date.now()
 
 const testFile = '/bin/sh'
@@ -46,15 +47,15 @@ const attachment = {
   contentType: 'application/octet-stream'
 }
 
-db.createDatabase(baseUrl, dbName)
-.then(() => db.createDocument(baseUrl, dbName, doc1, 'myDoc'))
+db.createDatabase(dbName)
+.then(() => db.createDocument(dbName, doc1, 'myDoc'))
 
 .then(response => {
   const rev = response.data.rev
-  return db.addAttachment(baseUrl, dbName, 'myDoc', attachment.name, rev, attachment.contentType, attachment.stream)
+  return db.addAttachment(dbName, 'myDoc', attachment.name, rev, attachment.contentType, attachment.stream)
 })
 
-.then(() => db.getDocument(baseUrl, dbName, 'myDoc'))
+.then(() => db.getDocument(dbName, 'myDoc'))
 .then(log)
 // {
 //   "headers": { ... },
@@ -76,7 +77,7 @@ db.createDatabase(baseUrl, dbName)
 //   "message": "OK - Request completed successfully"
 //   "durataion": 6
 
-.then(() => db.getAttachment(baseUrl, dbName, 'myDoc', attachment.name, writeStream))
+.then(() => db.getAttachment(dbName, 'myDoc', attachment.name, writeStream))
 .then(log)
 // {
 //   "headers": { ... },
@@ -92,5 +93,5 @@ db.createDatabase(baseUrl, dbName)
 // md5 testFile: LMPCZkERLBvQFz85a312Yg==
 // md5 tempFile: LMPCZkERLBvQFz85a312Yg==
 
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.deleteDatabase(dbName))
 .catch(console.error)

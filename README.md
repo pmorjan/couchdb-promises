@@ -28,15 +28,15 @@ npm install couchdb-promises
 
 ```javascript
 const db = require('couchdb-promises')({
+  baseUrl = 'http://localhost:5984',
   requestTimeout: 5000
 })
-const baseUrl = 'http://localhost:5984'  // https://[user:password@]hostname:port
 const dbName = 'testdb'
 ```
 
 #### get info
 ```javascript
-db.getInfo(baseUrl)
+db.getInfo()
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -50,7 +50,7 @@ db.getInfo(baseUrl)
 
 #### create database
 ```javascript
-db.createDatabase(baseUrl, dbName)
+db.createDatabase(dbName)
 .then(console.log)
 // { headers: { ... },
 //   data: { ok: true },
@@ -61,7 +61,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### get database head
 ```javascript
-.then(() => db.getDatabaseHead(baseUrl, dbName))
+.then(() => db.getDatabaseHead(dbName))
 .then(console.log)
 // { headers: { ... },
 //   data: {},
@@ -72,7 +72,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### list databases
 ```javascript
-.then(() => db.listDatabases(baseUrl))
+.then(() => db.listDatabases())
 .then(console.log)
 // { headers: { ... },
 //   data: [ '_replicator', '_users', 'testdb' ],
@@ -83,7 +83,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### copy document
 ```javascript
-.then(() => db.copyDocument(baseUrl, dbName, 'doc2', 'doc3'))
+.then(() => db.copyDocument(dbName, 'doc2', 'doc3'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -97,7 +97,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### create document
 ```javascript
-.then(() => db.createDocument(baseUrl, dbName, {name: 'Bob'}))
+.then(() => db.createDocument(dbName, {name: 'Bob'}))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -111,7 +111,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### create document by id
 ```javascript
-.then(() => db.createDocument(baseUrl, dbName, {name: 'Alice'}, 'doc2'))
+.then(() => db.createDocument(dbName, {name: 'Alice'}, 'doc2'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -125,7 +125,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### get document head
 ```javascript
-.then(() => db.getDocumentHead(baseUrl, dbName, 'doc2'))
+.then(() => db.getDocumentHead(dbName, 'doc2'))
 .then(console.log)
 // { 'cache-control': 'must-revalidate',
 //   connection: 'close',
@@ -144,7 +144,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### get document
 ```javascript
-.then(() => db.getDocument(baseUrl, dbName, 'doc2'))
+.then(() => db.getDocument(dbName, 'doc2'))
 .then(response => { console.log(response); return response.data })
 // { headers: { ... },
 //   data:
@@ -160,7 +160,7 @@ db.createDatabase(baseUrl, dbName)
 ```javascript
 .then((doc) => {
   doc.age = 42
-  return db.createDocument(baseUrl, dbName, doc, 'doc2')
+  return db.createDocument(dbName, doc, 'doc2')
 })
 .then(console.log)
 // { headers: { ... },
@@ -175,7 +175,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### get all documents
 ```javascript
-.then(() => db.getAllDocuments(baseUrl, dbName, {
+.then(() => db.getAllDocuments(dbName, {
   descending: true,
   include_docs: true
 }))
@@ -189,7 +189,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### delete document
 ```javascript
-.then(() => db.deleteDocument(baseUrl, dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
+.then(() => db.deleteDocument(dbName, 'doc2', '2-ee5ea9ac0bb1bec913a9b5e7bc11b113'))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -203,7 +203,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### bulk create documents
 ```javascript
-.then(() => db.createBulkDocuments(baseUrl, dbName, [
+.then(() => db.createBulkDocuments(dbName, [
   {name: 'Tick'}, {name: 'Trick'}, {name: 'Track'}
 ], {all_or_nothing: true}))
 .then(console.log)
@@ -225,7 +225,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### find documents (requires CouchDB >= 2.0.0)
 ```javascript
-.then(() => db.findDocuments(baseUrl, dbName, {
+.then(() => db.findDocuments(dbName, {
   selector: {
     $or: [{ name: 'Tick' }, {name: 'Track'}]
   },
@@ -243,7 +243,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### get uuids
 ```javascript
-.then(() => db.getUuids(baseUrl, 3))
+.then(() => db.getUuids(3))
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -258,7 +258,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### delete database
 ```javascript
-.then(() => db.deleteDatabase(baseUrl, dbName))
+.then(() => db.deleteDatabase(dbName))
 .then(console.log)
 // { headers: { ... },
 //   data: { ok: true },
@@ -268,7 +268,7 @@ db.createDatabase(baseUrl, dbName)
 ```
 #### run generic HTTP GET request
 ```javascript
-.then(() => db.getUrl(baseUrl))
+.then(() => db.getUrl())
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -282,7 +282,7 @@ db.createDatabase(baseUrl, dbName)
 
 #### on error
 ```javascript
-.then(() => db.getDocument(baseUrl, dbName, 'doc1'))
+.then(() => db.getDocument(dbName, 'doc1'))
 .catch(console.error)
 // { headers: { ... },
 //   data: { error: 'not_found', reason: 'Database does not exist.' },
@@ -303,7 +303,7 @@ const ddoc = {
 }
 const docId = 'ddoc1'
 
-db.createDesignDocument(baseUrl, dbName, ddoc, docId)
+db.createDesignDocument(dbName, ddoc, docId)
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -317,7 +317,7 @@ db.createDesignDocument(baseUrl, dbName, ddoc, docId)
 
 #### get design document
 ```javascript
-db.getDesignDocument(baseUrl, dbName, docId)
+db.getDesignDocument(dbName, docId)
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -332,7 +332,7 @@ db.getDesignDocument(baseUrl, dbName, docId)
 
 #### get design document info
 ```javascript
-db.getDesignDocumentInfo(baseUrl, dbName, docId)
+db.getDesignDocumentInfo(dbName, docId)
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -357,7 +357,7 @@ db.getDesignDocumentInfo(baseUrl, dbName, docId)
 
 #### get view
 ```javascript
-db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
+db.getView(dbName, docId, viewName, {limit: 3})
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -371,7 +371,7 @@ db.getView(baseUrl, dbName, docId, viewName, {limit: 3})
 
 #### delete design document
 ```javascript
-db.deleteDesignDocument(baseUrl, dbName, docId, rev)
+db.deleteDesignDocument(dbName, docId, rev)
 .then(console.log)
 // { headers: { ... },
 //   data:
@@ -389,7 +389,7 @@ db.deleteDesignDocument(baseUrl, dbName, docId, rev)
 
 ### create index
 ```javascript
-db.createIndex(baseUrl, dbName, {
+db.createIndex(dbName, {
   index: {
     fields: ['foo']
   },
@@ -408,7 +408,7 @@ db.createIndex(baseUrl, dbName, {
 
 ### get index
 ```javascript
-db.getIndex(baseUrl, dbName)
+db.getIndex(dbName)
 .then(console.log)
 // { headers: { ... },
 //   data: { total_rows: 2, indexes: [ [Object], [Object] ] },
@@ -419,10 +419,10 @@ db.getIndex(baseUrl, dbName)
 
 ### delete index
 ```javascript
-db.getIndex(baseUrl, dbName)
+db.getIndex(dbName)
 .then(response => {
   const docId = response.data.indexes.find(e => e.name === 'foo-index').ddoc
-  return db.deleteIndex(baseUrl, dbName, docId, 'foo-index')
+  return db.deleteIndex(dbName, docId, 'foo-index')
 })
 .then(console.log)
 // { headers: { ... },
@@ -445,93 +445,98 @@ The options object may contain the following properties:
 *   verifyCertificate: Boolean=true - verify server SSL certificate (https only)
 
 ## database functions
-#### db.createDatabase( baseUrl, dbName )
+#### db.createDatabase( dbName )
 create new database
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#put--db)
 [[example]](examples/example.js)
 
-#### db.getDatabase( baseUrl, dbName )
+#### db.getDatabase( dbName )
 get information about the specified database
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#get--db)
 [[example]](examples/example.js)
 
-#### db.getDatabaseHead( baseUrl, dbName )
+#### db.getDatabaseHead( dbName )
 get minimal amount of information about the specified database
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#head--db)
 [[example]](examples/example.js)
 
-#### db.deleteDatabase( baseUrl, dbName )
+#### db.deleteDatabase( dbName )
 delete the specified database
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#delete--db)
 [[example]](examples/example.js)
 
-#### db.listDatabases( baseUrl )
+#### db.listDatabases()
 get list of all databases
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs)
 [[example]](examples/example.js)
 
-#### db.findDocuments( baseUrl, dbName, queryObj )
+#### db.findDocuments( dbName, queryObj )
 find documents using a declarative JSON querying syntax (CouchDB >= 2.0)
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#db-find)
 [[example]](examples/example.js)
 
 ## document functions
-#### db.getAllDocuments( baseUrl, dbName, \[queryObj] )
+#### db.getAllDocuments( dbName, \[queryObj] )
 returns a JSON structure of all of the documents in a given database
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-all-docs)
 [[example]](examples/example.js)
 
-#### db.createDocument( baseUrl, dbName, doc )
+#### db.createDocument( dbName, doc )
 create a new document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/common.html#post--db)
 [[example]](examples/example.js)
 
-#### db.createDocument( baseUrl, dbName, doc, \[docId] )
+#### db.createDocument( dbName, doc, \[docId] )
 create a new document or a new revision of the existing document.
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid)
 [[example]](examples/example.js)
 
-#### db.deleteDocument( baseUrl, dbName, docId, rev )
+#### db.deleteDocument( dbName, docId, rev )
 marks the specified document as deleted
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid)
 [[example]](examples/example.js)
 
-#### db.getDocument( baseUrl, dbName, docId, \[queryObj] )
+#### db.getDocument( dbName, docId, \[queryObj] )
 get document by the specified docId
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid)
 [[example]](examples/example.js)
 
-#### db.getDocumentHead(baseUrl, dbName, docId, \[queryObj])
+#### db.getDocumentHead(dbName, docId, \[queryObj])
 get a minimal amount of information about the specified document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/common.html#db-doc)
 [[example]](examples/example.js)
 
+#### db.copyDocument(dbName, docId, newDocId)
+copy an existing document to a new document
+<br>
+[[CouchDB API]](https://wiki.apache.org/couchdb/HTTP_Document_API#COPY)
+
 ## index functions
-#### db.createIndex( baseUrl, dbName, queryObj )
+#### db.createIndex( dbName, queryObj )
 create database index
 (CouchDB >= 2.0)
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#db-index)
 
-#### db.getIndex( baseUrl, dbName )
+#### db.getIndex( dbName )
 get all database indexes
 (CouchDB >= 2.0)
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index)
 
-#### db.deleteIndex( baseUrl, dbName, docId, name )
+#### db.deleteIndex( dbName, docId, name )
 delete database index
 (CouchDB >= 2.0)
 <br>
@@ -539,75 +544,75 @@ delete database index
 
 
 ## document attachment functions
-#### db.addAttachment( baseUrl, dbName, docId, attName, rev, contentType, data )
+#### db.addAttachment( dbName, docId, attName, rev, contentType, data )
 upload the supplied data as an attachment to the specified document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname)
 [[example]](examples/attachment.js)
 
-#### db.getAttachment( baseUrl, dbName, docId, attachmentName, writeStream, \[rev] )
+#### db.getAttachment( dbName, docId, attachmentName, writeStream, \[rev] )
 get the attachment associated with the document
 <br>
 [[CouchDB API]]( http://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname) [[example]](examples/attachment-stream.js)
 
-#### db.getAttachmentHead( baseUrl, dbName, docName, docId, attachmentName, \[rev] )
+#### db.getAttachmentHead( dbName, docName, docId, attachmentName, \[rev] )
 get minimal amount of information about the specified attachment
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/attachments.html#db-doc-attachment)
 [[example]](examples/attachment-stream.js)
 
-#### db.deleteAttachment( baseUrl, dbName, docId, attachmentName, rev )
+#### db.deleteAttachment( dbName, docId, attachmentName, rev )
 deletes the attachment attachment of the specified doc
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/document/attachments.html#delete--db-docid-attname)
 [[example]](examples/attachment.js)
 
 ## view and design document functions
-#### db.createDesignDocument( baseUrl, dbName, doc, docId )
+#### db.createDesignDocument( dbName, doc, docId )
 create new design document or new revision of an existing design document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc)
 [[example]](examples/view.js)
 
-#### db.deleteDesignDocument( baseUrl, dbName, doc, docId, rev)
+#### db.deleteDesignDocument( dbName, doc, docId, rev)
 delete design document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc)
 [[example]](examples/view.js)
 
-#### db.getDesignDocument( baseUrl, dbName, docId, queryObj )
+#### db.getDesignDocument( dbName, docId, queryObj )
 get the contents of the design document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc)
 [[example]](examples/view.js)
 
-#### db.getDesignDocumentInfo( baseUrl, dbName, docId )
+#### db.getDesignDocumentInfo( dbName, docId )
 obtain information about the specified design document, including the index, index size and current status of the design document and associated index information
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/common.html#db-design-design-doc-info)
 [[example]](examples/view.js)
 
-#### db.getView( baseUrl, dbName, docId, viewName, queryObj )
+#### db.getView( dbName, docId, viewName, queryObj )
 execute the specified view function from the specified design document
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/ddoc/views.html#db-design-design-doc-view-view-name)
 [[example]](examples/view.js)
 
 ## bulk document functions
-#### db.createBulkDocuments( baseUrl, dbName, docs, opts )
+#### db.createBulkDocuments( dbName, docs, opts )
 create or update multiple documents at the same time within a single request
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs)
 [[example]](examples/example.js)
 
 ## miscellaneous functions
-#### db.getInfo( baseUrl )
+#### db.getInfo()
 get meta information about the CouchDB server
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#get--)
 [[example]](examples/example.js)
 
-#### db.getUuids( baseUrl, count )
+#### db.getUuids( count )
 get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
 <br>
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#uuids)
