@@ -16,8 +16,8 @@ module.exports = function (opt) {
   }
   Object.assign(config, opt)
 
-  if (typeof config.baseUrl === 'undefined') {
-    throw new Error('missing property "baseUrl"')
+  if (typeof config.baseUrl !== 'string') {
+    throw new Error(`invalid or missing property 'baseUrl'`)
   }
 
   const o = urlParse(config.baseUrl)
@@ -675,6 +675,7 @@ module.exports = function (opt) {
    * @param  {String} ddocId
    * @param  {String} func
    * @param  {Object} queryObj
+   * @param  {String} docId
    * @return {Promise}
    */
   // http://docs.couchdb.org/en/latest/api/ddoc/render.html#db-design-design-doc-update-update-name-doc-id
@@ -902,4 +903,3 @@ module.exports = function (opt) {
 
   return couch
 }
-

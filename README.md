@@ -379,6 +379,25 @@ db.deleteDesignDocument(dbName, docId, rev)
 //   message: 'OK - Document successfully removed',
 //   duration: 49 }
 ```
+
+### Update Handler Functions ([update-handler.js](examples/update-handler.js))
+
+#### execute update function
+```javascript
+db.executeUpdateFunction(dbName, ddocId, func, queryObj)
+```
+
+#### execute update function for document
+```javascript
+db.executeUpdateFunction(dbName, ddocId, func, queryObj, docId)
+// { headers: { ... },
+//   status: 201,
+//   data: { text: 'added 10' },
+//   message: 'Created - Document was created or updated',
+//   duration: 49 }
+
+```
+
 ---
 
 ### Index Functions ([index.js](examples/index.js))
@@ -437,8 +456,9 @@ See [examples](examples/) for details.
 
 ## configuration
 #### db = couchdb-promises(options)
-The options object may contain the following properties:
-*   requestTimeout: Number=10000  - http request timeout in milliseconds
+The options object has the following properties:
+*   baseUrl: String -  e.g. 'http://localhost:5984' (required)
+*   requestTimeout: Number=10000  -  http request timeout in milliseconds
 *   verifyCertificate: Boolean=true - verify server SSL certificate (https only)
 
 ## database functions
