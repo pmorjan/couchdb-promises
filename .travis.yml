@@ -15,3 +15,4 @@ script:
  - node examples/attachment.js
  - node examples/attachment-stream.js
  - node examples/attachment-stream2.js
+ - node examples/update-handler.js

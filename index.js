@@ -36,7 +36,7 @@ module.exports = function (opt) {
     rejectUnauthorized: config.verifyCertificate,
     headers: {
       'user-agent': 'couchdb-promises',
-      accept: 'application/json'
+      'accept': 'application/json'
     }
   }
 
@@ -131,10 +131,17 @@ module.exports = function (opt) {
         res.on('end', function () {
           let ret
           try {
+            let data
+            // Sometimes CouchDB ignores our accept header 'application/json'
+            if (res.headers['content-type'] === 'application/json') {
+              data = JSON.parse(buffer || '{}')
+            } else {
+              data = {text: buffer}
+            }
             ret = {
               headers: res.headers,
-              data: JSON.parse(buffer || '{}'),
               status: res.statusCode,
+              data: data,
               message: statusCode(statusCodes, res.statusCode),
               duration: Date.now() - t0
             }
@@ -636,6 +643,50 @@ module.exports = function (opt) {
       method: 'GET',
       statusCodes: {
         200: 'OK - Request completed successfully'
+      }
+    })
+  }
+
+  /**
+   * Executes update function on server side for null document
+   * @param  {String} dbName
+   * @param  {String} ddocId
+   * @param  {String} func
+   * @param  {Object} queryObj
+   * @return {Promise}
+   */
+  // http://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
+  couch.executeUpdateFunction = function executeUpdateFunction (dbName, ddocId, func, queryObj) {
+    return request({
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(ddocId)}/_update/${encodeURIComponent(func)}`,
+      method: 'POST',
+      postData: queryObj,
+      statusCodes: {
+        200: 'OK - No document was created or updated',
+        201: 'Created - Document was created or updated',
+        500: 'Internal Server Error - Query sever error'
+      }
+    })
+  }
+
+  /**
+   * Executes update function on server side for the specified document
+   * @param  {String} dbName
+   * @param  {String} ddocId
+   * @param  {String} func
+   * @param  {Object} queryObj
+   * @return {Promise}
+   */
+  // http://docs.couchdb.org/en/latest/api/ddoc/render.html#db-design-design-doc-update-update-name-doc-id
+  couch.executeUpdateFunctionForDocument = function executeUpdateFunctionForDocument (dbName, ddocId, func, queryObj, docId) {
+    return request({
+      path: `${encodeURIComponent(dbName)}/_design/${encodeURIComponent(ddocId)}/_update/${encodeURIComponent(func)}/${encodeURIComponent(docId)}`,
+      method: 'PUT',
+      postData: queryObj,
+      statusCodes: {
+        200: 'OK - No document was created or updated',
+        201: 'Created - Document was created or updated',
+        500: 'Internal Server Error - Query sever error'
       }
     })
   }
