@@ -18,11 +18,10 @@ module.exports = function (opt) {
   Object.assign(config, opt)
 
   const o = urlParse(config.baseUrl)
-  if (
-    ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
+  if (!(['http:', 'https:'].indexOf(o.protocol) >= 0 &&
     o.slashes === true &&
     !Number.isNaN(parseInt(o.port, 10)) &&
-    o.hostname === false
+    o.hostname)
   ) throw new Error('invalid baseUrl')
 
   const httpOptions = {
@@ -138,7 +137,7 @@ module.exports = function (opt) {
           } catch (err) {
             ret = {
               headers: res.headers,
-              data: {error: err},
+              data: {error: err.message},
               status: 500,
               message: err.message || 'internal error',
               duration: Date.now() - t0

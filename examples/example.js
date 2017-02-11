@@ -5,8 +5,6 @@ const db = require('../index')({
 })
 const dbName = 'testdb'
 
-process.exit(0)
-
 db.getInfo()
 .then(console.log)
 // { headers: { ... },
