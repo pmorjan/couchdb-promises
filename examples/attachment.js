@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 
 const db = require('../index')({
-  baseUrl: 'http://localhost:5984'
+  baseUrl: process.env.DB_URL || 'http://localhost:5984'
 })
 const dbName = 'testdb_' + Date.now()
 

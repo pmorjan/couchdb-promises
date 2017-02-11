@@ -1,5 +1,6 @@
+'use strict'
 const db = require('../index')({
-  baseUrl: 'http://localhost:5984',
+  baseUrl: process.env.DB_URL || 'http://localhost:5984',
   requestTimeout: 5000
 })
 const dbName = 'simpledb'

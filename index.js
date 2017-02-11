@@ -11,14 +11,18 @@ const QUERY_KEYS_JSON = ['key', 'keys', 'startkey', 'endkey']
 
 module.exports = function (opt) {
   const config = {
-    baseUrl: 'http://localhost:5984',
     requestTimeout: 10000, // ms
     verifyCertificate: true
   }
   Object.assign(config, opt)
 
+  if (typeof config.baseUrl === 'undefined') {
+    throw new Error('missing property "baseUrl"')
+  }
+
   const o = urlParse(config.baseUrl)
-  if (!(['http:', 'https:'].indexOf(o.protocol) >= 0 &&
+  if (!(
+    ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
     o.slashes === true &&
     !Number.isNaN(parseInt(o.port, 10)) &&
     o.hostname)

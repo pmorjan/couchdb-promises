@@ -28,7 +28,7 @@ npm install couchdb-promises
 
 ```javascript
 const db = require('couchdb-promises')({
-  baseUrl = 'http://localhost:5984',
+  baseUrl: 'http://localhost:5984', // required
   requestTimeout: 10000
 })
 const dbName = 'testdb'
@@ -79,20 +79,6 @@ db.createDatabase(dbName)
 //   status: 200,
 //   message: 'OK - Request completed successfully',
 //   duration: 4 }
-```
-
-#### copy document
-```javascript
-.then(() => db.copyDocument(dbName, 'doc2', 'doc3'))
-.then(console.log)
-// { headers: { ... },
-//   data:
-//    { ok: true,
-//      id: 'doc3',
-//      rev: '1-4c6114c65e295552ab1019e2b046b10e' },
-//   status: 201,
-//   message: 'Created – Document created and stored on disk',
-//   duration: 42 }
 ```
 
 #### create document
@@ -199,6 +185,20 @@ db.createDatabase(dbName)
 //   status: 200,
 //   message: 'OK - Document successfully removed',
 //   duration: 39 }
+```
+
+#### copy document
+```javascript
+.then(() => db.copyDocument(dbName, 'doc', 'docCopy'))
+.then(console.log)
+// { headers: { ... },
+//   data:
+//    { ok: true,
+//      id: 'doc3',
+//      rev: '1-4c6114c65e295552ab1019e2b046b10e' },
+//   status: 201,
+//   message: 'Created – Document created and stored on disk',
+//   duration: 42 }
 ```
 
 #### bulk create documents
@@ -615,6 +615,6 @@ get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#uuids)
 [[example]](examples/example.js)
 
-#### db.getUrlPath( url )
+#### db.getUrlPath( path )
 generic http GET request function
 <br>[[example]](examples/example.js)

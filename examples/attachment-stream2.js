@@ -2,7 +2,7 @@ const spawn = require('child_process').spawn
 const os = require('os')
 
 const db = require('../index')({
-  baseUrl: 'http://localhost:5984'
+  baseUrl: process.env.DB_URL || 'http://localhost:5984'
 })
 const dbName = 'testdb'
 
