@@ -17,7 +17,6 @@ module.exports = function (opt) {
   }
   Object.assign(config, opt)
 
-  console.log('debug: ' + config.baseUrl)
   const o = urlParse(config.baseUrl)
   if (
     ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
@@ -840,7 +839,7 @@ module.exports = function (opt) {
    * @param  {String} path    e.g. '_all_dbs'
    * @return {Promise}
    */
-  couch.getPath = function (path) {
+  couch.getUrlPath = function (path) {
     return request({
       path: path,
       methode: 'GET'

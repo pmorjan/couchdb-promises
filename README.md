@@ -29,7 +29,7 @@ npm install couchdb-promises
 ```javascript
 const db = require('couchdb-promises')({
   baseUrl = 'http://localhost:5984',
-  requestTimeout: 5000
+  requestTimeout: 10000
 })
 const dbName = 'testdb'
 ```
@@ -268,16 +268,13 @@ db.createDatabase(dbName)
 ```
 #### run generic HTTP GET request
 ```javascript
-.then(() => db.getUrl())
+.then(() => db.getUrlPath('_all_dbs'))
 .then(console.log)
 // { headers: { ... },
-//   data:
-//    { couchdb: 'Welcome',
-//      version: '2.0.0',
-//      vendor: { name: 'The Apache Software Foundation' } },
-//   status: 200,
-//   message: 'OK',
-//   duration: 3 }
+//  data: [ '_replicator', '_users' ],
+//  status: 200,
+//  message: 'OK',
+//  duration: 6 }
 ```
 
 #### on error
@@ -618,6 +615,6 @@ get one or more Universally Unique Identifiers (UUIDs) from the CouchDB server
 [[CouchDB API]](http://docs.couchdb.org/en/latest/api/server/common.html#uuids)
 [[example]](examples/example.js)
 
-#### db.getUrl( url )
+#### db.getUrlPath( url )
 generic http GET request function
 <br>[[example]](examples/example.js)

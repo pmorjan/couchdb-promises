@@ -5,6 +5,8 @@ const db = require('../index')({
 })
 const dbName = 'testdb'
 
+process.exit(0)
+
 db.getInfo()
 .then(console.log)
 // { headers: { ... },
@@ -184,16 +186,13 @@ db.createDatabase(dbName)
 //   message: 'OK - Database removed successfully',
 //   duration: 40 }
 
-.then(() => db.getUrl())
+.then(() => db.getUrlPath('_all_dbs'))
 .then(console.log)
 // { headers: { ... },
-//   data:
-//    { couchdb: 'Welcome',
-//      version: '2.0.0',
-//      vendor: { name: 'The Apache Software Foundation' } },
-//   status: 200,
-//   message: 'OK',
-//   duration: 3 }
+//  data: [ '_replicator', '_users' ],
+//    status: 200,
+//    message: 'OK',
+//    duration: 6 }
 
 .then(() => db.getDocument(dbName, 'doc1'))
 .catch(console.error)

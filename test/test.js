@@ -44,9 +44,9 @@ function checkResponse (t, response, status) {
   return response
 }
 
-test('getPath()', function (t) {
+test('getUrlPath()', function (t) {
   t.plan(1)
-  db.getPath('_all_dbs')
+  db.getUrlPath('_all_dbs')
   .then(response => checkResponse(t, response, 200))
   .catch(response => console.error(util.inspect(response)))
 })
