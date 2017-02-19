@@ -19,6 +19,12 @@ module.exports = function (opt) {
   if (typeof config.baseUrl !== 'string') {
     throw new Error(`invalid or missing property 'baseUrl'`)
   }
+  if (typeof config.requestTimeout !== 'number' || isNaN(config.requestTimeout)) {
+    throw new Error(`invalid property 'requestTimeout'`)
+  }
+  if (typeof config.verifyCertificate !== 'boolean') {
+    throw new Error(`invalid property 'verifyCertificate'`)
+  }
 
   const o = urlParse(config.baseUrl)
   if (!(

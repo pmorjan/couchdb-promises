@@ -44,6 +44,13 @@ function checkResponse (t, response, status) {
   return response
 }
 
+test('options object', function (t) {
+  t.plan(3)
+  t.throws(() => couchdb({baseUrl: 42}), /baseUrl/, 'throws on invalid baseUrl')
+  t.throws(() => couchdb({baseUrl: baseUrl, requestTimeout: 'a'}), /requestTimeout/, 'throws on invalid requestTimeout')
+  t.throws(() => couchdb({baseUrl: baseUrl, verifyCertificate: 42}), /verifyCertificate/, 'throws on invalid verifyCertificate')
+})
+
 test('getUrlPath()', function (t) {
   t.plan(1)
   db.getUrlPath('_all_dbs')
