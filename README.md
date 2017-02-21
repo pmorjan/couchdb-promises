@@ -389,7 +389,7 @@ db.executeUpdateFunction(dbName, ddocId, func, queryObj)
 
 #### execute update function for document
 ```javascript
-db.executeUpdateFunction(dbName, ddocId, func, queryObj, docId)
+db.executeUpdateFunctionForDocument(dbName, ddocId, func, queryObj, docId)
 // { headers: { ... },
 //   status: 201,
 //   data: { text: 'added 10' },

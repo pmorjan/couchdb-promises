@@ -2,6 +2,26 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 3.0.0 - 2017-02-21
+- baseUrl is now a required property of the options object. This is an API breaking change.
+
+```
+old:
+const db = require('couchdb-promises')({})
+const baseUrl = 'http://localhost:5984'
+db.getDocument(baseUrl, dbName, 'mydoc')
+
+new:
+const db = require('couchdb-promises')({
+    baseUrl: 'http://localhost:5984'
+})
+db.getDocument(dbName, 'mydoc')
+```
+
+- new functions for server-side update handlers. See [Document_Update_Handlers](https://wiki.apache.org/couchdb/Document_Update_Handlers) for details
+ + executeUpdateFunction()
+ + executeUpdateFunctionForDocument()
+
 ## 2.0.0 - 2017-01-29
 - require now returns a factory function with an optional property object.
 This is an API breaking change.
@@ -40,7 +60,7 @@ const db = require('couchdb-promises')({
 - getAttachment() no longer fails if given writable stream is an http.ServerResponse object
 
 ## 1.2.0 - 2016-10-11
-New functions for working with attachments either as Buffer, String 
+New functions for working with attachments either as Buffer, String
 or Stream.
 - Add new function getAttachment()
 - Add new function getAttachmentHead()
