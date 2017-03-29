@@ -27,10 +27,11 @@ module.exports = function (opt) {
   }
 
   const o = urlParse(config.baseUrl)
+
   if (!(
     ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
     o.slashes === true &&
-    !Number.isNaN(parseInt(o.port, 10)) &&
+    ((o.port !== null) ? !Number.isNaN(parseInt(o.port, 10)) : true) &&
     o.hostname)
   ) throw new Error('invalid baseUrl')
 
