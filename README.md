@@ -42,7 +42,7 @@ const dbName = 'testdb'
   verifyCertificate: true, // optional, default true
   basicAuthentication: 'admin:admin' // optional, format: {username}:{password}
 }
-````
+```
 
 #### get info
 ```javascript
