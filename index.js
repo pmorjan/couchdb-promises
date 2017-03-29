@@ -27,10 +27,11 @@ module.exports = function (opt) {
   }
 
   const o = urlParse(config.baseUrl)
+
   if (!(
     ['http:', 'https:'].indexOf(o.protocol) >= 0 &&
     o.slashes === true &&
-    !Number.isNaN(parseInt(o.port, 10)) &&
+    ((o.port !== null) ? !Number.isNaN(parseInt(o.port, 10)) : true) &&
     o.hostname)
   ) throw new Error('invalid baseUrl')
 
@@ -44,6 +45,12 @@ module.exports = function (opt) {
       'user-agent': 'couchdb-promises',
       'accept': 'application/json'
     }
+  }
+
+  // AUTHENTICATION
+  // Check if there is a basicAuthentication property
+  if (config.hasOwnProperty('basicAuthentication')) {
+    httpOptions.headers['authorization'] = 'Basic ' + Buffer.from(config.basicAuthentication).toString('base64')
   }
 
   function createQueryString (queryObj) {
