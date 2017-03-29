@@ -47,6 +47,12 @@ module.exports = function (opt) {
     }
   }
 
+  // AUTHENTICATION
+  // Check if there is a basicAuthentication property
+  if (config.hasOwnProperty('basicAuthentication')) {
+    httpOptions.headers['authorization'] = 'Basic '+ Buffer.from(config.basicAuthentication).toString('base64')
+  }
+
   function createQueryString (queryObj) {
     const obj = Object.assign({}, queryObj)
     QUERY_KEYS_JSON.forEach(key => {

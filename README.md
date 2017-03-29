@@ -34,6 +34,16 @@ const db = require('couchdb-promises')({
 const dbName = 'testdb'
 ```
 
+### Options
+```javascript
+{
+  baseUrl: 'http://localhost:5984', // required
+  requestTimeout: 10000, // optional, default 10000 (ms)
+  verifyCertificate: true, // optional, default true
+  basicAuthentication: 'admin:admin' // optional, format: {username}:{password}
+}
+````
+
 #### get info
 ```javascript
 db.getInfo()
