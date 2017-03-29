@@ -228,11 +228,7 @@ module.exports = function (opt) {
           duration: Date.now() - t0
         }
 
-        if (ret.status < 400) {
           return resolve(ret)
-        } else {
-          return reject(ret)
-        }
       })
 
       req.setTimeout(config.requestTimeout, function () {
